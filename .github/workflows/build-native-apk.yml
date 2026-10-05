@@ -1,0 +1,106 @@
+name: Build Novaris Native APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'native/v0.4.0/**'
+      - '.github/workflows/build-native-apk.yml'
+
+jobs:
+  build-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Reconstruct native source
+        shell: bash
+        run: |
+          cat native/v0.4.0/part*.b64 | base64 --decode > Novaris-Native-v0.4.0-source.zip
+          mkdir native-build
+          unzip -q Novaris-Native-v0.4.0-source.zip -d native-build
+          test -f native-build/tools/convert_pokedex.py
+          test -f native-build/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install converter dependencies
+        run: pip install --disable-pip-version-check lxml gdown
+
+      - name: Download Pokédex V27.42 source
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          import gdown
+
+          file_id = "1nJXr8dzR-x2ndKvRAFMsIoH3T0KtJPRi"
+          output = "Pokedex_V27_42.html"
+          result = gdown.download(id=file_id, output=output, quiet=False)
+          if not result or not os.path.exists(output):
+              raise SystemExit("Pokédex download failed")
+          size = os.path.getsize(output)
+          print(f"Downloaded {size:,} bytes")
+          if size < 100_000_000:
+              raise SystemExit(f"Pokédex download is incomplete: {size:,} bytes")
+          PY
+
+      - name: Convert HTML to native SQLite data
+        shell: bash
+        run: |
+          mkdir -p native-build/app/src/main/assets
+          python native-build/tools/convert_pokedex.py \
+            Pokedex_V27_42.html \
+            native-build/app/src/main/assets/pokedex.db.gz \
+            --version V27.42
+          ls -lh native-build/app/src/main/assets/pokedex.db.gz
+
+      - name: Restore stable signing key
+        shell: bash
+        run: |
+          base64 --decode native-build/signing-key.b64 > native-build/novaris-local-signing.jks
+          test -s native-build/novaris-local-signing.jks
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Build native APK
+        working-directory: native-build
+        run: gradle assembleDebug --stacktrace
+
+      - name: Prepare artifacts
+        shell: bash
+        run: |
+          cp native-build/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.4.0.apk
+          cp native-build/app/src/main/assets/pokedex.db.gz Novaris-Pokedex-Data-V27_42.db.gz
+
+      - name: Upload native APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Novaris-Pokedex-Native-v0.4.0
+          path: Novaris-Pokedex-Native-v0.4.0.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload converted data source
+        uses: actions/upload-artifact@v4
+        with:
+          name: Novaris-Pokedex-Data-V27_42
+          path: Novaris-Pokedex-Data-V27_42.db.gz
+          if-no-files-found: error
+          retention-days: 14
