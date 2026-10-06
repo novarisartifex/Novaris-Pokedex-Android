@@ -47,8 +47,14 @@ jobs:
         shell: bash
         run: |
           mkdir -p native-build/app/src/main/assets
-          python native-build/tools/convert_pokedex.py             Pokedex_V27_42.html             native-build/app/src/main/assets/pokedex.db.gz             --version V27.42
-          ls -lh native-build/app/src/main/assets/pokedex.db.gz
+          python native-build/tools/convert_pokedex.py             Pokedex_V27_42.html             native-build/app/src/main/assets/pokedex.db.gzdata             --version V27.42
+          ls -lh native-build/app/src/main/assets/pokedex.db.gzdata
+
+      - name: Patch database asset name
+        shell: bash
+        run: |
+          sed -i 's/pokedex\.db\.gz/pokedex.db.gzdata/g' native-build/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java
+          grep -n "pokedex.db" native-build/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java
 
       - name: Restore stable signing key
         shell: bash
@@ -75,7 +81,7 @@ jobs:
         shell: bash
         run: |
           cp native-build/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.4.0.apk
-          cp native-build/app/src/main/assets/pokedex.db.gz Novaris-Pokedex-Data-V27_42.db.gz
+          cp native-build/app/src/main/assets/pokedex.db.gzdata Novaris-Pokedex-Data-V27_42.db.gz
 
       - name: Upload native APK
         uses: actions/upload-artifact@v4
