@@ -1,0 +1,103 @@
+name: Build Novaris Native v0.5.2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'native/v0.5.2/**'
+      - '.github/workflows/build-native-v052.yml'
+      - 'Pokedex_V27_42.html.gz'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reconstruct v0.4 source
+        shell: bash
+        run: |
+          cat native/v0.4.0/part*.b64 | base64 --decode > source.zip
+          mkdir appsrc
+          unzip -q source.zip -d appsrc
+
+      - name: Apply v0.5.0 patch
+        shell: bash
+        run: |
+          cat native/v0.5.0/patch*.b64 | base64 --decode | gunzip > v050.patch
+          (cd appsrc && patch -p1 < ../v050.patch)
+
+      - name: Apply v0.5.1 patch
+        shell: bash
+        run: |
+          cat native/v0.5.1/patch*.b64 | base64 --decode | gunzip > v051.patch
+          (cd appsrc && patch -p1 < ../v051.patch)
+
+      - name: Apply v0.5.2 patch
+        shell: bash
+        run: |
+          cat native/v0.5.2/patch*.b64 | base64 --decode | gunzip > v052.patch
+          (cd appsrc && patch -p1 < ../v052.patch)
+          grep -n 'Erstelle mir jetzt einen Downloadlink' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java
+          grep -n 'versionName = "0.5.2-native"' appsrc/app/build.gradle.kts
+
+      - name: Restore stable signing key
+        shell: bash
+        run: |
+          base64 --decode appsrc/signing-key.b64 > appsrc/novaris-local-signing.jks
+          test -s appsrc/novaris-local-signing.jks
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install converter
+        run: pip install --disable-pip-version-check lxml
+
+      - name: Prepare source data
+        shell: bash
+        run: |
+          gunzip -c Pokedex_V27_42.html.gz > Pokedex_V27_42.html
+          test $(stat -c%s Pokedex_V27_42.html) -ge 100000000
+
+      - name: Convert V27.42
+        shell: bash
+        run: |
+          mkdir -p appsrc/app/src/main/assets
+          python appsrc/tools/convert_pokedex.py Pokedex_V27_42.html appsrc/app/src/main/assets/pokedex.db.gzdata --version V27.42
+          test -s appsrc/app/src/main/assets/pokedex.db.gzdata
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Build APK
+        working-directory: appsrc
+        run: gradle assembleDebug --stacktrace
+
+      - name: Verify stable signing certificate
+        shell: bash
+        run: |
+          jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
+
+      - name: Prepare APK
+        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.2.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Novaris-Pokedex-Native-v0.5.2
+          path: Novaris-Pokedex-Native-v0.5.2.apk
+          if-no-files-found: error
+          retention-days: 14
