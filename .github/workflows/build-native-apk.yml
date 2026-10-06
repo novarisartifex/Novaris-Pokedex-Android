@@ -7,6 +7,7 @@ on:
     paths:
       - 'native/v0.4.0/**'
       - '.github/workflows/build-native-apk.yml'
+      - 'Pokedex_V27_42.html.gz'
 
 jobs:
   build-native:
@@ -32,24 +33,15 @@ jobs:
           python-version: '3.12'
 
       - name: Install converter dependencies
-        run: pip install --disable-pip-version-check lxml gdown
+        run: pip install --disable-pip-version-check lxml
 
-      - name: Download Pokédex V27.42 source
+      - name: Prepare Pokédex V27.42 source
         shell: bash
         run: |
-          python - <<'PY'
-          import os
-          import gdown
-          file_id = "1nJXr8dzR-x2ndKvRAFMsIoH3T0KtJPRi"
-          output = "Pokedex_V27_42.html"
-          result = gdown.download(id=file_id, output=output, quiet=False)
-          if not result or not os.path.exists(output):
-              raise SystemExit("Pokédex download failed")
-          size = os.path.getsize(output)
-          print(f"Downloaded {size:,} bytes")
-          if size < 100_000_000:
-              raise SystemExit(f"Pokédex download is incomplete: {size:,} bytes")
-          PY
+          gunzip -c Pokedex_V27_42.html.gz > Pokedex_V27_42.html
+          size=$(stat -c%s Pokedex_V27_42.html)
+          echo "Prepared $size bytes"
+          test "$size" -ge 100000000
 
       - name: Convert HTML to native SQLite data
         shell: bash
