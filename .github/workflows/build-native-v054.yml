@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           for v in 0.5.0 0.5.1 0.5.2 0.5.3; do
-            cat native/$v/patch*.b64 | base64 --decode | gunzip > $v.patch
+            if [ "$v" = "0.5.0" ]; then cat native/0.5.0/patch00.b64 native/0.5.0/patch01.b64 native/0.5.0/patch02.b64 | base64 --decode | gunzip > $v.patch; else cat native/$v/patch00.b64 | base64 --decode | gunzip > $v.patch; fi
             (cd appsrc && patch -p1 < ../$v.patch)
           done
 
