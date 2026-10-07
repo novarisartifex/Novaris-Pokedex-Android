@@ -1,0 +1,174 @@
+name: Build Novaris Native v0.5.4
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'native/v0.5.4/**'
+      - '.github/workflows/build-native-v054.yml'
+      - 'Pokedex_V27_42.html.gz'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reconstruct source
+        shell: bash
+        run: |
+          cat native/v0.4.0/part*.b64 | base64 --decode > source.zip
+          mkdir appsrc
+          unzip -q source.zip -d appsrc
+
+      - name: Apply previous feature patches
+        shell: bash
+        run: |
+          for v in 0.5.0 0.5.1 0.5.2 0.5.3; do
+            cat native/$v/patch*.b64 | base64 --decode | gunzip > $v.patch
+            (cd appsrc && patch -p1 < ../$v.patch)
+          done
+
+      - name: Apply v0.5.4 navigation and button-order changes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          main = Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java")
+          s = main.read_text()
+
+          old = 'private boolean restorePosition;'
+          new = 'private boolean restorePosition;\n    private final List<Integer> currentPokemonDexes = new ArrayList<>();'
+          if old not in s:
+              raise SystemExit("MainActivity field anchor not found")
+          s = s.replace(old, new, 1)
+
+          old = 'runOnUiThread(()->{if(seq!=querySeq.get()||currentTab.equals("pokedex")==false||list!=activeList)return; list.setAdapter(new PokemonAdapter(items,false)); pCount.setText(items.size()+" Einträge"); restoreScrollIfNeeded("p",list);});'
+          new = 'runOnUiThread(()->{if(seq!=querySeq.get()||currentTab.equals("pokedex")==false||list!=activeList)return; currentPokemonDexes.clear(); for(DatabaseManager.PokemonItem x:items) currentPokemonDexes.add(x.dex); list.setAdapter(new PokemonAdapter(items,false)); pCount.setText(items.size()+" Einträge"); restoreScrollIfNeeded("p",list);});'
+          if old not in s:
+              raise SystemExit("refreshPokedex anchor not found")
+          s = s.replace(old, new, 1)
+
+          old = 'r.setOnClickListener(v->openPokemon(p.dex));return r;'
+          new = 'r.setOnClickListener(v->openPokemon(p.dex,pos,items));return r;'
+          if old not in s:
+              raise SystemExit("Pokemon click anchor not found")
+          s = s.replace(old, new, 1)
+
+          old = 'private void openPokemon(int dex){Intent i=new Intent(this,DetailActivity.class);i.putExtra("type","pokemon");i.putExtra("dex",dex);startActivity(i);}private void openCharacter'
+          new = 'private void openPokemon(int dex,int position,List<DatabaseManager.PokemonItem> items){Intent i=new Intent(this,DetailActivity.class);i.putExtra("type","pokemon");i.putExtra("dex",dex);int[] nav=new int[items.size()];for(int k=0;k<items.size();k++)nav[k]=items.get(k).dex;i.putExtra("nav_dexes",nav);i.putExtra("nav_index",position);startActivity(i);}private void openCharacter'
+          if old not in s:
+              raise SystemExit("openPokemon anchor not found")
+          s = s.replace(old, new, 1)
+
+          main.write_text(s)
+
+          detail = Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java")
+          s = detail.read_text()
+
+          old = 'private LinearLayout body;'
+          new = 'private LinearLayout body;\n    private int[] navDexes = new int[0];\n    private int navIndex = -1;\n    private float swipeDownX, swipeDownY;'
+          if old not in s:
+              raise SystemExit("Detail fields anchor not found")
+          s = s.replace(old, new, 1)
+
+          old = 'ScrollView scroll=new ScrollView(this);body=new LinearLayout(this);'
+          new = 'ScrollView scroll=new ScrollView(this);body=new LinearLayout(this);'
+          # Add swipe listener immediately after setContentView.
+          anchor = 'setContentView(scroll);\n        String type=getIntent().getStringExtra("type");'
+          repl = 'setContentView(scroll);\n        navDexes=getIntent().getIntArrayExtra("nav_dexes");if(navDexes==null)navDexes=new int[0];navIndex=getIntent().getIntExtra("nav_index",-1);\n        scroll.setOnTouchListener((v,event)->handleSwipe(event,scroll));\n        String type=getIntent().getStringExtra("type");'
+          if anchor not in s:
+              raise SystemExit("Detail onCreate anchor not found")
+          s = s.replace(anchor, repl, 1)
+
+          old = 'private void showPokemon(int dex){\n        DatabaseManager.PokemonDetail d=data.pokemonDetail(dex);'
+          new = 'private void showPokemon(int dex){\n        body.removeAllViews();\n        DatabaseManager.PokemonDetail d=data.pokemonDetail(dex);'
+          if old not in s:
+              raise SystemExit("showPokemon anchor not found")
+          s = s.replace(old, new, 1)
+
+          # Put image-copy before filename button for forms and shinies.
+          old = 'Button fn=button(formFile);fn.setOnClickListener(v->copy(formFile+DOWNLOAD_SUFFIX));card.addView(fn,new LinearLayout.LayoutParams(match(),wrap()));\n                Button ci=button("Copy image");ci.setOnClickListener(v->ImageClipboard.copy(this,url));card.addView(ci,new LinearLayout.LayoutParams(match(),wrap()));'
+          new = 'Button ci=button("Copy image");ci.setOnClickListener(v->ImageClipboard.copy(this,url));card.addView(ci,new LinearLayout.LayoutParams(match(),wrap()));\n                Button fn=button(formFile);fn.setOnClickListener(v->copy(formFile+DOWNLOAD_SUFFIX));card.addView(fn,new LinearLayout.LayoutParams(match(),wrap()));'
+          if old not in s:
+              raise SystemExit("form button order anchor not found")
+          s = s.replace(old, new, 1)
+
+          old = 'Button fn=button(shinyFile);fn.setOnClickListener(v->copy(shinyFile+DOWNLOAD_SUFFIX));card.addView(fn,new LinearLayout.LayoutParams(match(),wrap()));\n                Button ci=button("Copy shiny image");ci.setOnClickListener(v->ImageClipboard.copy(this,url));card.addView(ci,new LinearLayout.LayoutParams(match(),wrap()));'
+          new = 'Button ci=button("Copy shiny image");ci.setOnClickListener(v->ImageClipboard.copy(this,url));card.addView(ci,new LinearLayout.LayoutParams(match(),wrap()));\n                Button fn=button(shinyFile);fn.setOnClickListener(v->copy(shinyFile+DOWNLOAD_SUFFIX));card.addView(fn,new LinearLayout.LayoutParams(match(),wrap()));'
+          if old not in s:
+              raise SystemExit("shiny button order anchor not found")
+          s = s.replace(old, new, 1)
+
+          anchor = 'private void copy(String s){'
+          method = '''private boolean handleSwipe(MotionEvent e,ScrollView scroll){\n        if(!"pokemon".equals(getIntent().getStringExtra("type")))return false;\n        if(e.getActionMasked()==MotionEvent.ACTION_DOWN){swipeDownX=e.getX();swipeDownY=e.getY();return false;}\n        if(e.getActionMasked()==MotionEvent.ACTION_UP){float dx=e.getX()-swipeDownX,dy=e.getY()-swipeDownY;if(Math.abs(dx)>dp(80)&&Math.abs(dx)>Math.abs(dy)*1.2f&&navDexes.length>1&&navIndex>=0){int next=navIndex+(dx<0?1:-1);if(next>=0&&next<navDexes.length){navIndex=next;showPokemon(navDexes[navIndex]);scroll.post(()->scroll.scrollTo(0,0));}}}return false;}\n    private void copy(String s){'''
+          if anchor not in s:
+              raise SystemExit("copy anchor not found")
+          s = s.replace(anchor, method, 1)
+
+          detail.write_text(s)
+          PY
+
+          grep -n "currentPokemonDexes\|navDexes\|handleSwipe\|Copy image\|Copy shiny image" appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java
+
+      - name: Restore stable signing key
+        shell: bash
+        run: |
+          base64 --decode appsrc/signing-key.b64 > appsrc/novaris-local-signing.jks
+          test -s appsrc/novaris-local-signing.jks
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install converter
+        run: pip install --disable-pip-version-check lxml
+
+      - name: Prepare source data
+        shell: bash
+        run: |
+          gunzip -c Pokedex_V27_42.html.gz > Pokedex_V27_42.html
+          test $(stat -c%s Pokedex_V27_42.html) -ge 100000000
+
+      - name: Convert V27.42
+        shell: bash
+        run: |
+          mkdir -p appsrc/app/src/main/assets
+          python appsrc/tools/convert_pokedex.py Pokedex_V27_42.html appsrc/app/src/main/assets/pokedex.db.gzdata --version V27.42
+          test -s appsrc/app/src/main/assets/pokedex.db.gzdata
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Build APK
+        working-directory: appsrc
+        run: gradle assembleDebug --stacktrace
+
+      - name: Verify stable signing certificate
+        shell: bash
+        run: |
+          jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
+
+      - name: Prepare APK
+        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.4.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Novaris-Pokedex-Native-v0.5.4
+          path: Novaris-Pokedex-Native-v0.5.4.apk
+          if-no-files-found: error
+          retention-days: 14
