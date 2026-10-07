@@ -36,16 +36,8 @@ jobs:
       - name: Apply previous feature patches
         shell: bash
         run: |
-          fetch_patch() {
-            local path="$1"
-            curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/novarisartifex/Novaris-Pokedex-Android/contents/$path?ref=$GITHUB_SHA" | jq -r '.content' | tr -d '\\n'
-          }
           for v in 0.5.0 0.5.1 0.5.2 0.5.3; do
-            if [ "$v" = "0.5.0" ]; then
-              { fetch_patch native/0.5.0/patch00.b64; fetch_patch native/0.5.0/patch01.b64; fetch_patch native/0.5.0/patch02.b64; } | base64 --decode | gunzip > $v.patch
-            else
-              fetch_patch native/$v/patch00.b64 | base64 --decode | gunzip > $v.patch
-            fi
+            if [ "$v" = "0.5.0" ]; then cat native/0.5.0/patch00.b64 native/0.5.0/patch01.b64 native/0.5.0/patch02.b64 | base64 --decode | gunzip > $v.patch; else cat native/$v/patch00.b64 | base64 --decode | gunzip > $v.patch; fi
             (cd appsrc && patch -p1 < ../$v.patch)
           done
 
