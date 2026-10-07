@@ -20,7 +20,15 @@ jobs:
         shell: bash
         run: |
           find appsrc/app/src/main/java -type f -name '*.java' -print
+          cat native/v0.5.0/patch*.b64 | base64 --decode | gunzip > v050.patch
+          (cd appsrc && patch -p1 < ../v050.patch)
+          cat native/v0.5.1/patch*.b64 | base64 --decode | gunzip > v051.patch
+          (cd appsrc && patch -p1 < ../v051.patch)
+          cat native/v0.5.2/patch*.b64 | base64 --decode | gunzip > v052.patch
+          (cd appsrc && patch -p1 < ../v052.patch)
+          cat native/v0.5.3/patch*.b64 | base64 --decode | gunzip > v053.patch
+          (cd appsrc && patch -p1 < ../v053.patch)
           echo '--- DetailActivity ---'
-          sed -n '1,260p' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java
+          sed -n '1,340p' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java
           echo '--- MainActivity ---'
           sed -n '1,320p' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java
