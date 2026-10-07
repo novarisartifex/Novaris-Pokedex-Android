@@ -27,6 +27,12 @@ jobs:
           mkdir appsrc
           unzip -q source.zip -d appsrc
 
+      - name: Restore patch files from git object database
+        shell: bash
+        run: |
+          git checkout HEAD -- native/v0.5.0 native/v0.5.1 native/v0.5.2 native/v0.5.3
+          ls -la native/v0.5.0 native/v0.5.1 native/v0.5.2 native/v0.5.3
+
       - name: Apply previous feature patches
         shell: bash
         run: |
