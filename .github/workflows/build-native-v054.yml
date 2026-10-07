@@ -9,6 +9,9 @@ on:
       - '.github/workflows/build-native-v054.yml'
       - 'Pokedex_V27_42.html.gz'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-22.04
