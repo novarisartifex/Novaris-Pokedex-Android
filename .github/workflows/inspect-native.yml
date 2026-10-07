@@ -1,0 +1,23 @@
+name: Inspect native source
+
+on:
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct
+        run: |
+          cat native/v0.4.0/part*.b64 | base64 --decode > source.zip
+          mkdir appsrc
+          unzip -q source.zip -d appsrc
+      - name: Show source
+        shell: bash
+        run: |
+          find appsrc/app/src/main/java -type f -name '*.java' -print
+          echo '--- DetailActivity ---'
+          sed -n '1,260p' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java
+          echo '--- MainActivity ---'
+          sed -n '1,320p' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java
