@@ -166,6 +166,68 @@ jobs:
           sed -n '1,75p;175,215p' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java
           sed -n '1,90p' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java
 
+      - name: Wire safe data updates into app
+        shell: bash
+        run: |
+          install -m 0644 native/v0.5.6/DatabaseUpdateInstaller.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseUpdateInstaller.java
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java")
+          s=p.read_text()
+          old='Button source=button("Datenquelle"); source.setOnClickListener(v->pickDataSource()); head.addView(source);'
+          new=old+' Button update=button("Online-Update"); update.setOnClickListener(v->checkOnlineUpdate()); head.addView(update);'
+          assert old in s
+          s=s.replace(old,new,1)
+          anchor='    private void buildShell(){'
+          assert anchor in s
+          method='''    private void checkOnlineUpdate(){
+              Toast.makeText(this,"Prüfe Datenupdate …",Toast.LENGTH_SHORT).show();
+              exec.execute(()->{
+                  try {
+                      org.json.JSONObject release=RemoteDataUpdater.check();
+                      int version=release.getInt("data_version");
+                      int minApp=release.getInt("min_app_version_code");
+                      String installed=data.metadata("source_version");
+                      int current=0;
+                      java.util.regex.Matcher m=java.util.regex.Pattern.compile("([0-9]+)\\\\.([0-9]+)").matcher(installed);
+                      if(m.find())current=Integer.parseInt(m.group(1))*100+Integer.parseInt(m.group(2));
+                      if(minApp>11)throw new java.io.IOException("App-Version zu alt für dieses Datenupdate");
+                      if(version<=current){
+                          runOnUiThread(()->new AlertDialog.Builder(this).setMessage("Daten sind aktuell: "+installed).setPositiveButton("OK",null).show());
+                          return;
+                      }
+                      runOnUiThread(()->new AlertDialog.Builder(this).setTitle("Datenupdate verfügbar")
+                          .setMessage("Version "+version+" herunterladen und sicher installieren?")
+                          .setNegativeButton("Abbrechen",null)
+                          .setPositiveButton("Installieren",(dialog,which)->installOnlineUpdate(release)).show());
+                  } catch(Exception e){
+                      runOnUiThread(()->new AlertDialog.Builder(this).setTitle("Update-Prüfung fehlgeschlagen").setMessage(e.getMessage()).setPositiveButton("OK",null).show());
+                  }
+              });
+          }
+          private void installOnlineUpdate(org.json.JSONObject release){
+              Toast.makeText(this,"Lade Datenupdate …",Toast.LENGTH_SHORT).show();
+              exec.execute(()->{
+                  try {
+                      java.io.File archive=RemoteDataUpdater.download(this,release);
+                      String version=DatabaseUpdateInstaller.install(this,data,archive,release.getInt("pokemon_count"));
+                      runOnUiThread(()->{
+                          try { data=new DatabaseManager(this); updateVersionLabel(); showTab(currentTab,false);
+                              new AlertDialog.Builder(this).setMessage("Datenupdate installiert: "+version).setPositiveButton("OK",null).show();
+                          } catch(Exception e){fatal("Datenbank konnte nicht geladen werden",e);}
+                      });
+                  } catch(Exception e){
+                      try { data=new DatabaseManager(this); } catch(Exception ignored){}
+                      runOnUiThread(()->new AlertDialog.Builder(this).setTitle("Update fehlgeschlagen").setMessage(e.getMessage()).setPositiveButton("OK",null).show());
+                  }
+              });
+          }
+
+'''
+          s=s.replace(anchor,method+anchor,1)
+          p.write_text(s)
+          PY
+
       - name: Restore stable signing key
         shell: bash
         run: |
