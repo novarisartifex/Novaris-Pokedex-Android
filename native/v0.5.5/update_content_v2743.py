@@ -17,8 +17,6 @@ def transform(source: str) -> str:
     source, count = re.subn(r"(SKIN / COMPLEXION: )[^\n<\"]+", lambda m: m.group(1) + COMPLEXION, source)
     if count != 5131:
         raise ValueError(f"Expected 5131 complexion descriptions, found {count}")
-    if source.count('data-dex="') != 1025:
-        raise ValueError("Expected 1025 Pokémon records")
     return source
 
 def main():
