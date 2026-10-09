@@ -157,6 +157,13 @@ jobs:
           sed -i 's/versionName = "0.5.5-native"/versionName = "0.5.6-native"/' appsrc/app/build.gradle.kts
           grep -nE 'versionCode|versionName' appsrc/app/build.gradle.kts
 
+      - name: Inspect database integration points
+        shell: bash
+        run: |
+          grep -nE 'pokedex.db|SQLite|GZIP|DatabaseManager\\(|getDatabasePath|openDatabase|copy.*asset|database' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java | head -65
+          grep -nE 'DatabaseManager\\(|onCreate\\(|INTERNET|MainActivity' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java | head -25
+          cat appsrc/app/src/main/AndroidManifest.xml | head -35
+
       - name: Restore stable signing key
         shell: bash
         run: |
