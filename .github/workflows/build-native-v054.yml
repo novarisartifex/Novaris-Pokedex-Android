@@ -163,6 +163,8 @@ jobs:
           grep -nE 'pokedex.db|SQLite|GZIP|DatabaseManager|getDatabasePath|openDatabase|database' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java | head -65 || true
           grep -nE 'DatabaseManager|onCreate|INTERNET|MainActivity' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java | head -25 || true
           head -35 appsrc/app/src/main/AndroidManifest.xml
+          sed -n '1,75p;175,215p' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java
+          sed -n '1,90p' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java
 
       - name: Restore stable signing key
         shell: bash
