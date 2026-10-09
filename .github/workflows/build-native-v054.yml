@@ -3,7 +3,7 @@ name: Build Novaris Native v0.5.5
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ main, 'data/v27-43-skin-tone' ]
     paths:
       - 'native/v0.5.4/**'
       - 'native/v0.5.5/**'
