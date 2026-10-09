@@ -155,7 +155,7 @@ jobs:
           install -m 0644 native/v0.5.6/RemoteDataUpdater.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/RemoteDataUpdater.java
           sed -i 's/versionCode = 10/versionCode = 11/' appsrc/app/build.gradle.kts
           sed -i 's/versionName = "0.5.5-native"/versionName = "0.5.6-native"/' appsrc/app/build.gradle.kts
-          grep -n 'versionCode\\|versionName' appsrc/app/build.gradle.kts
+          grep -nE 'versionCode|versionName' appsrc/app/build.gradle.kts
 
       - name: Restore stable signing key
         shell: bash
