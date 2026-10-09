@@ -1,12 +1,13 @@
-name: Build Novaris Native v0.5.5
+name: Build Novaris Native v0.5.6
 
 on:
   workflow_dispatch:
   push:
-    branches: [ main, 'data/v27-43-skin-tone' ]
+    branches: [ main, 'data/v27-43-skin-tone', 'feature/v056-remote-data-updates' ]
     paths:
       - 'native/v0.5.4/**'
       - 'native/v0.5.5/**'
+      - 'native/v0.5.6/**'
       - '.github/workflows/build-native-v054.yml'
       - 'Pokedex_V27_42.html.gz'
 
@@ -148,6 +149,91 @@ jobs:
           sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.5-native"/' appsrc/app/build.gradle.kts
           grep -n 'versionCode\|versionName' appsrc/app/build.gradle.kts
 
+      - name: Add v0.5.6 remote update foundation
+        shell: bash
+        run: |
+          install -m 0644 native/v0.5.6/RemoteDataUpdater.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/RemoteDataUpdater.java
+          sed -i 's/versionCode = 10/versionCode = 11/' appsrc/app/build.gradle.kts
+          sed -i 's/versionName = "0.5.5-native"/versionName = "0.5.6-native"/' appsrc/app/build.gradle.kts
+          grep -nE 'versionCode|versionName' appsrc/app/build.gradle.kts
+
+      - name: Inspect database integration points
+        shell: bash
+        run: |
+          grep -nE 'pokedex.db|SQLite|GZIP|DatabaseManager|getDatabasePath|openDatabase|database' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java | head -65 || true
+          grep -nE 'DatabaseManager|onCreate|INTERNET|MainActivity' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java | head -25 || true
+          head -35 appsrc/app/src/main/AndroidManifest.xml
+          sed -n '1,75p;175,215p' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java
+          sed -n '1,90p' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java
+
+      - name: Wire safe data updates into app
+        shell: bash
+        run: |
+          install -m 0644 native/v0.5.6/DatabaseUpdateInstaller.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseUpdateInstaller.java
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java")
+          s=p.read_text()
+          old='Button source=button("Datenquelle"); source.setOnClickListener(v->pickDataSource()); head.addView(source);'
+          new=old+' Button update=button("Online-Update"); update.setOnClickListener(v->checkOnlineUpdate()); head.addView(update);'
+          assert old in s
+          s=s.replace(old,new,1)
+          anchor='    private void buildShell(){'
+          assert anchor in s
+          method='''    private void checkOnlineUpdate(){
+              Toast.makeText(this,"Prüfe Datenupdate …",Toast.LENGTH_SHORT).show();
+              exec.execute(()->{
+                  try {
+                      org.json.JSONObject release=RemoteDataUpdater.check();
+                      int version=release.getInt("data_version");
+                      int minApp=release.getInt("min_app_version_code");
+                      String installed=data.metadata("source_version");
+                      int current=0;
+                      java.util.regex.Matcher m=java.util.regex.Pattern.compile("([0-9]+)\\\\.([0-9]+)").matcher(installed);
+                      if(m.find())current=Integer.parseInt(m.group(1))*100+Integer.parseInt(m.group(2));
+                      if(minApp>11)throw new java.io.IOException("App-Version zu alt für dieses Datenupdate");
+                      if(version<=current){
+                          runOnUiThread(()->new AlertDialog.Builder(this).setMessage("Daten sind aktuell: "+installed).setPositiveButton("OK",null).show());
+                          return;
+                      }
+                      runOnUiThread(()->new AlertDialog.Builder(this).setTitle("Datenupdate verfügbar")
+                          .setMessage("Version "+version+" herunterladen und sicher installieren?")
+                          .setNegativeButton("Abbrechen",null)
+                          .setPositiveButton("Installieren",(dialog,which)->installOnlineUpdate(release)).show());
+                  } catch(Exception e){
+                      runOnUiThread(()->new AlertDialog.Builder(this).setTitle("Update-Prüfung fehlgeschlagen").setMessage(e.getMessage()).setPositiveButton("OK",null).show());
+                  }
+              });
+          }
+          private void installOnlineUpdate(org.json.JSONObject release){
+              Toast.makeText(this,"Lade Datenupdate …",Toast.LENGTH_SHORT).show();
+              exec.execute(()->{
+                  try {
+                      java.io.File archive=RemoteDataUpdater.download(this,release);
+                      String version=DatabaseUpdateInstaller.install(this,data,archive,release.getInt("pokemon_count"));
+                      runOnUiThread(()->{
+                          try { data=new DatabaseManager(this); updateVersionLabel(); showTab(currentTab,false);
+                              new AlertDialog.Builder(this).setMessage("Datenupdate installiert: "+version).setPositiveButton("OK",null).show();
+                          } catch(Exception e){fatal("Datenbank konnte nicht geladen werden",e);}
+                      });
+                  } catch(Exception e){
+                      try { data=new DatabaseManager(this); } catch(Exception ignored){}
+                      runOnUiThread(()->new AlertDialog.Builder(this).setTitle("Update fehlgeschlagen").setMessage(e.getMessage()).setPositiveButton("OK",null).show());
+                  }
+              });
+          }
+
+          '''
+          s=s.replace(anchor,method+anchor,1)
+          p.write_text(s)
+          db=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java")
+          d=db.read_text()
+          old='        ensureDatabase();'
+          new='        File recovery=new File(dbFile.getAbsolutePath()+".bak");\n        if(recovery.exists() && (!dbFile.exists() || dbFile.length()<1024)){\n            if(dbFile.exists())dbFile.delete();\n            if(!recovery.renameTo(dbFile))throw new IOException("Database recovery failed");\n        }\n        ensureDatabase();'
+          assert old in d
+          db.write_text(d.replace(old,new,1))
+          PY
+
       - name: Restore stable signing key
         shell: bash
         run: |
@@ -198,12 +284,12 @@ jobs:
           jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
 
       - name: Prepare APK
-        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.5.apk
+        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.6.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Novaris-Pokedex-Native-v0.5.5
-          path: Novaris-Pokedex-Native-v0.5.5.apk
+          name: Novaris-Pokedex-Native-v0.5.6
+          path: Novaris-Pokedex-Native-v0.5.6.apk
           if-no-files-found: error
           retention-days: 14
