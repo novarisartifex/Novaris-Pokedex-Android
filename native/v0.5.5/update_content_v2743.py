@@ -14,7 +14,7 @@ def transform(source: str) -> str:
     if source.count(OLD_RULE) != 1 or source.count(OLD_SUMMARY) != 1:
         raise ValueError("Unexpected source Core; refusing to change incomplete or unknown data")
     source = source.replace(OLD_RULE, NEW_RULE).replace(OLD_SUMMARY, NEW_SUMMARY)
-    source, count = re.subn(r"(SKIN / COMPLEXION: )[^\\n<\\\"]+", lambda m: m.group(1) + COMPLEXION, source)
+    source, count = re.subn(r"(SKIN / COMPLEXION: )[^\n<\"]+", lambda m: m.group(1) + COMPLEXION, source)
     if count != 5131:
         raise ValueError(f"Expected 5131 complexion descriptions, found {count}")
     if source.count('data-dex="') != 1025:
