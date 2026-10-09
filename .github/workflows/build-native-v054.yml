@@ -1,12 +1,13 @@
-name: Build Novaris Native v0.5.5
+name: Build Novaris Native v0.5.6
 
 on:
   workflow_dispatch:
   push:
-    branches: [ main, 'data/v27-43-skin-tone' ]
+    branches: [ main, 'data/v27-43-skin-tone', 'feature/v056-remote-data-updates' ]
     paths:
       - 'native/v0.5.4/**'
       - 'native/v0.5.5/**'
+      - 'native/v0.5.6/**'
       - '.github/workflows/build-native-v054.yml'
       - 'Pokedex_V27_42.html.gz'
 
@@ -148,6 +149,14 @@ jobs:
           sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.5-native"/' appsrc/app/build.gradle.kts
           grep -n 'versionCode\|versionName' appsrc/app/build.gradle.kts
 
+      - name: Add v0.5.6 remote update foundation
+        shell: bash
+        run: |
+          install -m 0644 native/v0.5.6/RemoteDataUpdater.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/RemoteDataUpdater.java
+          sed -i 's/versionCode = 10/versionCode = 11/' appsrc/app/build.gradle.kts
+          sed -i 's/versionName = "0.5.5-native"/versionName = "0.5.6-native"/' appsrc/app/build.gradle.kts
+          grep -n 'versionCode\\|versionName' appsrc/app/build.gradle.kts
+
       - name: Restore stable signing key
         shell: bash
         run: |
@@ -198,12 +207,12 @@ jobs:
           jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
 
       - name: Prepare APK
-        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.5.apk
+        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.6.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Novaris-Pokedex-Native-v0.5.5
-          path: Novaris-Pokedex-Native-v0.5.5.apk
+          name: Novaris-Pokedex-Native-v0.5.6
+          path: Novaris-Pokedex-Native-v0.5.6.apk
           if-no-files-found: error
           retention-days: 14
