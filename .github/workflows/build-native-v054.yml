@@ -1,11 +1,12 @@
-name: Build Novaris Native v0.5.4
+name: Build Novaris Native v0.5.5
 
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ main, 'data/v27-43-skin-tone' ]
     paths:
       - 'native/v0.5.4/**'
+      - 'native/v0.5.5/**'
       - '.github/workflows/build-native-v054.yml'
       - 'Pokedex_V27_42.html.gz'
 
@@ -140,11 +141,11 @@ jobs:
 
           grep -n "currentPokemonDexes\|navDexes\|handleSwipe\|Copy image\|Copy shiny image" appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java
 
-      - name: Set v0.5.4 version
+      - name: Set v0.5.5 version
         shell: bash
         run: |
-          sed -i 's/versionCode = 8/versionCode = 9/' appsrc/app/build.gradle.kts
-          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.4-native"/' appsrc/app/build.gradle.kts
+          sed -i 's/versionCode = 8/versionCode = 10/' appsrc/app/build.gradle.kts
+          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.5-native"/' appsrc/app/build.gradle.kts
           grep -n 'versionCode\|versionName' appsrc/app/build.gradle.kts
 
       - name: Restore stable signing key
@@ -166,12 +167,14 @@ jobs:
         run: |
           gunzip -c Pokedex_V27_42.html.gz > Pokedex_V27_42.html
           test $(stat -c%s Pokedex_V27_42.html) -ge 100000000
+          python native/v0.5.5/update_content_v2743.py Pokedex_V27_42.html Pokedex_V27_43.html
+          mv Pokedex_V27_43.html Pokedex_V27_42.html
 
-      - name: Convert V27.42
+      - name: Convert V27.43
         shell: bash
         run: |
           mkdir -p appsrc/app/src/main/assets
-          python appsrc/tools/convert_pokedex.py Pokedex_V27_42.html appsrc/app/src/main/assets/pokedex.db.gzdata --version V27.42
+          python appsrc/tools/convert_pokedex.py Pokedex_V27_42.html appsrc/app/src/main/assets/pokedex.db.gzdata --version V27.43
           test -s appsrc/app/src/main/assets/pokedex.db.gzdata
 
       - name: Set up Java
@@ -195,12 +198,12 @@ jobs:
           jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
 
       - name: Prepare APK
-        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.4.apk
+        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.5.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Novaris-Pokedex-Native-v0.5.4
-          path: Novaris-Pokedex-Native-v0.5.4.apk
+          name: Novaris-Pokedex-Native-v0.5.5
+          path: Novaris-Pokedex-Native-v0.5.5.apk
           if-no-files-found: error
           retention-days: 14
