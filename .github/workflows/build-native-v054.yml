@@ -229,12 +229,7 @@ jobs:
           db=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java")
           d=db.read_text()
           old='        ensureDatabase();'
-          new='''        File recovery=new File(dbFile.getAbsolutePath()+".bak");
-        if(recovery.exists() && (!dbFile.exists() || dbFile.length()<1024)){
-            if(dbFile.exists())dbFile.delete();
-            if(!recovery.renameTo(dbFile))throw new IOException("Database recovery failed");
-        }
-        ensureDatabase();'''
+          new='        File recovery=new File(dbFile.getAbsolutePath()+".bak");\\n        if(recovery.exists() && (!dbFile.exists() || dbFile.length()<1024)){\\n            if(dbFile.exists())dbFile.delete();\\n            if(!recovery.renameTo(dbFile))throw new IOException("Database recovery failed");\\n        }\\n        ensureDatabase();'
           assert old in d
           db.write_text(d.replace(old,new,1))
           PY
