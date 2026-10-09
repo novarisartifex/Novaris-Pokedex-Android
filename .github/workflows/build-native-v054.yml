@@ -223,7 +223,7 @@ jobs:
               });
           }
 
-'''
+          '''
           s=s.replace(anchor,method+anchor,1)
           p.write_text(s)
           PY
