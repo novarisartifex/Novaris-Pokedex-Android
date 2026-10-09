@@ -144,8 +144,8 @@ jobs:
       - name: Set v0.5.5 version
         shell: bash
         run: |
-          sed -i 's/versionCode = 8/versionCode = 9/' appsrc/app/build.gradle.kts
-          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.4-native"/' appsrc/app/build.gradle.kts
+          sed -i 's/versionCode = 8/versionCode = 10/' appsrc/app/build.gradle.kts
+          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.5-native"/' appsrc/app/build.gradle.kts
           grep -n 'versionCode\|versionName' appsrc/app/build.gradle.kts
 
       - name: Restore stable signing key
