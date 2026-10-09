@@ -160,9 +160,9 @@ jobs:
       - name: Inspect database integration points
         shell: bash
         run: |
-          grep -nE 'pokedex.db|SQLite|GZIP|DatabaseManager\\(|getDatabasePath|openDatabase|copy.*asset|database' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java | head -65
-          grep -nE 'DatabaseManager\\(|onCreate\\(|INTERNET|MainActivity' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java | head -25
-          cat appsrc/app/src/main/AndroidManifest.xml | head -35
+          grep -nE 'pokedex.db|SQLite|GZIP|DatabaseManager|getDatabasePath|openDatabase|database' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java | head -65 || true
+          grep -nE 'DatabaseManager|onCreate|INTERNET|MainActivity' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/MainActivity.java | head -25 || true
+          head -35 appsrc/app/src/main/AndroidManifest.xml
 
       - name: Restore stable signing key
         shell: bash
