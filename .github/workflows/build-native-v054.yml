@@ -262,9 +262,9 @@ jobs:
           s=p.read_text()
           needle='private void showPokemon(int dex){'
           if needle not in s: raise SystemExit("Pokemon detail anchor absent")
-          clear='body.removeAllViews();'
-          if clear not in s: raise SystemExit('Detail reset anchor missing')
-          s=s.replace(clear,clear+'\n        addOriginalVariants(dex);',1)
+          anchor='        addShinyCards("Shiny-Versionen",d.item.dex,d.shinyJson,d.item.role);'
+          if anchor not in s:raise SystemExit("Shiny block positioning anchor missing")
+          s=s.replace(anchor,anchor+'\\n        addOriginalVariants(dex);',1)
           method=r"""
           private void addOriginalVariants(int dex){
               try{
@@ -281,20 +281,33 @@ jobs:
                   for(int i=0;i<6;i++){
                       final String variant=variants.optString(i);
                       final boolean lifestyle=i>=3;
+                      DatabaseManager.PokemonDetail detail=data.pokemonDetail(dex);
+                      if(detail==null)continue;
+                      String filename=String.format(java.util.Locale.ROOT,"#%04d.%s_%s",dex,OriginalVariantEngine.slug(detail.item.en),OriginalVariantEngine.slug(variant));
+                      LinearLayout card=new LinearLayout(this);
+                      card.setOrientation(LinearLayout.VERTICAL);
+                      card.setPadding(dp(8),dp(10),dp(8),dp(14));
+                      TextView name=label(variant,16,true);
+                      card.addView(name);
+                      ImageView picture=image(dp(260),dp(260));
+                      card.addView(picture,new LinearLayout.LayoutParams(match(),dp(270)));
+                      ImageLoader.load(this,detail.item.art,picture);
+                      Button copyImage=button("Copy image");
+                      copyImage.setOnClickListener(v->ImageClipboard.copy(this,detail.item.art));
+                      card.addView(copyImage,new LinearLayout.LayoutParams(match(),wrap()));
+                      Button copyFilename=button(filename);
+                      copyFilename.setOnClickListener(v->copy(filename));
+                      card.addView(copyFilename,new LinearLayout.LayoutParams(match(),wrap()));
                       LinearLayout row=new LinearLayout(this);
                       row.setOrientation(LinearLayout.HORIZONTAL);
-                      Button x1=button(variant+" x1"),x3=button(variant+" x3");
+                      Button x1=button("Copy "+variant+" + Core + Dex x1");
+                      Button x3=button("Copy "+variant+" + Core + Dex x3");
                       x1.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,lifestyle,false,root)));
                       x3.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,lifestyle,true,root)));
                       row.addView(x1,new LinearLayout.LayoutParams(0,dp(66),1));
                       row.addView(x3,new LinearLayout.LayoutParams(0,dp(66),1));
-                      body.addView(row);
-                      DatabaseManager.PokemonDetail detail=data.pokemonDetail(dex);
-                      String en=detail==null?"Pokemon":detail.item.en;
-                      String filename=String.format(java.util.Locale.ROOT,"#%04d.%s_%s",dex,OriginalVariantEngine.slug(en),OriginalVariantEngine.slug(variant));
-                      Button fileButton=button(filename);
-                      fileButton.setOnClickListener(v->copy(filename));
-                      body.addView(fileButton);
+                      card.addView(row);
+                      body.addView(card);
                   }
               }catch(Exception e){android.util.Log.e("NovarisVariants","Cannot load original variants",e);}
           }
@@ -311,7 +324,8 @@ jobs:
           if anchor not in s:raise SystemExit("Variant method anchor missing")
           s=s.replace(anchor,method+'\n    '+anchor,1)
           p.write_text(s)
-          assert 'addOriginalVariants(dex)' in s
+          assert s.index('addOriginalVariants(dex);') > s.index('addShinyCards("Shiny-Versionen"')
+          assert 'ImageClipboard.copy(this,detail.item.art)' in s
           assert 'originalVariantPrompt(dex,variant,lifestyle,true,root)' in s
           PY
 
