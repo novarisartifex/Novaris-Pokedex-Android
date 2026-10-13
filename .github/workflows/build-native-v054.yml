@@ -242,9 +242,9 @@ jobs:
           from pathlib import Path
           p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java")
           s=p.read_text()
-          needle='        addFormCards("Weitere Formen",d.item.dex,d.formsJson,d.item.role);'
-          if needle not in s: raise SystemExit("Optional variant button insertion anchor absent")
-          s=s.replace(needle,'        addOriginalVariants(d.item.dex);\n'+needle,1)
+          needle='private void showPokemon(int dex){'
+          if needle not in s: raise SystemExit("Pokemon detail anchor absent")
+          s=s.replace(needle,needle+'\n        addOriginalVariants(dex);',1)
           method=r"""
           private void addOriginalVariants(int dex){
               try{
