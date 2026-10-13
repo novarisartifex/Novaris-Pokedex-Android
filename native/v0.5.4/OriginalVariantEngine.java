@@ -21,9 +21,10 @@ public final class OriginalVariantEngine {
         return title+"\n\n"+text+"\n\n\n"+desc+"\n\n\n"+mode+"\n\n\n"+root.getString("NOVARIS_CORE_V117");
     }
 
-    private static String slug(String s){
-        return java.text.Normalizer.normalize(s,java.text.Normalizer.Form.NFKD)
-                .replaceAll("[\\u0300-\\u036f]","").replaceAll("[^A-Za-z0-9%+.-]+","_")
+    public static String slug(String s){
+        return (s==null?"":s).trim().replace("♀","Female").replace("♂","Male")
+                .replaceAll("[’'`]", "")
+                .replaceAll("[^A-Za-z0-9%+.-]+","_")
                 .replaceAll("_+","_").replaceAll("^_+|_+$","");
     }
 
