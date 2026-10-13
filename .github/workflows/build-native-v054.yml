@@ -170,9 +170,16 @@ jobs:
                           return start, i + 1
               raise SystemExit("Unclosed Shiny prompt method")
 
-          a, b = method_bounds(original)
           c, d = method_bounds(replacement)
-          updated = original[:a] + replacement[c:d] + original[b:]
+          method = replacement[c:d]
+          try:
+              a, b = method_bounds(original)
+              updated = original[:a] + method + original[b:]
+          except SystemExit:
+              anchor = "private void copy(String s){"
+              if anchor not in original:
+                  raise SystemExit("Cannot inject Shiny method: copy anchor absent")
+              updated = original.replace(anchor, method + "\n    " + anchor, 1)
           source.write_text(updated)
           assert "BLUE, NOT YELLOW" in updated
           assert "SHINY REFERENCE IMAGE" in updated
