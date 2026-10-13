@@ -263,7 +263,10 @@ jobs:
           needle='private void showPokemon(int dex){'
           if needle not in s: raise SystemExit("Pokemon detail anchor absent")
           anchor='        addShinyCards("Shiny-Versionen",d.item.dex,d.shinyJson,d.item.role);'
-          if anchor not in s:raise SystemExit("Shiny block positioning anchor missing")
+          if anchor not in s:
+              start=s.index(needle)
+              print("COMPILED_SHOW_POKEMON",s[start:start+7000])
+              raise SystemExit("Shiny block positioning anchor missing")
           s=s.replace(anchor,anchor+'\n        addOriginalVariants(dex);',1)
           method=r"""
           private void addOriginalVariants(int dex){
