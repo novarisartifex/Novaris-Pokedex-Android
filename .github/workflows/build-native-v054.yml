@@ -10,7 +10,7 @@ on:
       - 'Pokedex_V27_42.html.gz'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -352,3 +352,19 @@ jobs:
           path: Novaris-Pokedex-Native-v0.5.4.apk
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish installable APK to GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="v0.5.4-native"
+          APK="Novaris-Pokedex-Native-v0.5.4.apk"
+          test -s "$APK"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK" --clobber
+          else
+            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "Novaris Pokédex Native v0.5.4" --notes "Native Android APK, Klassenvarianten und Shiny-Farbpriorität. Datenupdates bleiben separat."
+          fi
+          gh release view "$TAG" --json assets,url
