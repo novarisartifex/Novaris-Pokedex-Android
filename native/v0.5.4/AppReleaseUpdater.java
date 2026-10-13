@@ -19,28 +19,19 @@ public final class AppReleaseUpdater {
     public void attach(){
         if(added)return;
         View root=activity.getWindow().getDecorView();
-        if(!(root instanceof ViewGroup))return;
-        Button existing=find((ViewGroup)root);
-        if(existing==null)return;
-        if(!(existing.getParent() instanceof ViewGroup))return;
-        ViewGroup parent=(ViewGroup)existing.getParent();
+        if(!(root instanceof android.widget.FrameLayout))return;
+        android.widget.FrameLayout parent=(android.widget.FrameLayout)root;
         Button button=new Button(activity);
         button.setText("App-Update");
         button.setAllCaps(false);
-        int index=parent.indexOfChild(existing);
-        ViewGroup.LayoutParams lp=existing.getLayoutParams();
-        try{parent.addView(button,index+1,new ViewGroup.LayoutParams(lp.width,lp.height));}
-        catch(Exception ex){parent.addView(button,index+1);}
+        android.widget.FrameLayout.LayoutParams lp=new android.widget.FrameLayout.LayoutParams(
+            android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+            android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+            android.view.Gravity.BOTTOM|android.view.Gravity.END);
+        lp.setMargins(8,8,16,16);
+        parent.addView(button,lp);
         button.setOnClickListener(v->check());
         added=true;
-    }
-    private Button find(ViewGroup parent){
-        for(int i=0;i<parent.getChildCount();i++){
-            View v=parent.getChildAt(i);
-            if(v instanceof Button&&((Button)v).getText().toString().contains("Online-Update"))return (Button)v;
-            if(v instanceof ViewGroup){Button b=find((ViewGroup)v);if(b!=null)return b;}
-        }
-        return null;
     }
     public void check(){
         Toast.makeText(activity,"Prüfe App-Release …",Toast.LENGTH_SHORT).show();
