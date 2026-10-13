@@ -223,10 +223,10 @@ jobs:
           names = ("V2713_LIFESTYLE_BLUEPRINTS", "V2713_ASSIGNMENTS", "V2713_CLASS_BLUEPRINTS", "V2713_ASSIGNMENT_META")
           data = {}
           for name in names:
-              match = re.search(r"const\s+" + name + r"\s*=\s*(\{[^;]+\});", html)
+              match = re.search(r"const\s+" + name + r"\s*=\s*", html)
               if not match:
                   raise SystemExit("Missing original variant source: " + name)
-              data[name] = json.loads(match.group(1))
+              data[name], _ = json.JSONDecoder().raw_decode(html, match.end())
           assert len(data["V2713_ASSIGNMENTS"]) >= 1025
           assert len(data["V2713_LIFESTYLE_BLUEPRINTS"]) == 3
           assets = Path("appsrc/app/src/main/assets")
