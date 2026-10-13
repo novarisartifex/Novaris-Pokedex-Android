@@ -1,4 +1,4 @@
-name: Build Novaris Native v0.5.8
+name: Build Novaris Native v0.5.9
 
 on:
   workflow_dispatch:
@@ -223,9 +223,11 @@ jobs:
       - name: Set v0.5.4 version
         shell: bash
         run: |
-          sed -i 's/versionCode = 8/versionCode = 13/' appsrc/app/build.gradle.kts
-          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.7-native"/' appsrc/app/build.gradle.kts
+          sed -i 's/versionCode = 8/versionCode = 14/' appsrc/app/build.gradle.kts
+          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.9-native"/' appsrc/app/build.gradle.kts
           grep -n 'versionCode\|versionName' appsrc/app/build.gradle.kts
+          grep -F 'versionCode = 14' appsrc/app/build.gradle.kts
+          grep -F 'versionName = "0.5.9-native"' appsrc/app/build.gradle.kts
 
       - name: Restore stable signing key
         shell: bash
@@ -401,13 +403,13 @@ jobs:
           jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
 
       - name: Prepare APK
-        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.8.apk
+        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.9.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Novaris-Pokedex-Native-v0.5.8
-          path: Novaris-Pokedex-Native-v0.5.8.apk
+          name: Novaris-Pokedex-Native-v0.5.9
+          path: Novaris-Pokedex-Native-v0.5.9.apk
           if-no-files-found: error
           retention-days: 14
 
@@ -417,12 +419,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TAG="v0.5.8-native"
-          APK="Novaris-Pokedex-Native-v0.5.8.apk"
+          TAG="v0.5.9-native"
+          APK="Novaris-Pokedex-Native-v0.5.9.apk"
           test -s "$APK"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$APK" --clobber
           else
-            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "Novaris Pokédex Native v0.5.8" --notes "Native Android APK, Klassenvarianten und Shiny-Farbpriorität. Datenupdates bleiben separat."
+            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "Novaris Pokédex Native v0.5.9" --notes "Native Android APK, Klassenvarianten und Shiny-Farbpriorität. Datenupdates bleiben separat."
           fi
           gh release view "$TAG" --json assets,url
