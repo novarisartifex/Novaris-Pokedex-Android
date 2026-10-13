@@ -300,7 +300,7 @@ jobs:
           if anchor not in s:raise SystemExit("Variant method anchor missing")
           s=s.replace(anchor,method+'\n    '+anchor,1)
           p.write_text(s)
-          assert 'addOriginalVariants(d.item.dex)' in s
+          assert 'addOriginalVariants(dex)' in s
           assert 'originalVariantPrompt(dex,variant,lifestyle,true,root)' in s
           PY
 
