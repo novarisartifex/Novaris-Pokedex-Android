@@ -1,4 +1,4 @@
-name: Build Novaris Native v0.5.5
+name: Build Novaris Native v0.5.6
 
 on:
   workflow_dispatch:
@@ -223,8 +223,8 @@ jobs:
       - name: Set v0.5.4 version
         shell: bash
         run: |
-          sed -i 's/versionCode = 8/versionCode = 10/' appsrc/app/build.gradle.kts
-          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.5-native"/' appsrc/app/build.gradle.kts
+          sed -i 's/versionCode = 8/versionCode = 11/' appsrc/app/build.gradle.kts
+          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.6-native"/' appsrc/app/build.gradle.kts
           grep -n 'versionCode\|versionName' appsrc/app/build.gradle.kts
 
       - name: Restore stable signing key
@@ -375,7 +375,7 @@ jobs:
           manifest=Path("appsrc/app/src/main/AndroidManifest.xml")
           m=manifest.read_text()
           if 'android.permission.REQUEST_INSTALL_PACKAGES' not in m:
-              m=m.replace('<application','<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\\n    <application',1)
+              m=m.replace('<application','<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n    <application',1)
           manifest.write_text(m)
           assert 'releaseUpdater.attach()' in s
           PY
@@ -401,13 +401,13 @@ jobs:
           jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
 
       - name: Prepare APK
-        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.5.apk
+        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.6.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Novaris-Pokedex-Native-v0.5.5
-          path: Novaris-Pokedex-Native-v0.5.5.apk
+          name: Novaris-Pokedex-Native-v0.5.6
+          path: Novaris-Pokedex-Native-v0.5.6.apk
           if-no-files-found: error
           retention-days: 14
 
@@ -417,12 +417,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TAG="v0.5.5-native"
-          APK="Novaris-Pokedex-Native-v0.5.5.apk"
+          TAG="v0.5.6-native"
+          APK="Novaris-Pokedex-Native-v0.5.6.apk"
           test -s "$APK"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$APK" --clobber
           else
-            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "Novaris Pokédex Native v0.5.4" --notes "Native Android APK, Klassenvarianten und Shiny-Farbpriorität. Datenupdates bleiben separat."
+            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "Novaris Pokédex Native v0.5.6" --notes "Native Android APK, Klassenvarianten und Shiny-Farbpriorität. Datenupdates bleiben separat."
           fi
           gh release view "$TAG" --json assets,url
