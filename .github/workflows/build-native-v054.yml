@@ -232,6 +232,38 @@ jobs:
           if clear not in s: raise SystemExit('Detail reset anchor missing')
           s=s.replace(clear,clear+'\n        addOriginalVariants(dex);',1)
           method=r"""
+          private void addOriginalVariants(int dex){
+              try{
+                  java.io.InputStream in=getAssets().open("novaris_original_variants.json");
+                  java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();
+                  byte[] buf=new byte[8192];int n;
+                  while((n=in.read(buf))!=-1)out.write(buf,0,n);
+                  in.close();
+                  JSONObject root=new JSONObject(out.toString("UTF-8"));
+                  JSONArray variants=root.getJSONObject("V2713_ASSIGNMENTS").optJSONArray(String.valueOf(dex));
+                  if(variants==null||variants.length()!=6)return;
+                  TextView heading=label("Alternative Klassen & Lifestyle",17,true);
+                  body.addView(heading);
+                  for(int i=0;i<6;i++){
+                      final String variant=variants.optString(i);
+                      final boolean lifestyle=i>=3;
+                      LinearLayout row=new LinearLayout(this);
+                      row.setOrientation(LinearLayout.HORIZONTAL);
+                      Button x1=button(variant+" x1"),x3=button(variant+" x3");
+                      x1.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,lifestyle,false,root)));
+                      x3.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,lifestyle,true,root)));
+                      row.addView(x1,new LinearLayout.LayoutParams(0,dp(66),1));
+                      row.addView(x3,new LinearLayout.LayoutParams(0,dp(66),1));
+                      body.addView(row);
+                      DatabaseManager.PokemonDetail detail=data.pokemonDetail(dex);
+                      String en=detail==null?"Pokemon":detail.item.en;
+                      String filename=String.format(java.util.Locale.ROOT,"#%04d.%s_%s",dex,en.replaceAll("[^A-Za-z0-9%+.-]+","_"),variant.replaceAll("[^A-Za-z0-9%+.-]+","_"));
+                      Button fileButton=button(filename);
+                      fileButton.setOnClickListener(v->copy(filename));
+                      body.addView(fileButton);
+                  }
+              }catch(Exception e){android.util.Log.e("NovarisVariants","Cannot load original variants",e);}
+          }
           private String originalVariantPrompt(int dex,String variant,boolean lifestyle,boolean triple,JSONObject root){
               try{
                   return OriginalVariantEngine.build(this,root,dex,variant,triple);
