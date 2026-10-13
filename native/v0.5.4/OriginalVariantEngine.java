@@ -18,7 +18,7 @@ public final class OriginalVariantEngine {
         String title = String.format(Locale.ROOT, "#%04d.%s — %s",dex,slug(name),label);
         String desc = description(root,dex,label);
         String mode = root.getString(triple?"NOVARIS_OUTPUT_TRIPLE":"NOVARIS_OUTPUT_SINGLE");
-        return title+"\n\n"+text+"\n\n\n"+desc+"\n\n\n"+mode+"\n\n\n"+root.getString("NOVARIS_CORE_V117");
+        return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+"\n\n\n"+mode+"\n\n\n"+root.getString("NOVARIS_CORE_V117"),triple);
     }
 
     public static String slug(String s){
