@@ -347,7 +347,7 @@ jobs:
           s=p.read_text()
           marker="private boolean restorePosition;"
           if marker not in s:raise SystemExit("Updater MainActivity anchor missing")
-          s=s.replace(marker,marker+"\\n    private AppReleaseUpdater releaseUpdater;",1)
+          s=s.replace(marker,marker+"\n    private AppReleaseUpdater releaseUpdater;",1)
           anchor="    private void openPokemon("
           if anchor not in s:raise SystemExit("Updater method anchor missing")
           method="""    @Override protected void onResume(){
