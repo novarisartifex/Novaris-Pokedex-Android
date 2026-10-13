@@ -28,7 +28,16 @@ public final class AppReleaseUpdater {
             android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
             android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
             android.view.Gravity.BOTTOM|android.view.Gravity.END);
-        lp.setMargins(8,8,16,16);
+        int densityBottom=(int)(activity.getResources().getDisplayMetrics().density*16);
+        android.view.WindowInsets insets=parent.getRootWindowInsets();
+        int navBottom=insets==null?0:insets.getSystemWindowInsetBottom();
+        lp.setMargins(8,8,16,navBottom+densityBottom);
+        android.view.View content=parent.findViewById(android.R.id.content);
+        if(content!=null){
+            int extra=(int)(activity.getResources().getDisplayMetrics().density*72);
+            content.setPadding(content.getPaddingLeft(),content.getPaddingTop(),
+                content.getPaddingRight(),content.getPaddingBottom()+navBottom+extra);
+        }
         parent.addView(button,lp);
         button.setOnClickListener(v->check());
         added=true;
