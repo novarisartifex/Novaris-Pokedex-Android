@@ -404,11 +404,11 @@ jobs:
           # The ordinary copy path must also enforce the species-to-fashion guard.
           # Avoid double-appending to prompts that already include the safety header.
           start=s.index(anchor)
-          end=s.find('\\n    private ',start+len(anchor))
+          end=s.find('\n    private ',start+len(anchor))
           if end<0:end=len(s)
           block=s[start:end]
           if 'PromptSafety.enforce' not in block:
-              block=block.replace(anchor,anchor+'\\n        if(s!=null && !s.startsWith("NOVARIS OUTPUT CONTROL") && (s.contains("SPECIES IDENTITY:") || s.contains("NOVARIS OPTIONAL CLASS") || s.contains("NOVARIS LIFESTYLE VARIANT"))) s=PromptSafety.enforce(s,false);',1)
+              block=block.replace(anchor,anchor+'\n        if(s!=null && !s.startsWith("NOVARIS OUTPUT CONTROL") && (s.contains("SPECIES IDENTITY:") || s.contains("NOVARIS OPTIONAL CLASS") || s.contains("NOVARIS LIFESTYLE VARIANT"))) s=PromptSafety.enforce(s,false);',1)
               s=s[:start]+block+s[end:]
           p.write_text(s)
           print("Triple copy listeners:",matches)
