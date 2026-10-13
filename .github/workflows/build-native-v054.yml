@@ -246,7 +246,7 @@ jobs:
           if needle not in s: raise SystemExit("Pokemon detail anchor absent")
           clear='body.removeAllViews();'
           if clear not in s: raise SystemExit('Detail reset anchor missing')
-          s=s.replace(clear,clear+'\\n        addOriginalVariants(dex);',1)
+          s=s.replace(clear,clear+'\n        addOriginalVariants(dex);',1)
           method=r"""
           private void addOriginalVariants(int dex){
               try{
