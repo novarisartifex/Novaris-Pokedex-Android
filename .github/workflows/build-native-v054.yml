@@ -291,7 +291,7 @@ jobs:
                       body.addView(row);
                       DatabaseManager.PokemonDetail detail=data.pokemonDetail(dex);
                       String en=detail==null?"Pokemon":detail.item.en;
-                      String filename=String.format(java.util.Locale.ROOT,"#%04d.%s_%s",dex,en.replaceAll("[^A-Za-z0-9%+.-]+","_"),variant.replaceAll("[^A-Za-z0-9%+.-]+","_"));
+                      String filename=String.format(java.util.Locale.ROOT,"#%04d.%s_%s",dex,OriginalVariantEngine.slug(en),OriginalVariantEngine.slug(variant));
                       Button fileButton=button(filename);
                       fileButton.setOnClickListener(v->copy(filename));
                       body.addView(fileButton);
