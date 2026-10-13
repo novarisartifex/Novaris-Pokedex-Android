@@ -1,4 +1,4 @@
-name: Build Novaris Native v0.5.9
+name: Build Novaris Native v0.5.10
 
 on:
   workflow_dispatch:
@@ -223,7 +223,7 @@ jobs:
       - name: Set v0.5.4 version
         shell: bash
         run: |
-          sed -i 's/versionCode = 8/versionCode = 14/' appsrc/app/build.gradle.kts
+          sed -i 's/versionCode = 8/versionCode = 15/' appsrc/app/build.gradle.kts
           sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.9-native"/' appsrc/app/build.gradle.kts
           grep -n 'versionCode\|versionName' appsrc/app/build.gradle.kts
           grep -F 'versionCode = 14' appsrc/app/build.gradle.kts
@@ -382,6 +382,39 @@ jobs:
           assert 'releaseUpdater.attach()' in s
           PY
 
+      - name: Enforce non-anatomical species translation and independent x3 images
+        shell: bash
+        run: |
+          cp native/v0.5.4/PromptSafety.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/PromptSafety.java
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java")
+          s=p.read_text()
+          anchor='private void copy(String s){'
+          if anchor not in s:raise SystemExit("Copy method not found")
+          # Every x3 listener uses the dedicated triple-aware copy path.
+          import re
+          matches=0
+          for name in ('x3','b3'):
+              pattern=r'(?m)(\\b'+name+r'\\.setOnClickListener\\(v->)copy\\('
+              s,n=re.subn(pattern,r'\\1copyTriple(',s)
+              matches+=n
+          if matches<2:raise SystemExit("x3 copy wiring missing")
+          s=s.replace(anchor,'private void copyTriple(String s){ copy(PromptSafety.enforce(s,true)); }\\n    '+anchor,1)
+          # The ordinary copy path must also enforce the species-to-fashion guard.
+          # Avoid double-appending to prompts that already include the safety header.
+          start=s.index(anchor)
+          end=s.find('\\n    private ',start+len(anchor))
+          if end<0:end=len(s)
+          block=s[start:end]
+          if 'PromptSafety.enforce' not in block:
+              block=block.replace(anchor,anchor+'\\n        if(s!=null && !s.startsWith("NOVARIS OUTPUT CONTROL") && (s.contains("SPECIES IDENTITY:") || s.contains("NOVARIS OPTIONAL CLASS") || s.contains("NOVARIS LIFESTYLE VARIANT"))) s=PromptSafety.enforce(s,false);',1)
+              s=s[:start]+block+s[end:]
+          p.write_text(s)
+          print("Triple copy listeners:",matches)
+          assert 'copyTriple(' in s
+          PY
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -403,13 +436,13 @@ jobs:
           jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
 
       - name: Prepare APK
-        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.9.apk
+        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.10.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Novaris-Pokedex-Native-v0.5.9
-          path: Novaris-Pokedex-Native-v0.5.9.apk
+          name: Novaris-Pokedex-Native-v0.5.10
+          path: Novaris-Pokedex-Native-v0.5.10.apk
           if-no-files-found: error
           retention-days: 14
 
@@ -419,12 +452,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TAG="v0.5.9-native"
-          APK="Novaris-Pokedex-Native-v0.5.9.apk"
+          TAG="v0.5.10-native"
+          APK="Novaris-Pokedex-Native-v0.5.10.apk"
           test -s "$APK"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$APK" --clobber
           else
-            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "Novaris Pokédex Native v0.5.9" --notes "Native Android APK, Klassenvarianten und Shiny-Farbpriorität. Datenupdates bleiben separat."
+            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "Novaris Pokédex Native v0.5.10" --notes "Native Android APK, Klassenvarianten und Shiny-Farbpriorität. Datenupdates bleiben separat."
           fi
           gh release view "$TAG" --json assets,url
