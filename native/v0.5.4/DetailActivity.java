@@ -228,8 +228,13 @@ public class DetailActivity extends Activity {
 
     private String buildShinyPrompt(int dex,String name,boolean triple){
         String base=data.buildPokemonPrompt(dex,triple);
-        String instruction="SHINY VARIANT: Use the supplied Shiny reference image as the absolute color authority. Preserve the Pokémon's anatomy, proportions, silhouette, pose and species identity, but reproduce the Shiny palette exactly from the reference image. Do not revert to the normal coloration. If the reference image and normal Pokédex colors conflict, the Shiny reference image wins. Variant: "+name+".";
-        return base+"\n\n"+instruction;
+        StringBuilder instruction=new StringBuilder();
+        instruction.append("SHINY REFERENCE IMAGE — MANDATORY COLOR AUTHORITY: The supplied reference image for this selected Shiny form is the authoritative source for all Shiny-specific colors, markings, glowing accents and their placement. Explicitly inspect that Shiny reference image and translate its palette and distribution to the Novaris humanoid design. Any normal-form palette or color statements in the Pokédex data or Style Core are overridden wherever they conflict with the Shiny reference. Preserve species anatomy, identity, silhouette and recognizable features; use the Style Core for composition, clothing and rendering only where compatible with the Shiny colors. Do not copy colors from the normal-form reference when the Shiny reference differs. Variant: ").append(name).append(".");
+        if(dex==197){
+            instruction.append(" UMBREON / NACHTARA SHINY — CRITICAL: The ring markings and matching luminous accents are BLUE, NOT YELLOW. Do not generate the normal yellow rings. Keep Umbreon's dark body and recognizable ring pattern, using the supplied Shiny reference image to match the exact blue hue and placement.");
+        }
+        instruction.append("\\nFINAL COLOR VALIDATION: Before generating the image, compare each distinctive marking against the supplied Shiny reference image. If a normal-color feature conflicts, replace it with the Shiny-reference color. This instruction takes precedence over conflicting color descriptions anywhere earlier in the combined prompt.");
+        return base+"\\n\\n"+instruction.toString();
     }
 
     private void showCharacter(String id){
