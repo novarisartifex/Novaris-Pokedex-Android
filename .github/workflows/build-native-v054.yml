@@ -244,7 +244,7 @@ jobs:
           s=p.read_text()
           needle='private void showPokemon(int dex){'
           if needle not in s: raise SystemExit("Pokemon detail anchor absent")
-          s=s.replace(needle,needle+'\n        addOriginalVariants(dex);',1)
+          s=s.replace(needle,needle,1)\n          clear='body.removeAllViews();'\n          if clear not in s: raise SystemExit('Detail reset anchor missing')\n          s=s.replace(clear,clear+'\n        addOriginalVariants(dex);',1)
           method=r"""
           private void addOriginalVariants(int dex){
               try{
