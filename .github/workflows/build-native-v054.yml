@@ -213,27 +213,11 @@ jobs:
           gunzip -c Pokedex_V27_42.html.gz > Pokedex_V27_42.html
           test $(stat -c%s Pokedex_V27_42.html) -ge 100000000
 
-      - name: Extract original V27.13 optional variant definitions
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          import json, re
-          from pathlib import Path
-          html = Path("Pokedex_V27_42.html").read_text()
-          names = ("V2713_LIFESTYLE_BLUEPRINTS", "V2713_ASSIGNMENTS", "V2713_CLASS_BLUEPRINTS", "V2713_ASSIGNMENT_META")
-          data = {}
-          for name in names:
-              match = re.search(r"const\s+" + name + r"\s*=\s*", html)
-              if not match:
-                  raise SystemExit("Missing original variant source: " + name)
-              data[name], _ = json.JSONDecoder().raw_decode(html, match.end())
-          assert len(data["V2713_ASSIGNMENTS"]) >= 1025
-          assert len(data["V2713_LIFESTYLE_BLUEPRINTS"]) == 3
-          assets = Path("appsrc/app/src/main/assets")
-          assets.mkdir(parents=True, exist_ok=True)
-          (assets / "novaris_original_variants.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")))
-          print("Original variant definitions extracted:", len(data["V2713_ASSIGNMENTS"]), "Pokémon")
-          PY
+      - name: Extract exact V27.42 original variant inputs
+        run: python3 native/v0.5.4/extract_original_variants.py
+
+      - name: Install original native variant engine
+        run: cp native/v0.5.4/OriginalVariantEngine.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/OriginalVariantEngine.java
 
       - name: Wire six native optional variant buttons
         shell: bash
@@ -248,54 +232,13 @@ jobs:
           if clear not in s: raise SystemExit('Detail reset anchor missing')
           s=s.replace(clear,clear+'\n        addOriginalVariants(dex);',1)
           method=r"""
-          private void addOriginalVariants(int dex){
-              try{
-                  java.io.InputStream in=getAssets().open("novaris_original_variants.json");
-                  java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();
-                  byte[] buf=new byte[8192];int n;
-                  while((n=in.read(buf))!=-1)out.write(buf,0,n);
-                  in.close();
-                  JSONObject root=new JSONObject(out.toString("UTF-8"));
-                  JSONArray variants=root.getJSONObject("V2713_ASSIGNMENTS").optJSONArray(String.valueOf(dex));
-                  if(variants==null||variants.length()!=6)return;
-                  TextView heading=label("Alternative Klassen & Lifestyle",17,true);
-                  body.addView(heading);
-                  for(int i=0;i<6;i++){
-                      final String variant=variants.optString(i);
-                      final boolean lifestyle=i>=3;
-                      LinearLayout row=new LinearLayout(this);
-                      row.setOrientation(LinearLayout.HORIZONTAL);
-                      Button x1=button(variant+" x1"),x3=button(variant+" x3");
-                      x1.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,lifestyle,false,root)));
-                      x3.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,lifestyle,true,root)));
-                      row.addView(x1,new LinearLayout.LayoutParams(0,dp(66),1));
-                      row.addView(x3,new LinearLayout.LayoutParams(0,dp(66),1));
-                      body.addView(row);
-                  }
-              }catch(Exception e){android.util.Log.e("NovarisVariants","Cannot load original variants",e);}
-          }
           private String originalVariantPrompt(int dex,String variant,boolean lifestyle,boolean triple,JSONObject root){
               try{
-                  JSONObject blueprints=root.getJSONObject(lifestyle?"V2713_LIFESTYLE_BLUEPRINTS":"V2713_CLASS_BLUEPRINTS");
-                  JSONObject bp=blueprints.optJSONObject(variant);
-                  if(bp==null)return "Variant data missing: "+variant;
-                  JSONArray meta=root.getJSONObject("V2713_ASSIGNMENT_META").optJSONArray(dex+"|"+variant);
-                  String purpose=meta==null?bp.optString("p","Class-authentic "+variant+" execution."):meta.optString(1,bp.optString("p",""));
-                  String specialization=meta==null?"":meta.optString(2,"");
-                  String sys=meta==null?bp.optString("sys","ind"):meta.optString(0,bp.optString("sys","ind"));
-                  String system="ffxiv".equals(sys)?"Final Fantasy XIV":"ro".equals(sys)?"Ragnarok Online":"civil".equals(sys)?"Civilian profession system":"gather".equals(sys)?"Gatherer":"craft".equals(sys)?"Crafter":"Independent Novaris role";
-                  String base=data.buildPokemonPrompt(dex,triple);
-                  StringBuilder b=new StringBuilder();
-                  b.append(lifestyle?"NOVARIS LIFESTYLE VARIANT — FULL POKÉDEX DESCRIPTION":"NOVARIS OPTIONAL CLASS — FULL POKÉDEX DESCRIPTION");
-                  b.append("\nVARIANT: ").append(variant).append(". ROLE SYSTEM: ").append(lifestyle?"Novaris Lifestyle / non-professional presentation":system).append(".");
-                  if(!lifestyle)b.append(" ROLE PURPOSE: ").append(purpose).append(specialization.isEmpty()?"":" SPECIALIZATION: "+specialization+".");
-                  b.append("\nCHARACTER: The complete CHARACTER BLUEPRINT, SPECIES COLOR & MATERIAL BLUEPRINT and SPECIES OUTFIT TRANSLATION remain authoritative. Remove the main profession completely.");
-                  b.append("\nMATERIAL BLUEPRINT: ").append(bp.optString("m",""));
-                  b.append("\nCLOTHING BLUEPRINT: ").append(bp.optString("c",""));
-                  b.append(lifestyle?"\nPRESENCE / BODY LANGUAGE: ":"\nPRESENCE / ACTION: ").append(bp.optString("s",""));
-                  b.append("\nSCENE / PRESENTATION: ").append(bp.optString("e", "Believable Novaris environment proving the optional role."));
-                  return base+"\n\n"+b;
-              }catch(Exception e){return "Variant prompt error: "+e.getMessage();}
+                  return OriginalVariantEngine.build(this,root,dex,variant,triple);
+              }catch(Exception e){
+                  android.util.Log.e("NovarisVariants","Original prompt failed",e);
+                  return "Variant prompt error: "+e.getMessage();
+              }
           }
           """
           anchor='private void copy(String s){'
