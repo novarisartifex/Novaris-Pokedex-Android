@@ -233,8 +233,8 @@ public class DetailActivity extends Activity {
         if(dex==197){
             instruction.append(" UMBREON / NACHTARA SHINY — CRITICAL: The ring markings and matching luminous accents are BLUE, NOT YELLOW. Do not generate the normal yellow rings. Keep Umbreon's dark body and recognizable ring pattern, using the supplied Shiny reference image to match the exact blue hue and placement.");
         }
-        instruction.append("\\nFINAL COLOR VALIDATION: Before generating the image, compare each distinctive marking against the supplied Shiny reference image. If a normal-color feature conflicts, replace it with the Shiny-reference color. This instruction takes precedence over conflicting color descriptions anywhere earlier in the combined prompt.");
-        return base+"\\n\\n"+instruction.toString();
+        instruction.append("\nFINAL COLOR VALIDATION: Before generating the image, compare each distinctive marking against the supplied Shiny reference image. If a normal-color feature conflicts, replace it with the Shiny-reference color. This instruction takes precedence over conflicting color descriptions anywhere earlier in the combined prompt.");
+        return base+"\n\n"+instruction.toString();
     }
 
     private void showCharacter(String id){
