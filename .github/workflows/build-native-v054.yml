@@ -224,10 +224,10 @@ jobs:
         shell: bash
         run: |
           sed -i 's/versionCode = 8/versionCode = 15/' appsrc/app/build.gradle.kts
-          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.9-native"/' appsrc/app/build.gradle.kts
+          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.10-native"/' appsrc/app/build.gradle.kts
           grep -n 'versionCode\|versionName' appsrc/app/build.gradle.kts
           grep -F 'versionCode = 14' appsrc/app/build.gradle.kts
-          grep -F 'versionName = "0.5.9-native"' appsrc/app/build.gradle.kts
+          grep -F 'versionName = "0.5.10-native"' appsrc/app/build.gradle.kts
 
       - name: Restore stable signing key
         shell: bash
@@ -396,11 +396,11 @@ jobs:
           import re
           matches=0
           for name in ('x3','b3'):
-              pattern=r'(?m)(\\b'+name+r'\\.setOnClickListener\\(v->)copy\\('
-              s,n=re.subn(pattern,r'\\1copyTriple(',s)
+              pattern=r'(?m)(\b'+name+r'\.setOnClickListener\(v->)copy\('
+              s,n=re.subn(pattern,r'\1copyTriple(',s)
               matches+=n
           if matches<2:raise SystemExit("x3 copy wiring missing")
-          s=s.replace(anchor,'private void copyTriple(String s){ copy(PromptSafety.enforce(s,true)); }\\n    '+anchor,1)
+          s=s.replace(anchor,'private void copyTriple(String s){ copy(PromptSafety.enforce(s,true)); }\n    '+anchor,1)
           # The ordinary copy path must also enforce the species-to-fashion guard.
           # Avoid double-appending to prompts that already include the safety header.
           start=s.index(anchor)
