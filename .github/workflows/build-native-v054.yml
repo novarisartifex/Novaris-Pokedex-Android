@@ -153,7 +153,7 @@ jobs:
           replacement = replacement_file.read_text()
 
           def method_bounds(text):
-              match = re.search(r'private\\s+String\\s+buildShinyPrompt\\s*\\(', text)
+              match = re.search(r'private\s+String\s+buildShinyPrompt\s*\(', text)
               if not match:
                   raise SystemExit("Shiny prompt method not found; stopping build rather than silently omitting fix")
               start = match.start()
