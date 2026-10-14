@@ -662,6 +662,20 @@ jobs:
                         }).setNegativeButton("Abbrechen",null).show();
                   }catch(Exception e){Toast.makeText(this,"Stufenauswahl fehlgeschlagen",Toast.LENGTH_LONG).show();}
               }
+              private org.json.JSONObject loadJobBaseline()throws Exception{
+                  java.io.InputStream input=getAssets().open("novaris_job_baseline_v2742.json");
+                  java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();
+                  byte[] buffer=new byte[8192];int count;
+                  while((count=input.read(buffer))!=-1)bytes.write(buffer,0,count);
+                  input.close();
+                  org.json.JSONArray rows=new org.json.JSONArray(bytes.toString("UTF-8"));
+                  org.json.JSONObject byDex=new org.json.JSONObject();
+                  for(int i=0;i<rows.length();i++){
+                      org.json.JSONObject row=rows.getJSONObject(i);
+                      byDex.put(String.valueOf(row.getInt("dex")),row);
+                  }
+                  return byDex;
+              }
               private void exportJobEdits(){
                   android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_CREATE_DOCUMENT);
                   intent.addCategory(android.content.Intent.CATEGORY_OPENABLE);
@@ -674,8 +688,23 @@ jobs:
                   if(request!=9912||result!=RESULT_OK||dataIntent==null||dataIntent.getData()==null)return;
                   try{
                       org.json.JSONObject root=new org.json.JSONObject();
-                      root.put("format","novaris-job-overrides-v1");
-                      root.put("assignments",new org.json.JSONObject(getSharedPreferences("novaris_job_edits",MODE_PRIVATE).getAll()));
+                      root.put("format","NOVARIS_JOB_ASSIGNMENTS_v16");
+                      root.put("pokedexVersion","V27.0");
+                      org.json.JSONArray assignments=new org.json.JSONArray();
+                      org.json.JSONObject baseline=loadJobBaseline();
+                      java.util.Map<String,?> edits=getSharedPreferences("novaris_job_edits",MODE_PRIVATE).getAll();
+                      for(java.util.Map.Entry<String,?> edit:edits.entrySet()){
+                          String dexKey=edit.getKey();
+                          org.json.JSONObject original=baseline.optJSONObject(dexKey);
+                          org.json.JSONObject item=new org.json.JSONObject();
+                          item.put("dex",Integer.parseInt(dexKey));
+                          item.put("original",original==null?new org.json.JSONObject():original);
+                          org.json.JSONObject selected=new org.json.JSONObject();
+                          selected.put("role",String.valueOf(edit.getValue()));
+                          item.put("selected",selected);
+                          assignments.put(item);
+                      }
+                      root.put("assignments",assignments);
                       try(java.io.OutputStream output=getContentResolver().openOutputStream(dataIntent.getData())){
                           output.write(root.toString(2).getBytes(java.nio.charset.StandardCharsets.UTF_8));
                       }
