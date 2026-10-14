@@ -394,10 +394,10 @@ jobs:
           s=s.replace(anchor,anchor,1)
           hook='addFormCards("Weitere Formen",d.item,d.formsJson);'
           if hook not in s:raise SystemExit("Form list insertion point missing")
-          wiring='\n        try{\n            JSONArray forms=new JSONArray(d.formsJson);\n            for(int fi=0;fi<forms.length();fi++){\n                JSONObject form=forms.optJSONObject(fi);\n                if(form!=null) addFormClassVariants(d.item.dex,fi+1,form.optString("name","Form"),form.optString("url",""),form.optString("blueprint",""));\n            }\n        }catch(Exception e){android.util.Log.e("NovarisFormVariants","Cannot render form variants",e);}\n        '
+          wiring='\n        try{\n            JSONArray forms=new JSONArray(d.formsJson);\n            for(int fi=0;fi<forms.length();fi++){\n                JSONObject form=forms.optJSONObject(fi);\n                if(form!=null) addFormClassVariants(d.item.dex,fi+1,form.optString("name","Form"),form.optString("url",""),form.optString("blueprint",""),body.getChildCount()-forms.length()+fi+1);\n            }\n        }catch(Exception e){android.util.Log.e("NovarisFormVariants","Cannot render form variants",e);}\n        '
           s=s.replace(hook,hook+wiring,1)
           method=r"""
-          private void addFormClassVariants(int dex,int formIndex,String formName,String formUrl,String blueprint){
+          private void addFormClassVariants(int dex,int formIndex,String formName,String formUrl,String blueprint,int insertIndex){
               try{
                   java.io.InputStream in=getAssets().open("novaris_original_variants.json");
                   java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();
@@ -451,7 +451,7 @@ jobs:
                       card.addView(actions);
                       contents.addView(card);
                   }
-                  body.addView(section);
+                  body.addView(Math.min(insertIndex,body.getChildCount()),section);
               }catch(Exception e){android.util.Log.e("NovarisFormVariants","Cannot build form variants",e);}
           }
           private String formVariantPrompt(int dex,String formName,String blueprint,String variant,boolean triple,JSONObject root){
