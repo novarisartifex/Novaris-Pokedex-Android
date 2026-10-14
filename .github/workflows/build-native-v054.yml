@@ -551,7 +551,7 @@ jobs:
           p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java")
           s=p.read_text()
           s=s.replace('        Button filename=button(mainFilename(d.item));','        addJobEditor(d.item.dex,d.item.role);\n        Button filename=button(mainFilename(d.item));',1)
-          anchor='    private String mainFilename('
+          anchor='private void copy(String s){'
           if anchor not in s:raise SystemExit("Job editor anchor missing")
           methods="""
               private String editedJob(int dex,String fallback){
