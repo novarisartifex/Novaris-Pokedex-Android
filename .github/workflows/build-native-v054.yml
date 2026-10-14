@@ -560,29 +560,57 @@ jobs:
                   return getSharedPreferences("novaris_job_edits",MODE_PRIVATE).getString(String.valueOf(dex),fallback==null?"":fallback);
               }
               private void addJobEditor(int dex,String current){
-                  Button edit=button("Job-Zuordnung bearbeiten / Export");
+                  Button edit=button("Job-Zuordnung auswählen / Export");
                   body.addView(edit);
-                  edit.setOnClickListener(v->{
-            LinearLayout panel=new LinearLayout(this);
-            panel.setOrientation(LinearLayout.VERTICAL);
-            panel.setPadding(dp(18),dp(8),dp(18),dp(8));
-            EditText job=new EditText(this);
-            job.setSingleLine(true);
-            job.setHint("Job / Klasse");
-            job.setText(editedJob(dex,current));
-            panel.addView(job);
-            new AlertDialog.Builder(this).setTitle("Job-Zuordnung #"+dex)
-              .setView(panel)
-              .setPositiveButton("Lokal speichern",(dialog,which)->{
-                  String value=job.getText().toString().trim();
-                  getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit().putString(String.valueOf(dex),value).apply();
-                  Toast.makeText(this,"Job lokal gespeichert",Toast.LENGTH_SHORT).show();
-                  body.removeAllViews();
-                  showPokemon(dex);
-              })
-              .setNeutralButton("JSON exportieren",(dialog,which)->exportJobEdits())
-              .setNegativeButton("Abbrechen",null).show();
-                  });
+                  edit.setOnClickListener(v->openJobCatalog(dex,current));
+              }
+              private void openJobCatalog(int dex,String current){
+                  try{
+                      java.io.InputStream input=getAssets().open("novaris_job_catalog_v2742.json");
+                      java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();
+                      byte[] buffer=new byte[8192];int count;
+                      while((count=input.read(buffer))!=-1)bytes.write(buffer,0,count);
+                      input.close();
+                      org.json.JSONObject catalog=new org.json.JSONObject(bytes.toString("UTF-8"));
+                      String[] systems={"Ragnarok Online","Civilian"};
+                      new AlertDialog.Builder(this).setTitle("Job-System wählen")
+                        .setItems(systems,(dialog,system)->showJobFamilies(dex,current,catalog,system))
+                        .setNeutralButton("JSON exportieren",(dialog,which)->exportJobEdits())
+                        .setNegativeButton("Abbrechen",null).show();
+                  }catch(Exception e){Toast.makeText(this,"Jobkatalog nicht verfügbar: "+e.getMessage(),Toast.LENGTH_LONG).show();}
+              }
+              private void showJobFamilies(int dex,String current,org.json.JSONObject catalog,int system){
+                  try{
+                      org.json.JSONObject families=catalog.getJSONObject(system==0?"V2610_RAG":"V2610_CIV");
+                      java.util.ArrayList<String> names=new java.util.ArrayList<>();
+                      java.util.Iterator<String> it=families.keys();
+                      while(it.hasNext())names.add(it.next());
+                      java.util.Collections.sort(names);
+                      new AlertDialog.Builder(this).setTitle("Berufsfamilie auswählen")
+                        .setItems(names.toArray(new String[0]),(dialog,index)->showJobStages(dex,current,families,names.get(index),system))
+                        .setNegativeButton("Abbrechen",null).show();
+                  }catch(Exception e){Toast.makeText(this,"Familienauswahl fehlgeschlagen",Toast.LENGTH_LONG).show();}
+              }
+              private void showJobStages(int dex,String current,org.json.JSONObject families,String family,int system){
+                  try{
+                      org.json.JSONObject entry=families.optJSONObject(family);
+                      java.util.ArrayList<String> stages=new java.util.ArrayList<>();
+                      if(system==1 && entry!=null){
+                          org.json.JSONArray a=entry.optJSONArray("specializations");
+                          if(a!=null)for(int i=0;i<a.length();i++)stages.add(a.optString(i));
+                      }else if(entry!=null){
+                          java.util.Iterator<String> keys=entry.keys();
+                          while(keys.hasNext())stages.add(keys.next());
+                      }
+                      if(stages.isEmpty())stages.add(family);
+                      new AlertDialog.Builder(this).setTitle(family+" – Stufe auswählen")
+                        .setItems(stages.toArray(new String[0]),(dialog,index)->{
+                            String selected=stages.get(index);
+                            getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit().putString(String.valueOf(dex),selected).apply();
+                            Toast.makeText(this,"Job lokal gespeichert: "+selected,Toast.LENGTH_SHORT).show();
+                            body.removeAllViews();showPokemon(dex);
+                        }).setNegativeButton("Abbrechen",null).show();
+                  }catch(Exception e){Toast.makeText(this,"Stufenauswahl fehlgeschlagen",Toast.LENGTH_LONG).show();}
               }
               private void exportJobEdits(){
                   android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_CREATE_DOCUMENT);
@@ -595,13 +623,13 @@ jobs:
                   super.onActivityResult(request,result,dataIntent);
                   if(request!=9912||result!=RESULT_OK||dataIntent==null||dataIntent.getData()==null)return;
                   try{
-            org.json.JSONObject root=new org.json.JSONObject();
-            root.put("format","novaris-job-overrides-v1");
-            root.put("assignments",new org.json.JSONObject(getSharedPreferences("novaris_job_edits",MODE_PRIVATE).getAll()));
-            try(java.io.OutputStream output=getContentResolver().openOutputStream(dataIntent.getData())){
-                output.write(root.toString(2).getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            }
-            Toast.makeText(this,"Job-Änderungen exportiert",Toast.LENGTH_LONG).show();
+                      org.json.JSONObject root=new org.json.JSONObject();
+                      root.put("format","novaris-job-overrides-v1");
+                      root.put("assignments",new org.json.JSONObject(getSharedPreferences("novaris_job_edits",MODE_PRIVATE).getAll()));
+                      try(java.io.OutputStream output=getContentResolver().openOutputStream(dataIntent.getData())){
+                          output.write(root.toString(2).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                      }
+                      Toast.makeText(this,"Job-Änderungen exportiert",Toast.LENGTH_LONG).show();
                   }catch(Exception e){Toast.makeText(this,"Export fehlgeschlagen: "+e.getMessage(),Toast.LENGTH_LONG).show();}
               }
               private String applyEditedJob(int dex,String prompt,String original){
