@@ -389,9 +389,12 @@ jobs:
           from pathlib import Path
           p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java")
           s=p.read_text()
-          anchor='addImagePromptCard(dex,i+1,name,url,blueprint,role,false);'
+          anchor='addFormCards("Weitere Formen",d.item,d.formsJson);'
           if anchor not in s:raise SystemExit("Additional form insertion point missing")
-          s=s.replace(anchor,anchor+'\n                addFormClassVariants(dex,i+1,name,url,blueprint);',1)
+          s=s.replace(anchor,anchor,1)
+          hook='body.addView(card,lp);'
+          if hook not in s:raise SystemExit("Form card insertion point missing")
+          s=s.replace(hook,hook+'\n        if(!shiny) addFormClassVariants(dex,index,name,url,blueprint);',1)
           method=r"""
           private void addFormClassVariants(int dex,int formIndex,String formName,String formUrl,String blueprint){
               try{
@@ -466,7 +469,7 @@ jobs:
           if insertion not in s:raise SystemExit("Copy method insertion point missing")
           s=s.replace(insertion,method+'\n    '+insertion,1)
           p.write_text(s)
-          assert 'addFormClassVariants(dex,i+1,name,url,blueprint)' in s
+          assert 'addFormClassVariants(dex,index,name,url,blueprint)' in s
           assert 'formVariantPrompt(dex,formName,blueprint,variant,true,root)' in s
           print("Restored six per-form variants with independent image and prompt buttons")
           PY
