@@ -353,7 +353,7 @@ jobs:
           if anchor not in s:raise SystemExit("Variant method anchor missing")
           s=s.replace(anchor,method+'\n    '+anchor,1)
           p.write_text(s)
-          assert s.index('addOriginalVariants(dex);') > s.index('addShinyCards(d.item,d.formsJson,d.shinyJson);')
+          assert s.index('addOriginalVariants(dex);') < s.index('addFormCards("Weitere Formen",d.item,d.formsJson);')
           assert 'ImageClipboard.copy(this,detail.item.art)' in s
           assert 'originalVariantPrompt(dex,variant,lifestyle,true,root)' in s
           PY
