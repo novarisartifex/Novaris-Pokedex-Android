@@ -305,8 +305,15 @@ jobs:
                   JSONObject root=new JSONObject(out.toString("UTF-8"));
                   JSONArray variants=root.getJSONObject("V2713_ASSIGNMENTS").optJSONArray(String.valueOf(dex));
                   if(variants==null||variants.length()!=6)return;
-                  TextView heading=label("Alternative Klassen & Lifestyle",17,true);
-                  body.addView(heading);
+                  LinearLayout section=new LinearLayout(this);
+                  section.setOrientation(LinearLayout.VERTICAL);
+                  Button toggle=button("Optionale Klassen & Varianten · 6  ▾");
+                  section.addView(toggle);
+                  LinearLayout contents=new LinearLayout(this);
+                  contents.setOrientation(LinearLayout.VERTICAL);
+                  contents.setVisibility(android.view.View.GONE);
+                  toggle.setOnClickListener(v->{boolean open=contents.getVisibility()!=android.view.View.VISIBLE;contents.setVisibility(open?android.view.View.VISIBLE:android.view.View.GONE);toggle.setText(open?"Optionale Klassen & Varianten · 6  ▴":"Optionale Klassen & Varianten · 6  ▾");});
+                  section.addView(contents);
                   for(int i=0;i<6;i++){
                       final String variant=variants.optString(i);
                       final boolean lifestyle=i>=3;
@@ -318,8 +325,8 @@ jobs:
                       card.setPadding(dp(8),dp(10),dp(8),dp(14));
                       TextView name=label(variant,16,true);
                       card.addView(name);
-                      ImageView picture=image(dp(260),dp(260));
-                      card.addView(picture,new LinearLayout.LayoutParams(match(),dp(270)));
+                      ImageView picture=image(dp(84),dp(84));
+                      card.addView(picture,new LinearLayout.LayoutParams(dp(84),dp(84)));
                       ImageLoader.load(this,detail.item.art,picture);
                       Button copyImage=button("Copy image");
                       copyImage.setOnClickListener(v->ImageClipboard.copy(this,detail.item.art));
@@ -336,8 +343,9 @@ jobs:
                       row.addView(x1,new LinearLayout.LayoutParams(0,dp(66),1));
                       row.addView(x3,new LinearLayout.LayoutParams(0,dp(66),1));
                       card.addView(row);
-                      body.addView(card);
+                      contents.addView(card);
                   }
+                  body.addView(section);
               }catch(Exception e){android.util.Log.e("NovarisVariants","Cannot load original variants",e);}
           }
           private String originalVariantPrompt(int dex,String variant,boolean lifestyle,boolean triple,JSONObject root){
