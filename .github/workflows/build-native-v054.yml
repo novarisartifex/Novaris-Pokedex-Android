@@ -578,7 +578,10 @@ jobs:
                             if(system==0||system==2)showJobFamilies(dex,current,catalog,system);
                             else showFlatJobCatalog(dex,catalog,system);
                         })
-                        .setNeutralButton("JSON exportieren",(dialog,which)->exportJobEdits())
+                        .setNeutralButton("Import / Export",(dialog,which)->new AlertDialog.Builder(this)
+                            .setItems(new String[]{"JSON importieren","JSON exportieren"},(d2,choice)->{
+                                if(choice==0)importJobEdits();else exportJobEdits();
+                            }).show())
                         .setNegativeButton("Abbrechen",null).show();
                   }catch(Exception e){Toast.makeText(this,"Jobkatalog nicht verfügbar: "+e.getMessage(),Toast.LENGTH_LONG).show();}
               }
@@ -676,6 +679,43 @@ jobs:
                   }
                   return byDex;
               }
+              private void importJobEdits(){
+                  android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT);
+                  intent.addCategory(android.content.Intent.CATEGORY_OPENABLE);
+                  intent.setType("application/json");
+                  startActivityForResult(intent,9913);
+              }
+              private void readJobEdits(android.net.Uri uri)throws Exception{
+                  java.io.InputStream input=getContentResolver().openInputStream(uri);
+                  if(input==null)throw new java.io.IOException("Datei nicht lesbar");
+                  java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();
+                  byte[] buffer=new byte[8192];int n;
+                  try(java.io.InputStream stream=input){
+                      while((n=stream.read(buffer))!=-1){
+                          if(bytes.size()+n>4000000)throw new java.io.IOException("Datei zu groß");
+                          bytes.write(buffer,0,n);
+                      }
+                  }
+                  org.json.JSONObject root=new org.json.JSONObject(bytes.toString("UTF-8"));
+                  if(!"NOVARIS_JOB_ASSIGNMENTS_v16".equals(root.optString("format")))
+                      throw new org.json.JSONException("Unbekanntes Zuordnungsformat");
+                  org.json.JSONArray assignments=root.getJSONArray("assignments");
+                  android.content.SharedPreferences.Editor editor=getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit();
+                  int imported=0;
+                  for(int i=0;i<assignments.length();i++){
+                      org.json.JSONObject item=assignments.getJSONObject(i);
+                      int dex=item.getInt("dex");
+                      if(dex<1||dex>1025)throw new org.json.JSONException("Ungültige Dex-ID");
+                      org.json.JSONObject selected=item.getJSONObject("selected");
+                      String role=selected.optString("role","").trim();
+                      if(role.isEmpty())continue;
+                      editor.putString(String.valueOf(dex),role);
+                      imported++;
+                  }
+                  editor.apply();
+                  Toast.makeText(this,imported+" Job-Zuordnungen importiert",Toast.LENGTH_LONG).show();
+                  body.removeAllViews();showPokemon(d.item.dex);
+              }
               private void exportJobEdits(){
                   android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_CREATE_DOCUMENT);
                   intent.addCategory(android.content.Intent.CATEGORY_OPENABLE);
@@ -685,7 +725,13 @@ jobs:
               }
               @Override protected void onActivityResult(int request,int result,android.content.Intent dataIntent){
                   super.onActivityResult(request,result,dataIntent);
-                  if(request!=9912||result!=RESULT_OK||dataIntent==null||dataIntent.getData()==null)return;
+                  if(result!=RESULT_OK||dataIntent==null||dataIntent.getData()==null)return;
+                  if(request==9913){
+                      try{readJobEdits(dataIntent.getData());}
+                      catch(Exception e){Toast.makeText(this,"Import fehlgeschlagen: "+e.getMessage(),Toast.LENGTH_LONG).show();}
+                      return;
+                  }
+                  if(request!=9912)return;
                   try{
                       org.json.JSONObject root=new org.json.JSONObject();
                       root.put("format","NOVARIS_JOB_ASSIGNMENTS_v16");
