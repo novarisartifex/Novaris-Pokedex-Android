@@ -679,7 +679,7 @@ jobs:
           end=s.index("private String applyEditedJob(",start)
           picker=s[start:end]
           assert 'new EditText(this)' not in picker, "Free-text editor is still present"
-          assert 'getJSONObject("tier_map")' in picker, "Ragnarok stage mapping missing"
+          assert 'optJSONObject("tier_map")' in picker, "Ragnarok stage mapping missing"
           assert 'optJSONArray("specializations")' in picker, "Civilian stage mapping missing"
           for key in ("V2610_RAG","V2610_CIV","V2622_FFXIV","V2610_GATHER","V2610_CRAFT"):
               assert key in picker, f"Missing catalog: {key}"
