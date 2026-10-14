@@ -392,9 +392,17 @@ jobs:
           anchor='addFormCards("Weitere Formen",d.item,d.formsJson);'
           if anchor not in s:raise SystemExit("Additional form insertion point missing")
           s=s.replace(anchor,anchor,1)
-          hook='body.addView(card,lp);'
-          if hook not in s:raise SystemExit("Form card insertion point missing")
-          s=s.replace(hook,hook+'\n        if(!shiny) addFormClassVariants(dex,index,name,url,blueprint);',1)
+          hook='addFormCards("Weitere Formen",d.item,d.formsJson);'
+          if hook not in s:raise SystemExit("Form list insertion point missing")
+          wiring='''\n        try{
+            JSONArray forms=new JSONArray(d.formsJson);
+            for(int fi=0;fi<forms.length();fi++){
+                JSONObject form=forms.optJSONObject(fi);
+                if(form!=null) addFormClassVariants(d.item.dex,fi+1,form.optString("name","Form"),form.optString("url",""),form.optString("blueprint",""));
+            }
+        }catch(Exception e){android.util.Log.e("NovarisFormVariants","Cannot render form variants",e);}
+        '''
+          s=s.replace(hook,hook+wiring,1)
           method=r"""
           private void addFormClassVariants(int dex,int formIndex,String formName,String formUrl,String blueprint){
               try{
