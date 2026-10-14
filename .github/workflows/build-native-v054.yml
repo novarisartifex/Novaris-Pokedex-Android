@@ -572,12 +572,33 @@ jobs:
                       while((count=input.read(buffer))!=-1)bytes.write(buffer,0,count);
                       input.close();
                       org.json.JSONObject catalog=new org.json.JSONObject(bytes.toString("UTF-8"));
-                      String[] systems={"Ragnarok Online","Civilian"};
-                      new AlertDialog.Builder(this).setTitle("Job-System wählen")
-                        .setItems(systems,(dialog,system)->showJobFamilies(dex,current,catalog,system))
+                      String[] systems={"Ragnarok Online","Final Fantasy XIV","Civilian","Gatherer","Crafter"};
+                      new AlertDialog.Builder(this).setTitle("Grundklasse / Berufsgruppe")
+                        .setItems(systems,(dialog,system)->{
+                            if(system==0||system==2)showJobFamilies(dex,current,catalog,system);
+                            else showFlatJobCatalog(dex,catalog,system);
+                        })
                         .setNeutralButton("JSON exportieren",(dialog,which)->exportJobEdits())
                         .setNegativeButton("Abbrechen",null).show();
                   }catch(Exception e){Toast.makeText(this,"Jobkatalog nicht verfügbar: "+e.getMessage(),Toast.LENGTH_LONG).show();}
+              }
+              private void showFlatJobCatalog(int dex,org.json.JSONObject catalog,int system){
+                  try{
+                      String key=system==1?"V2622_FFXIV":system==3?"V2610_GATHER":"V2610_CRAFT";
+                      org.json.JSONObject jobs=catalog.getJSONObject(key);
+                      java.util.ArrayList<String> names=new java.util.ArrayList<>();
+                      java.util.Iterator<String> it=jobs.keys();
+                      while(it.hasNext())names.add(it.next());
+                      java.util.Collections.sort(names);
+                      new AlertDialog.Builder(this).setTitle("Klasse / Beruf")
+                        .setItems(names.toArray(new String[0]),(dialog,index)->saveSelectedJob(dex,names.get(index)))
+                        .setNegativeButton("Abbrechen",null).show();
+                  }catch(Exception e){Toast.makeText(this,"Jobauswahl fehlgeschlagen: "+e.getMessage(),Toast.LENGTH_LONG).show();}
+              }
+              private void saveSelectedJob(int dex,String selected){
+                  getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit().putString(String.valueOf(dex),selected).apply();
+                  Toast.makeText(this,"Job lokal gespeichert: "+selected,Toast.LENGTH_SHORT).show();
+                  body.removeAllViews();showPokemon(dex);
               }
               private void showJobFamilies(int dex,String current,org.json.JSONObject catalog,int system){
                   try{
@@ -611,10 +632,7 @@ jobs:
                       if(stages.isEmpty())stages.add(family);
                       new AlertDialog.Builder(this).setTitle(family+" – Stufe auswählen")
                         .setItems(stages.toArray(new String[0]),(dialog,index)->{
-                            String selected=stages.get(index);
-                            getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit().putString(String.valueOf(dex),selected).apply();
-                            Toast.makeText(this,"Job lokal gespeichert: "+selected,Toast.LENGTH_SHORT).show();
-                            body.removeAllViews();showPokemon(dex);
+                            saveSelectedJob(dex,stages.get(index));
                         }).setNegativeButton("Abbrechen",null).show();
                   }catch(Exception e){Toast.makeText(this,"Stufenauswahl fehlgeschlagen",Toast.LENGTH_LONG).show();}
               }
