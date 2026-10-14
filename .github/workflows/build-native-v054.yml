@@ -599,8 +599,14 @@ jobs:
                           org.json.JSONArray a=entry.optJSONArray("specializations");
                           if(a!=null)for(int i=0;i<a.length();i++)stages.add(a.optString(i));
                       }else if(entry!=null){
-                          java.util.Iterator<String> keys=entry.keys();
-                          while(keys.hasNext())stages.add(keys.next());
+                          org.json.JSONObject tierMap=entry.optJSONObject("tier_map");
+                          if(tierMap!=null){
+                              String[] tiers={"T1","T2","Transcendent","T3","T4"};
+                              for(String tier:tiers){
+                                  String name=tierMap.optString(tier,"");
+                                  if(!name.isEmpty())stages.add(name);
+                              }
+                          }
                       }
                       if(stages.isEmpty())stages.add(family);
                       new AlertDialog.Builder(this).setTitle(family+" – Stufe auswählen")
