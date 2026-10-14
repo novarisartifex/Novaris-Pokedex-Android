@@ -1,4 +1,4 @@
-name: Build Novaris Native v0.5.10
+name: Build Novaris Native v0.5.11
 
 on:
   workflow_dispatch:
@@ -223,11 +223,11 @@ jobs:
       - name: Set v0.5.4 version
         shell: bash
         run: |
-          sed -i 's/versionCode = 8/versionCode = 15/' appsrc/app/build.gradle.kts
-          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.10-native"/' appsrc/app/build.gradle.kts
+          sed -i 's/versionCode = 8/versionCode = 16/' appsrc/app/build.gradle.kts
+          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.11-native"/' appsrc/app/build.gradle.kts
           grep -n 'versionCode\|versionName' appsrc/app/build.gradle.kts
-          grep -F 'versionCode = 15' appsrc/app/build.gradle.kts
-          grep -F 'versionName = "0.5.10-native"' appsrc/app/build.gradle.kts
+          grep -F 'versionCode = 16' appsrc/app/build.gradle.kts
+          grep -F 'versionName = "0.5.11-native"' appsrc/app/build.gradle.kts
 
       - name: Restore stable signing key
         shell: bash
@@ -382,6 +382,95 @@ jobs:
           assert 'releaseUpdater.attach()' in s
           PY
 
+      - name: Restore six original class and lifestyle variants for every additional form
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java")
+          s=p.read_text()
+          anchor='addImagePromptCard(dex,i+1,name,url,blueprint,role,false);'
+          if anchor not in s:raise SystemExit("Additional form insertion point missing")
+          s=s.replace(anchor,anchor+'\n                addFormClassVariants(dex,i+1,name,url,blueprint);',1)
+          method=r"""
+          private void addFormClassVariants(int dex,int formIndex,String formName,String formUrl,String blueprint){
+              try{
+                  java.io.InputStream in=getAssets().open("novaris_original_variants.json");
+                  java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();
+                  byte[] buffer=new byte[8192];int n;
+                  while((n=in.read(buffer))!=-1)out.write(buffer,0,n);
+                  in.close();
+                  JSONObject root=new JSONObject(out.toString("UTF-8"));
+                  JSONArray variants=root.getJSONObject("V2713_ASSIGNMENTS").optJSONArray(String.valueOf(dex));
+                  if(variants==null||variants.length()!=6)return;
+                  DatabaseManager.PokemonDetail detail=data.pokemonDetail(dex);
+                  if(detail==null)return;
+                  LinearLayout section=new LinearLayout(this);
+                  section.setOrientation(LinearLayout.VERTICAL);
+                  section.setPadding(dp(8),dp(8),dp(8),dp(8));
+                  Button toggle=button("Optionale Klassen & Varianten · 6  ▾");
+                  section.addView(toggle);
+                  LinearLayout contents=new LinearLayout(this);
+                  contents.setOrientation(LinearLayout.VERTICAL);
+                  contents.setVisibility(android.view.View.GONE);
+                  toggle.setOnClickListener(v->{
+                      boolean open=contents.getVisibility()!=android.view.View.VISIBLE;
+                      contents.setVisibility(open?android.view.View.VISIBLE:android.view.View.GONE);
+                      toggle.setText(open?"Optionale Klassen & Varianten · 6  ▴":"Optionale Klassen & Varianten · 6  ▾");
+                  });
+                  section.addView(contents);
+                  for(int i=0;i<6;i++){
+                      final String variant=variants.optString(i);
+                      final String title=String.format(java.util.Locale.ROOT,"#%04d.%s_%02d_%s_%s",dex,
+                          OriginalVariantEngine.slug(detail.item.en),formIndex,OriginalVariantEngine.slug(formName),OriginalVariantEngine.slug(variant));
+                      LinearLayout card=new LinearLayout(this);
+                      card.setOrientation(LinearLayout.VERTICAL);
+                      card.setPadding(dp(8),dp(10),dp(8),dp(10));
+                      card.addView(label((i<3?"OPTIONALE KLASSE ":"LIFESTYLE ")+(i+1)+"/6",14,true));
+                      ImageView preview=image(dp(84),dp(84));
+                      card.addView(preview,new LinearLayout.LayoutParams(dp(84),dp(84)));
+                      ImageLoader.load(this,formUrl,preview);
+                      Button imageButton=button("Copy image");
+                      imageButton.setOnClickListener(v->ImageClipboard.copy(this,formUrl));
+                      card.addView(imageButton);
+                      Button fileButton=button(title);
+                      fileButton.setOnClickListener(v->copy(title));
+                      card.addView(fileButton);
+                      LinearLayout actions=new LinearLayout(this);
+                      actions.setOrientation(LinearLayout.HORIZONTAL);
+                      Button one=button(variant+" x1");
+                      Button three=button(variant+" x3");
+                      one.setOnClickListener(v->copy(formVariantPrompt(dex,formName,blueprint,variant,false,root)));
+                      three.setOnClickListener(v->copyTriple(formVariantPrompt(dex,formName,blueprint,variant,true,root)));
+                      actions.addView(one,new LinearLayout.LayoutParams(0,dp(62),1));
+                      actions.addView(three,new LinearLayout.LayoutParams(0,dp(62),1));
+                      card.addView(actions);
+                      contents.addView(card);
+                  }
+                  body.addView(section);
+              }catch(Exception e){android.util.Log.e("NovarisFormVariants","Cannot build form variants",e);}
+          }
+          private String formVariantPrompt(int dex,String formName,String blueprint,String variant,boolean triple,JSONObject root){
+              try{
+                  String original=OriginalVariantEngine.build(this,root,dex,variant,triple);
+                  String formContext="MANDATORY FORM IDENTITY: "+formName+
+                      ". Use the exact selected form reference image, not the base species. "+
+                      "FORM BLUEPRINT: "+blueprint+
+                      ". The form's source colors, silhouette and details override the normal form where different. "+
+                      "Keep the selected optional class or lifestyle role unchanged.";
+                  return formContext+"\n\n"+original;
+              }catch(Exception e){return "Variant prompt error: "+e.getMessage();}
+          }
+          """
+          insertion='private void copy(String s){'
+          if insertion not in s:raise SystemExit("Copy method insertion point missing")
+          s=s.replace(insertion,method+'\n    '+insertion,1)
+          p.write_text(s)
+          assert 'addFormClassVariants(dex,i+1,name,url,blueprint)' in s
+          assert 'formVariantPrompt(dex,formName,blueprint,variant,true,root)' in s
+          print("Restored six per-form variants with independent image and prompt buttons")
+          PY
+
       - name: Enforce non-anatomical species translation and independent x3 images
         shell: bash
         run: |
@@ -436,13 +525,13 @@ jobs:
           jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
 
       - name: Prepare APK
-        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.10.apk
+        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.11.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Novaris-Pokedex-Native-v0.5.10
-          path: Novaris-Pokedex-Native-v0.5.10.apk
+          name: Novaris-Pokedex-Native-v0.5.11
+          path: Novaris-Pokedex-Native-v0.5.11.apk
           if-no-files-found: error
           retention-days: 14
 
@@ -452,12 +541,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TAG="v0.5.10-native"
-          APK="Novaris-Pokedex-Native-v0.5.10.apk"
+          TAG="v0.5.11-native"
+          APK="Novaris-Pokedex-Native-v0.5.11.apk"
           test -s "$APK"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$APK" --clobber
           else
-            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "Novaris Pokédex Native v0.5.10" --notes "Native Android APK, Klassenvarianten und Shiny-Farbpriorität. Datenupdates bleiben separat."
+            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "Novaris Pokédex Native v0.5.11" --notes "Native Android APK, Klassenvarianten und Shiny-Farbpriorität. Datenupdates bleiben separat."
           fi
           gh release view "$TAG" --json assets,url
