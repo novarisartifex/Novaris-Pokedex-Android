@@ -543,6 +543,78 @@ jobs:
           assert 'copyTriple(' in s
           PY
 
+      - name: Install local job assignment editor and JSON export
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java")
+          s=p.read_text()
+          s=s.replace('        Button filename=button(mainFilename(d.item));','        addJobEditor(d.item.dex,d.item.role);\n        Button filename=button(mainFilename(d.item));',1)
+          anchor='    private String mainFilename('
+          if anchor not in s:raise SystemExit("Job editor anchor missing")
+          methods="""
+    private String editedJob(int dex,String fallback){
+        return getSharedPreferences("novaris_job_edits",MODE_PRIVATE).getString(String.valueOf(dex),fallback==null?"":fallback);
+    }
+    private void addJobEditor(int dex,String current){
+        Button edit=button("Job-Zuordnung bearbeiten / Export");
+        body.addView(edit);
+        edit.setOnClickListener(v->{
+            LinearLayout panel=new LinearLayout(this);
+            panel.setOrientation(LinearLayout.VERTICAL);
+            panel.setPadding(dp(18),dp(8),dp(18),dp(8));
+            EditText job=new EditText(this);
+            job.setSingleLine(true);
+            job.setHint("Job / Klasse");
+            job.setText(editedJob(dex,current));
+            panel.addView(job);
+            new AlertDialog.Builder(this).setTitle("Job-Zuordnung #"+dex)
+              .setView(panel)
+              .setPositiveButton("Lokal speichern",(dialog,which)->{
+                  String value=job.getText().toString().trim();
+                  getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit().putString(String.valueOf(dex),value).apply();
+                  Toast.makeText(this,"Job lokal gespeichert",Toast.LENGTH_SHORT).show();
+                  body.removeAllViews();
+                  showPokemon(dex);
+              })
+              .setNeutralButton("JSON exportieren",(dialog,which)->exportJobEdits())
+              .setNegativeButton("Abbrechen",null).show();
+        });
+    }
+    private void exportJobEdits(){
+        android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(android.content.Intent.CATEGORY_OPENABLE);
+        intent.setType("application/json");
+        intent.putExtra(android.content.Intent.EXTRA_TITLE,"novaris_job_aenderungen.json");
+        startActivityForResult(intent,9912);
+    }
+    @Override protected void onActivityResult(int request,int result,android.content.Intent dataIntent){
+        super.onActivityResult(request,result,dataIntent);
+        if(request!=9912||result!=RESULT_OK||dataIntent==null||dataIntent.getData()==null)return;
+        try{
+            org.json.JSONObject root=new org.json.JSONObject();
+            root.put("format","novaris-job-overrides-v1");
+            root.put("assignments",new org.json.JSONObject(getSharedPreferences("novaris_job_edits",MODE_PRIVATE).getAll()));
+            try(java.io.OutputStream output=getContentResolver().openOutputStream(dataIntent.getData())){
+                output.write(root.toString(2).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            }
+            Toast.makeText(this,"Job-Änderungen exportiert",Toast.LENGTH_LONG).show();
+        }catch(Exception e){Toast.makeText(this,"Export fehlgeschlagen: "+e.getMessage(),Toast.LENGTH_LONG).show();}
+    }
+    private String applyEditedJob(int dex,String prompt,String original){
+        String edited=editedJob(dex,original);
+        if(prompt==null||original==null||original.isEmpty()||edited.equals(original))return prompt;
+        return prompt.replace(original,edited);
+    }
+    """
+          s=s.replace(anchor,methods+'\n'+anchor,1)
+          s=s.replace('v->copy(data.buildPokemonPrompt(d.item.dex,false))','v->copy(applyEditedJob(d.item.dex,data.buildPokemonPrompt(d.item.dex,false),d.item.role))',1)
+          s=s.replace('v->copy(data.buildPokemonPrompt(d.item.dex,true))','v->copy(applyEditedJob(d.item.dex,data.buildPokemonPrompt(d.item.dex,true),d.item.role))',1)
+          p.write_text(s)
+          assert 'novaris-job-overrides-v1' in s
+          PY
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
