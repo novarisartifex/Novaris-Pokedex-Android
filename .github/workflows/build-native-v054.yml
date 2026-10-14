@@ -662,6 +662,15 @@ jobs:
           python3 tools/job_port/extract_html_job_contract.py /tmp/novaris_jobs_v2742.html appsrc/app/src/main/assets
           test -s appsrc/app/src/main/assets/novaris_job_catalog_v2742.json
           test -s appsrc/app/src/main/assets/novaris_job_baseline_v2742.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path("appsrc/app/src/main/assets/novaris_job_catalog_v2742.json").read_text())
+          for key in ("V2610_RAG","V2610_CIV"):
+              print("CATALOG STRUCTURE",key)
+              for family,entry in list(c[key].items())[:3]:
+                  print("FAMILY",family,"TYPE",type(entry).__name__,"VALUE",json.dumps(entry,ensure_ascii=False)[:1500])
+          PY
 
       - name: Set up Java
         uses: actions/setup-java@v4
