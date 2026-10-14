@@ -607,9 +607,30 @@ jobs:
                       java.util.Iterator<String> it=families.keys();
                       while(it.hasNext())names.add(it.next());
                       java.util.Collections.sort(names);
-                      new AlertDialog.Builder(this).setTitle("Berufsfamilie auswählen")
-                        .setItems(names.toArray(new String[0]),(dialog,index)->showJobStages(dex,current,families,names.get(index),system))
-                        .setNegativeButton("Abbrechen",null).show();
+                      if(system==0){
+                          java.util.ArrayList<String> roots=new java.util.ArrayList<>();
+                          for(String family:names){
+                              org.json.JSONObject item=families.optJSONObject(family);
+                              String root=item==null?"":item.optString("root","");
+                              if(!root.isEmpty()&&!roots.contains(root))roots.add(root);
+                          }
+                          java.util.Collections.sort(roots);
+                          new AlertDialog.Builder(this).setTitle("Ragnarok Grundklasse wählen")
+                            .setItems(roots.toArray(new String[0]),(dialog,index)->{
+                                java.util.ArrayList<String> branches=new java.util.ArrayList<>();
+                                for(String family:names){
+                                    org.json.JSONObject item=families.optJSONObject(family);
+                                    if(item!=null&&roots.get(index).equals(item.optString("root","")))branches.add(family);
+                                }
+                                new AlertDialog.Builder(this).setTitle("Klassenlaufbahn wählen")
+                                  .setItems(branches.toArray(new String[0]),(d2,i)->showJobStages(dex,current,families,branches.get(i),system))
+                                  .setNegativeButton("Abbrechen",null).show();
+                            }).setNegativeButton("Abbrechen",null).show();
+                      }else{
+                          new AlertDialog.Builder(this).setTitle("Berufsfamilie auswählen")
+                            .setItems(names.toArray(new String[0]),(dialog,index)->showJobStages(dex,current,families,names.get(index),system))
+                            .setNegativeButton("Abbrechen",null).show();
+                      }
                   }catch(Exception e){Toast.makeText(this,"Familienauswahl fehlgeschlagen",Toast.LENGTH_LONG).show();}
               }
               private void showJobStages(int dex,String current,org.json.JSONObject families,String family,int system){
