@@ -445,7 +445,7 @@ jobs:
                       Button one=button(variant+" x1");
                       Button three=button(variant+" x3");
                       one.setOnClickListener(v->copy(formVariantPrompt(dex,formName,blueprint,variant,false,root)));
-                      three.setOnClickListener(v->copyTriple(formVariantPrompt(dex,formName,blueprint,variant,true,root)));
+                      three.setOnClickListener(v->copy(formVariantPrompt(dex,formName,blueprint,variant,true,root)));
                       actions.addView(one,new LinearLayout.LayoutParams(0,dp(62),1));
                       actions.addView(three,new LinearLayout.LayoutParams(0,dp(62),1));
                       card.addView(actions);
