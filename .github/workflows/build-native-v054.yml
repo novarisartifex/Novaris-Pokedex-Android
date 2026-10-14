@@ -264,9 +264,9 @@ jobs:
           s=p.read_text()
           needle='private void showPokemon(int dex){'
           if needle not in s: raise SystemExit("Pokemon detail anchor absent")
-          anchor='addShinyCards(d.item,d.formsJson,d.shinyJson);'
-          if anchor not in s:raise SystemExit("Shiny block positioning anchor missing")
-          s=s.replace(anchor,anchor+'\n        addOriginalVariants(dex);',1)
+          anchor='addFormCards("Weitere Formen",d.item,d.formsJson);'
+          if anchor not in s:raise SystemExit("Main form variant insertion anchor missing")
+          s=s.replace(anchor,'addOriginalVariants(dex);\n        '+anchor,1)
           method=r"""
           private void addOriginalVariants(int dex){
               try{
