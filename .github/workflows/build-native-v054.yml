@@ -470,7 +470,7 @@ jobs:
           if insertion not in s:raise SystemExit("Copy method insertion point missing")
           s=s.replace(insertion,method+'\n    '+insertion,1)
           p.write_text(s)
-          assert 'addFormClassVariants(dex,index,name,url,blueprint)' in s
+          assert 'addFormClassVariants(d.item.dex,fi+1' in s
           assert 'formVariantPrompt(dex,formName,blueprint,variant,true,root)' in s
           print("Restored six per-form variants with independent image and prompt buttons")
           PY
