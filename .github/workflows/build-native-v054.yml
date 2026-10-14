@@ -451,7 +451,7 @@ jobs:
                       card.addView(actions);
                       contents.addView(card);
                   }
-                  body.addView(Math.min(insertIndex,body.getChildCount()),section);
+                  body.addView(section,Math.min(insertIndex,body.getChildCount()));
               }catch(Exception e){android.util.Log.e("NovarisFormVariants","Cannot build form variants",e);}
           }
           private String formVariantPrompt(int dex,String formName,String blueprint,String variant,boolean triple,JSONObject root){
