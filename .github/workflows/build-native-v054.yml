@@ -721,7 +721,7 @@ jobs:
           s=s.replace('v->copy(data.buildPokemonPrompt(d.item.dex,false))','v->copy(applyEditedJob(d.item.dex,data.buildPokemonPrompt(d.item.dex,false),d.item.role))',1)
           s=s.replace('v->copy(data.buildPokemonPrompt(d.item.dex,true))','v->copy(applyEditedJob(d.item.dex,data.buildPokemonPrompt(d.item.dex,true),d.item.role))',1)
           p.write_text(s)
-          assert 'novaris-job-overrides-v1' in s
+          assert 'NOVARIS_JOB_ASSIGNMENTS_v16' in s
           PY
 
       - name: Verify native job picker source
