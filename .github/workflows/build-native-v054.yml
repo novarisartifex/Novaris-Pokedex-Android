@@ -617,6 +617,24 @@ jobs:
           assert 'novaris-job-overrides-v1' in s
           PY
 
+      - name: Verify and bundle original V27.42 job catalog
+        shell: bash
+        run: |
+          python3 -m pip install lxml
+          python3 - <<'PY'
+          import gzip
+          from pathlib import Path
+          source=Path("Pokedex_V27_42.html.gz")
+          target=Path("/tmp/novaris_jobs_v2742.html")
+          with gzip.open(source,"rb") as f:
+              target.write_bytes(f.read())
+          print("Original HTML:",target.stat().st_size,"bytes")
+          PY
+          python3 tools/job_port/test_html_job_contract.py /tmp/novaris_jobs_v2742.html
+          python3 tools/job_port/extract_html_job_contract.py /tmp/novaris_jobs_v2742.html appsrc/app/src/main/assets
+          test -s appsrc/app/src/main/assets/novaris_job_catalog_v2742.json
+          test -s appsrc/app/src/main/assets/novaris_job_baseline_v2742.json
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
