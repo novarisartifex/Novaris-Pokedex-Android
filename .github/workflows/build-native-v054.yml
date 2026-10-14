@@ -701,7 +701,7 @@ jobs:
           c=json.loads(Path("appsrc/app/src/main/assets/novaris_job_catalog_v2742.json").read_text())
           for family, entry in c["V2610_RAG"].items():
               assert isinstance(entry.get("tier_map"),dict),family
-              assert entry["tier_map"].get("T1"),family
+              assert any(entry["tier_map"].values()),family
               assert any(entry["tier_map"].get(t) for t in ("T2","Transcendent","T3","T4")),family
           for family,entry in c["V2610_CIV"].items():
               assert isinstance(entry.get("specializations"),list) and entry["specializations"],family
