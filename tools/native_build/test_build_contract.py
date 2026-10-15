@@ -26,4 +26,7 @@ assert "id: source_mode" in workflow
 assert "legacy=false' >> \"$GITHUB_OUTPUT\"" in workflow
 assert "legacy=true' >> \"$GITHUB_OUTPUT\"" in workflow
 assert workflow.count("if: steps.source_mode.outputs.legacy == 'true'") >= 15
+assert "cp native/v0.5.4/PromptSafety.java" in workflow
+assert "cp native/v0.5.4/AppReleaseUpdater.java" in workflow
+assert workflow.index("Install required shared native Java classes") < workflow.index("Build APK")
 print("Novaris native build migration static contracts PASS")
