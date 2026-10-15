@@ -754,13 +754,22 @@ jobs:
                       structuredValidated.put(String.valueOf(dex),selected.toString());
                       imported++;
                   }
-                  for(java.util.Map.Entry<String,String> entry:validated.entrySet())
-                      editor.putString(entry.getKey(),entry.getValue());
-                  if(!editor.commit())throw new java.io.IOException("Lokales Speichern fehlgeschlagen");
-                  android.content.SharedPreferences.Editor structuredEditor=getSharedPreferences("novaris_job_structured",MODE_PRIVATE).edit();
+                  android.content.SharedPreferences flatPrefs=getSharedPreferences("novaris_job_edits",MODE_PRIVATE);
+                  android.content.SharedPreferences structuredPrefs=getSharedPreferences("novaris_job_structured",MODE_PRIVATE);
+                  java.util.Map<String,?> oldStructured=structuredPrefs.getAll();
+                  android.content.SharedPreferences.Editor structuredEditor=structuredPrefs.edit();
                   for(java.util.Map.Entry<String,String> entry:structuredValidated.entrySet())
                       structuredEditor.putString(entry.getKey(),entry.getValue());
                   if(!structuredEditor.commit())throw new java.io.IOException("Strukturierte Daten konnten nicht gespeichert werden");
+                  for(java.util.Map.Entry<String,String> entry:validated.entrySet())
+                      editor.putString(entry.getKey(),entry.getValue());
+                  if(!editor.commit()){
+                      android.content.SharedPreferences.Editor rollback=structuredPrefs.edit().clear();
+                      for(java.util.Map.Entry<String,?> entry:oldStructured.entrySet())
+                          if(entry.getValue() instanceof String)rollback.putString(entry.getKey(),(String)entry.getValue());
+                      rollback.commit();
+                      throw new java.io.IOException("Lokales Speichern fehlgeschlagen; strukturierte Daten zurückgesetzt");
+                  }
                   Toast.makeText(this,imported+" Job-Zuordnungen importiert",Toast.LENGTH_LONG).show();
                   recreate();
               }
