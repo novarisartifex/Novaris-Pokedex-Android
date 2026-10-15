@@ -29,4 +29,7 @@ assert workflow.count("if: steps.source_mode.outputs.legacy == 'true'") >= 15
 assert "cp native/v0.5.4/PromptSafety.java" in workflow
 assert "cp native/v0.5.4/AppReleaseUpdater.java" in workflow
 assert workflow.index("Install required shared native Java classes") < workflow.index("Build APK")
+assert 'git fetch origin main' in workflow
+assert 'git cherry-pick "$snapshot_commit"' in workflow
+assert 'git push origin HEAD:main' in workflow
 print("Novaris native build migration static contracts PASS")
