@@ -613,12 +613,16 @@ jobs:
                       String prefix="Ragnarok Online".equals(group)?"ro:":"Civilian".equals(group)?"civil:":"Final Fantasy XIV".equals(group)?"ffxiv:":"Gatherer".equals(group)?"gather:":"craft:";
                       record.put("id",prefix+("Civilian".equals(group)?family:selected));
                       record.put("root_key","Ragnarok Online".equals(group)?"ro-root:"+family.split(" → ")[0]:"group:"+("Final Fantasy XIV".equals(group)?"FFXIV":group));
-                      getSharedPreferences("novaris_job_structured",MODE_PRIVATE).edit().putString(String.valueOf(dex),record.toString()).apply();
-                  }catch(Exception e){Toast.makeText(this,"Metadaten fehlgeschlagen: "+e.getMessage(),Toast.LENGTH_LONG).show();}
-                  saveSelectedJob(dex,selected);
+                      boolean structuredSaved=getSharedPreferences("novaris_job_structured",MODE_PRIVATE).edit().putString(String.valueOf(dex),record.toString()).commit();
+                      if(!structuredSaved)throw new java.io.IOException("Strukturierte Jobdaten nicht gespeichert");
+                      saveSelectedJob(dex,selected);
+                  }catch(Exception e){Toast.makeText(this,"Job nicht gespeichert: "+e.getMessage(),Toast.LENGTH_LONG).show();}
               }
               private void saveSelectedJob(int dex,String selected){
-                  getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit().putString(String.valueOf(dex),selected).apply();
+                  if(!getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit().putString(String.valueOf(dex),selected).commit()){
+                      Toast.makeText(this,"Job konnte nicht gespeichert werden",Toast.LENGTH_LONG).show();
+                      return;
+                  }
                   Toast.makeText(this,"Job lokal gespeichert: "+selected,Toast.LENGTH_SHORT).show();
                   body.removeAllViews();showPokemon(dex);
               }
@@ -832,6 +836,7 @@ jobs:
           assert 'optJSONObject("tier_map")' in picker, "Ragnarok stage mapping missing"
           assert 'optJSONArray("specializations")' in picker, "Civilian stage mapping missing"
           assert 'system==1?"C"+(index+1):""' in picker, "Civilian stage tier not persisted"
+          assert 'boolean structuredSaved=' in picker, "Structured job persistence must be checked"
           for key in ("V2610_RAG","V2610_CIV","V2622_FFXIV","V2610_GATHER","V2610_CRAFT"):
               assert key in picker, f"Missing catalog: {key}"
           print("Native catalog picker source contract PASS")
