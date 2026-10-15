@@ -68,6 +68,17 @@ public final class AppReleaseUpdater {
                 final String apkUrl=url;
                 final String remoteTime=assetTime.isEmpty()?published:assetTime;
                 android.content.SharedPreferences prefs=activity.getSharedPreferences("novaris_app_release",Context.MODE_PRIVATE);
+                // A downloaded APK is not an installed APK. Confirm installation by
+                // comparing Android's package lastUpdateTime with the value captured
+                // before opening the installer, even when the versionName is unchanged.
+                long installedAt=activity.getPackageManager()
+                    .getPackageInfo(activity.getPackageName(),0).lastUpdateTime;
+                String pendingTime=prefs.getString("pending_release_time","");
+                long beforeInstall=prefs.getLong("before_install_update_time",0L);
+                if(!pendingTime.isEmpty() && installedAt>beforeInstall && beforeInstall>0L){
+                    prefs.edit().putString("installed_release_time",pendingTime)
+                        .remove("pending_release_time").remove("before_install_update_time").apply();
+                }
                 String installedReleaseTime=prefs.getString("installed_release_time","");
                 boolean newerVersion=compare(tag,installed)>0;
                 boolean newerBuild=compare(tag,installed)==0 && !remoteTime.isEmpty() && !remoteTime.equals(installedReleaseTime);
@@ -116,7 +127,14 @@ public final class AppReleaseUpdater {
                                 Intent install=new Intent(Intent.ACTION_VIEW);
                                 install.setDataAndType(uri,"application/vnd.android.package-archive");
                                 install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_ACTIVITY_NEW_TASK);
-                                try{activity.startActivity(install);activity.getSharedPreferences("novaris_app_release",Context.MODE_PRIVATE).edit().putString("installed_release_time",releaseTime).apply();}
+                                try{
+                                    long beforeInstall=activity.getPackageManager()
+                                        .getPackageInfo(activity.getPackageName(),0).lastUpdateTime;
+                                    activity.getSharedPreferences("novaris_app_release",Context.MODE_PRIVATE)
+                                        .edit().putString("pending_release_time",releaseTime)
+                                        .putLong("before_install_update_time",beforeInstall).apply();
+                                    activity.startActivity(install);
+                                }
                                 catch(Exception e){new AlertDialog.Builder(activity).setMessage("APK heruntergeladen. Bitte über Downloads öffnen. "+e.getMessage()).setPositiveButton("OK",null).show();}
                                 return;
                             }
