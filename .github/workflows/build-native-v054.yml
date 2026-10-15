@@ -333,7 +333,7 @@ jobs:
                       copyImage.setOnClickListener(v->ImageClipboard.copy(this,detail.item.art));
                       card.addView(copyImage,new LinearLayout.LayoutParams(match(),wrap()));
                       Button copyFilename=button(filename);
-                      copyFilename.setOnClickListener(v->copy(filename));
+                      copyFilename.setOnClickListener(v->copy(filename+DOWNLOAD_SUFFIX));
                       card.addView(copyFilename,new LinearLayout.LayoutParams(match(),wrap()));
                       LinearLayout row=new LinearLayout(this);
                       row.setOrientation(LinearLayout.HORIZONTAL);
@@ -475,7 +475,7 @@ jobs:
                       imageButton.setOnClickListener(v->ImageClipboard.copy(this,formUrl));
                       card.addView(imageButton);
                       Button fileButton=button(title);
-                      fileButton.setOnClickListener(v->copy(title));
+                      fileButton.setOnClickListener(v->copy(title+DOWNLOAD_SUFFIX));
                       card.addView(fileButton);
                       LinearLayout actions=new LinearLayout(this);
                       actions.setOrientation(LinearLayout.HORIZONTAL);
