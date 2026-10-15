@@ -22,4 +22,8 @@ assert workflow.index("gradle assembleDebug --stacktrace") < workflow.index("jar
 assert workflow.index("jarsigner -verify") < workflow.index("Snapshot verified native Android sources")
 assert "'tools/native_build/**'" in workflow
 assert "'appsrc/**'" in workflow
+assert "id: source_mode" in workflow
+assert "legacy=false' >> \"$GITHUB_OUTPUT\"" in workflow
+assert "legacy=true' >> \"$GITHUB_OUTPUT\"" in workflow
+assert workflow.count("if: steps.source_mode.outputs.legacy == 'true'") >= 15
 print("Novaris native build migration static contracts PASS")
