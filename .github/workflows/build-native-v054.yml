@@ -726,20 +726,26 @@ jobs:
                   org.json.JSONArray assignments=root.getJSONArray("assignments");
                   android.content.SharedPreferences.Editor editor=getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit();
                   java.util.HashMap<String,String> validated=new java.util.HashMap<>();
+                  java.util.HashMap<String,String> structuredValidated=new java.util.HashMap<>();
                   int imported=0;
                   for(int i=0;i<assignments.length();i++){
                       org.json.JSONObject item=assignments.getJSONObject(i);
                       int dex=item.getInt("dex");
                       if(dex<1||dex>1025)throw new org.json.JSONException("Ungültige Dex-ID");
                       org.json.JSONObject selected=item.getJSONObject("selected");
-                      String role=selected.optString("role","").trim();
+                      String role=selected.optString("role",selected.optString("label","")).trim();
                       if(role.isEmpty())continue;
                       validated.put(String.valueOf(dex),role);
+                      structuredValidated.put(String.valueOf(dex),selected.toString());
                       imported++;
                   }
                   for(java.util.Map.Entry<String,String> entry:validated.entrySet())
                       editor.putString(entry.getKey(),entry.getValue());
                   if(!editor.commit())throw new java.io.IOException("Lokales Speichern fehlgeschlagen");
+                  android.content.SharedPreferences.Editor structuredEditor=getSharedPreferences("novaris_job_structured",MODE_PRIVATE).edit();
+                  for(java.util.Map.Entry<String,String> entry:structuredValidated.entrySet())
+                      structuredEditor.putString(entry.getKey(),entry.getValue());
+                  if(!structuredEditor.commit())throw new java.io.IOException("Strukturierte Daten konnten nicht gespeichert werden");
                   Toast.makeText(this,imported+" Job-Zuordnungen importiert",Toast.LENGTH_LONG).show();
                   recreate();
               }
