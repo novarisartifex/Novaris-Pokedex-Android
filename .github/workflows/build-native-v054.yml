@@ -714,7 +714,7 @@ jobs:
                   }
                   editor.apply();
                   Toast.makeText(this,imported+" Job-Zuordnungen importiert",Toast.LENGTH_LONG).show();
-                  body.removeAllViews();showPokemon(d.item.dex);
+                  recreate();
               }
               private void exportJobEdits(){
                   android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_CREATE_DOCUMENT);
