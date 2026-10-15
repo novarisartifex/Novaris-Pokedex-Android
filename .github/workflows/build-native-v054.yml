@@ -725,6 +725,8 @@ jobs:
                   if(!"NOVARIS_JOB_ASSIGNMENTS_v16".equals(root.optString("format")))
                       throw new org.json.JSONException("Unbekanntes Zuordnungsformat");
                   org.json.JSONArray assignments=root.getJSONArray("assignments");
+                  if(root.has("assignmentCount")&&root.getInt("assignmentCount")!=assignments.length())
+                      throw new org.json.JSONException("Zuordnungsanzahl stimmt nicht überein");
                   android.content.SharedPreferences.Editor editor=getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit();
                   java.util.HashMap<String,String> validated=new java.util.HashMap<>();
                   java.util.HashMap<String,String> structuredValidated=new java.util.HashMap<>();
@@ -739,6 +741,9 @@ jobs:
                       org.json.JSONObject selected=item.getJSONObject("selected");
                       String role=selected.optString("role",selected.optString("label","")).trim();
                       if(role.isEmpty())throw new org.json.JSONException("Leere Jobzuordnung für Dex "+dex);
+                      String label=selected.optString("label","").trim();
+                      if(!label.isEmpty()&&!label.equals(role))throw new org.json.JSONException("Widersprüchliche Jobbezeichnung für Dex "+dex);
+                      if(role.length()>250)throw new org.json.JSONException("Jobbezeichnung zu lang für Dex "+dex);
                       validated.put(String.valueOf(dex),role);
                       structuredValidated.put(String.valueOf(dex),selected.toString());
                       imported++;
@@ -792,6 +797,7 @@ jobs:
                           assignments.put(item);
                       }
                       root.put("assignments",assignments);
+                      root.put("assignmentCount",assignments.length());
                       try(java.io.OutputStream output=getContentResolver().openOutputStream(dataIntent.getData())){
                           output.write(root.toString(2).getBytes(java.nio.charset.StandardCharsets.UTF_8));
                       }
