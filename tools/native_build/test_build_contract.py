@@ -16,7 +16,10 @@ assert "python3 - <<'PY'" not in workflow
 assert "cat native/v0.4.0/part*.b64" in workflow
 assert "gradle assembleDebug --stacktrace" in workflow
 assert "jarsigner -verify" in workflow
-assert "appsrc/app/src/main/" in workflow, "Snapshot must preserve all assets and resources"
+assert "appsrc/app/src/main/" in workflow
+assert "rm -rf appsrc" in workflow
+assert "appsrc/app/build.gradle.kts" in workflow
+assert "appsrc/settings.gradle.kts" in workflow, "Snapshot must preserve all assets and resources"
 assert "for path in appsrc/app/src/main " in workflow, "Snapshot must stage all main source files"
 assert workflow.index("gradle assembleDebug --stacktrace") < workflow.index("jarsigner -verify")
 assert workflow.index("jarsigner -verify") < workflow.index("Snapshot verified native Android sources")
