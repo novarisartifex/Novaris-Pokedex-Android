@@ -799,6 +799,10 @@ jobs:
                       org.json.JSONObject baseline=loadJobBaseline();
                       java.util.Map<String,?> edits=getSharedPreferences("novaris_job_edits",MODE_PRIVATE).getAll();
                       java.util.ArrayList<String> sortedDexes=new java.util.ArrayList<>(edits.keySet());
+                      for(String key:sortedDexes){
+                          int number=Integer.parseInt(key);
+                          if(number<1||number>1025||!baseline.has(key))throw new org.json.JSONException("Ungültige lokale Dex-ID: "+key);
+                      }
                       java.util.Collections.sort(sortedDexes,(a,b)->Integer.compare(Integer.parseInt(a),Integer.parseInt(b)));
                       for(String dexKey:sortedDexes){
                           Object editedRole=edits.get(dexKey);
@@ -810,6 +814,7 @@ jobs:
                           String structured=getSharedPreferences("novaris_job_structured",MODE_PRIVATE).getString(dexKey,null);
                           if(structured!=null)selected=new org.json.JSONObject(structured);
                           selected.put("role",String.valueOf(editedRole));
+                          if(!selected.has("label"))selected.put("label",String.valueOf(editedRole));
                           item.put("selected",selected);
                           assignments.put(item);
                       }
