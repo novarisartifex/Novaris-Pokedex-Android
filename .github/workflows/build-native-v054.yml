@@ -663,7 +663,7 @@ jobs:
                   try{
                       org.json.JSONObject entry=families.optJSONObject(family);
                       java.util.ArrayList<String> stages=new java.util.ArrayList<>();
-                      if(system==1 && entry!=null){
+                      if(system==2 && entry!=null){
                           org.json.JSONArray a=entry.optJSONArray("specializations");
                           if(a!=null)for(int i=0;i<a.length();i++)stages.add("C"+(i+1)+" · "+a.optString(i));
                       }else if(entry!=null){
@@ -680,11 +680,11 @@ jobs:
                       new AlertDialog.Builder(this).setTitle(family+" – Stufe auswählen")
                         .setItems(stages.toArray(new String[0]),(dialog,index)->{
                             String selected=stages.get(index);
-                            if(system==1&&selected.startsWith("C")){
+                            if(system==2&&selected.startsWith("C")){
                                 int separator=selected.indexOf(" · ");
                                 if(separator>=0)selected=selected.substring(separator+3);
                             }
-                            String tier=system==1?"C"+(index+1):"";
+                            String tier=system==2?"C"+(index+1):"";
                             if(system==0&&entry!=null){
                                 org.json.JSONObject tierMap=entry.optJSONObject("tier_map");
                                 if(tierMap!=null){
@@ -692,7 +692,7 @@ jobs:
                                     while(keys.hasNext()){String key=keys.next();if(selected.equals(tierMap.optString(key)))tier=key;}
                                 }
                             }
-                            saveStructuredJob(dex,selected,system==0?"Ragnarok Online":"Civilian",family,tier,system==1?selected:"");
+                            saveStructuredJob(dex,selected,system==0?"Ragnarok Online":"Civilian",family,tier,system==2?selected:"");
                         }).setNegativeButton("Abbrechen",null).show();
                   }catch(Exception e){Toast.makeText(this,"Stufenauswahl fehlgeschlagen",Toast.LENGTH_LONG).show();}
               }
@@ -844,8 +844,10 @@ jobs:
           assert 'new EditText(this)' not in picker, "Free-text editor is still present"
           assert 'optJSONObject("tier_map")' in picker, "Ragnarok stage mapping missing"
           assert 'optJSONArray("specializations")' in picker, "Civilian stage mapping missing"
-          assert 'system==1?"C"+(index+1):""' in picker, "Civilian stage tier not persisted"
+          assert 'system==2?"C"+(index+1):""' in picker, "Civilian stage tier not persisted"
           assert 'boolean structuredSaved=' in picker, "Structured job persistence must be checked"
+          assert 'if(system==2 && entry!=null)' in picker, "Civilian specializations must use system index 2"
+          assert 'if(system==1 && entry!=null)' not in picker, "FFXIV index must not be used for Civilian stages"
           for key in ("V2610_RAG","V2610_CIV","V2622_FFXIV","V2610_GATHER","V2610_CRAFT"):
               assert key in picker, f"Missing catalog: {key}"
           print("Native catalog picker source contract PASS")
