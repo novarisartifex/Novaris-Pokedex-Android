@@ -678,7 +678,7 @@ jobs:
                                 int separator=selected.indexOf(" · ");
                                 if(separator>=0)selected=selected.substring(separator+3);
                             }
-                            String tier="";
+                            String tier=system==1?"C"+(index+1):"";
                             if(system==0&&entry!=null){
                                 org.json.JSONObject tierMap=entry.optJSONObject("tier_map");
                                 if(tierMap!=null){
@@ -819,6 +819,7 @@ jobs:
           assert 'new EditText(this)' not in picker, "Free-text editor is still present"
           assert 'optJSONObject("tier_map")' in picker, "Ragnarok stage mapping missing"
           assert 'optJSONArray("specializations")' in picker, "Civilian stage mapping missing"
+          assert 'system==1?"C"+(index+1):""' in picker, "Civilian stage tier not persisted"
           for key in ("V2610_RAG","V2610_CIV","V2622_FFXIV","V2610_GATHER","V2610_CRAFT"):
               assert key in picker, f"Missing catalog: {key}"
           print("Native catalog picker source contract PASS")
