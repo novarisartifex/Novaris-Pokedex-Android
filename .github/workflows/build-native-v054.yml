@@ -35,6 +35,14 @@ jobs:
             unzip -q source.zip -d appsrc
           fi
 
+      - name: Verify versioned native sources
+        if: hashFiles('appsrc/app/build.gradle', 'appsrc/app/src/main/AndroidManifest.xml') != ''
+        shell: bash
+        run: |
+          test -s appsrc/app/build.gradle
+          test -s appsrc/app/src/main/AndroidManifest.xml
+          echo 'Native source files are available in the checked-out tree.'
+
       - name: Apply previous feature patches
         shell: bash
         run: |
