@@ -9,6 +9,8 @@ on:
       - '.github/workflows/build-native-v054.yml'
       - 'Pokedex_V27_42.html.gz'
       - 'tools/job_port/**'
+      - 'tools/native_build/**'
+      - 'appsrc/**'
 
 permissions:
   contents: write
@@ -21,12 +23,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Reconstruct source
+      - name: Reconstruct source only while migration is pending
         shell: bash
         run: |
-          cat native/v0.4.0/part*.b64 | base64 --decode > source.zip
-          mkdir appsrc
-          unzip -q source.zip -d appsrc
+          if test -f appsrc/app/build.gradle && test -f appsrc/app/src/main/AndroidManifest.xml; then
+            echo 'Using permanently versioned Android project.'
+          else
+            echo 'Native project snapshot missing; reconstructing legacy project.'
+            cat native/v0.4.0/part*.b64 | base64 --decode > source.zip
+            mkdir -p appsrc
+            unzip -q source.zip -d appsrc
+          fi
 
       - name: Apply previous feature patches
         shell: bash
