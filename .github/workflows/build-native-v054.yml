@@ -340,7 +340,7 @@ jobs:
                       Button x1=button("Copy "+variant+" + Core + Dex x1");
                       Button x3=button("Copy "+variant+" + Core + Dex x3");
                       x1.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,lifestyle,false,root)));
-                      x3.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,lifestyle,true,root)));
+                      x3.setOnClickListener(v->copyTriple(originalVariantPrompt(dex,variant,lifestyle,true,root)));
                       row.addView(x1,new LinearLayout.LayoutParams(0,dp(66),1));
                       row.addView(x3,new LinearLayout.LayoutParams(0,dp(66),1));
                       card.addView(row);
@@ -365,6 +365,7 @@ jobs:
           assert s.index('addOriginalVariants(dex);') < s.index('addFormCards("Weitere Formen",d.item,d.formsJson);')
           assert 'ImageClipboard.copy(this,detail.item.art)' in s
           assert 'originalVariantPrompt(dex,variant,lifestyle,true,root)' in s
+          assert 'x3.setOnClickListener(v->copyTriple(originalVariantPrompt' in s, "Base x3 must use triple-aware copy"
           PY
 
       - name: Convert V27.42
@@ -481,7 +482,7 @@ jobs:
                       Button one=button(variant+" x1");
                       Button three=button(variant+" x3");
                       one.setOnClickListener(v->copy(formVariantPrompt(dex,formName,blueprint,variant,false,root)));
-                      three.setOnClickListener(v->copy(formVariantPrompt(dex,formName,blueprint,variant,true,root)));
+                      three.setOnClickListener(v->copyTriple(formVariantPrompt(dex,formName,blueprint,variant,true,root)));
                       actions.addView(one,new LinearLayout.LayoutParams(0,dp(62),1));
                       actions.addView(three,new LinearLayout.LayoutParams(0,dp(62),1));
                       card.addView(actions);
@@ -510,6 +511,7 @@ jobs:
           assert 'body.getChildCount()-forms.length()+fi+1' not in s, "Form variants may be inserted at negative index"
           assert 'Math.max(0,Math.min(insertIndex,body.getChildCount()))' in s
           assert 'formVariantPrompt(dex,formName,blueprint,variant,true,root)' in s
+          assert 'three.setOnClickListener(v->copyTriple(formVariantPrompt' in s, "Form x3 must use triple-aware copy"
           print("Restored six per-form variants with independent image and prompt buttons")
           PY
 
