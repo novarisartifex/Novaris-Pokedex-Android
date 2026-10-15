@@ -183,7 +183,7 @@ jobs:
         with:
           name: Novaris-Pokedex-Native-Compiled-Sources
           path: |
-            appsrc/app/src/main/java/
+            appsrc/app/src/main/
             appsrc/app/src/main/AndroidManifest.xml
             appsrc/app/build.gradle
             appsrc/build.gradle
@@ -208,9 +208,11 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for path in appsrc/app/src/main/java appsrc/app/src/main/res appsrc/app/src/main/AndroidManifest.xml appsrc/app/build.gradle appsrc/build.gradle appsrc/settings.gradle appsrc/gradle.properties appsrc/gradle/wrapper appsrc/gradlew; do
+          for path in appsrc/app/src/main appsrc/app/build.gradle appsrc/build.gradle appsrc/settings.gradle appsrc/gradle.properties appsrc/gradle/wrapper appsrc/gradlew; do
             if test -e "$path"; then git add -f "$path"; fi
           done
+          # Do not commit generated build outputs or secrets.
+          git reset -q -- 'appsrc/**/build/**' 'appsrc/**/.gradle/**' 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git commit -m "Snapshot verified native Android sources from successful APK build"
             git push origin HEAD:main
