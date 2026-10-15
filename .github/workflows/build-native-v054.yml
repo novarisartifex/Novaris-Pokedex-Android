@@ -701,6 +701,7 @@ jobs:
                       throw new org.json.JSONException("Unbekanntes Zuordnungsformat");
                   org.json.JSONArray assignments=root.getJSONArray("assignments");
                   android.content.SharedPreferences.Editor editor=getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit();
+                  java.util.HashMap<String,String> validated=new java.util.HashMap<>();
                   int imported=0;
                   for(int i=0;i<assignments.length();i++){
                       org.json.JSONObject item=assignments.getJSONObject(i);
@@ -709,10 +710,12 @@ jobs:
                       org.json.JSONObject selected=item.getJSONObject("selected");
                       String role=selected.optString("role","").trim();
                       if(role.isEmpty())continue;
-                      editor.putString(String.valueOf(dex),role);
+                      validated.put(String.valueOf(dex),role);
                       imported++;
                   }
-                  editor.apply();
+                  for(java.util.Map.Entry<String,String> entry:validated.entrySet())
+                      editor.putString(entry.getKey(),entry.getValue());
+                  if(!editor.commit())throw new java.io.IOException("Lokales Speichern fehlgeschlagen");
                   Toast.makeText(this,imported+" Job-Zuordnungen importiert",Toast.LENGTH_LONG).show();
                   recreate();
               }
