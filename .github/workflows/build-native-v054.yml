@@ -181,6 +181,11 @@ jobs:
         working-directory: appsrc
         run: gradle assembleDebug --stacktrace
 
+      - name: Verify stable signing certificate
+        shell: bash
+        run: |
+          jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
+
       - name: Persist successfully compiled native source files on main
         if: github.ref == 'refs/heads/main'
         shell: bash
@@ -197,11 +202,6 @@ jobs:
           else
             echo "Native sources already match the compiled build."
           fi
-
-      - name: Verify stable signing certificate
-        shell: bash
-        run: |
-          jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
 
       - name: Prepare APK
         run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.11.apk
