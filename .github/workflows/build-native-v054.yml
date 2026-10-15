@@ -42,7 +42,7 @@ jobs:
           fi
 
       - name: Verify versioned native sources
-        if: hashFiles('appsrc/app/build.gradle', 'appsrc/app/src/main/AndroidManifest.xml') != ''
+        if: steps.source_mode.outputs.legacy == 'false'
         shell: bash
         run: |
           test -s appsrc/app/build.gradle
