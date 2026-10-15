@@ -199,6 +199,15 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
+      - name: Build APK
+        working-directory: appsrc
+        run: gradle assembleDebug --stacktrace
+
+      - name: Verify stable signing certificate
+        shell: bash
+        run: |
+          jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
+
       - name: Archive exact compiled native source tree
         uses: actions/upload-artifact@v4
         with:
@@ -212,15 +221,6 @@ jobs:
             appsrc/gradle.properties
           if-no-files-found: error
           retention-days: 30
-
-      - name: Build APK
-        working-directory: appsrc
-        run: gradle assembleDebug --stacktrace
-
-      - name: Verify stable signing certificate
-        shell: bash
-        run: |
-          jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
 
       - name: Persist successfully compiled native source files on main
         if: github.ref == 'refs/heads/main'
