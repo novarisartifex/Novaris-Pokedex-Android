@@ -38,7 +38,7 @@ jobs:
             echo 'legacy=true' >> "$GITHUB_OUTPUT"
             cat native/v0.4.0/part*.b64 | base64 --decode > source.zip
             mkdir -p appsrc
-            unzip -q source.zip -d appsrc
+            unzip -oq source.zip -d appsrc
           fi
 
       - name: Verify versioned native sources
