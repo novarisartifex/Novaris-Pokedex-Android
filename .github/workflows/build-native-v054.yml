@@ -8,6 +8,7 @@ on:
       - 'native/v0.5.4/**'
       - '.github/workflows/build-native-v054.yml'
       - 'Pokedex_V27_42.html.gz'
+      - 'tools/job_port/**'
 
 permissions:
   contents: write
@@ -732,9 +733,10 @@ jobs:
                       org.json.JSONObject item=assignments.getJSONObject(i);
                       int dex=item.getInt("dex");
                       if(dex<1||dex>1025)throw new org.json.JSONException("Ungültige Dex-ID");
+                      if(validated.containsKey(String.valueOf(dex)))throw new org.json.JSONException("Doppelte Dex-ID: "+dex);
                       org.json.JSONObject selected=item.getJSONObject("selected");
                       String role=selected.optString("role",selected.optString("label","")).trim();
-                      if(role.isEmpty())continue;
+                      if(role.isEmpty())throw new org.json.JSONException("Leere Jobzuordnung für Dex "+dex);
                       validated.put(String.valueOf(dex),role);
                       structuredValidated.put(String.valueOf(dex),selected.toString());
                       imported++;
