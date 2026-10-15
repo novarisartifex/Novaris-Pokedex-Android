@@ -30,23 +30,27 @@ jobs:
         id: source_mode
         shell: bash
         run: |
-          if test -f appsrc/app/build.gradle && test -f appsrc/app/src/main/AndroidManifest.xml; then
+          if { test -f appsrc/app/build.gradle || test -f appsrc/app/build.gradle.kts; } && { test -f appsrc/settings.gradle || test -f appsrc/settings.gradle.kts; } && test -f appsrc/app/src/main/AndroidManifest.xml; then
             echo 'Using permanently versioned Android project.'
             echo 'legacy=false' >> "$GITHUB_OUTPUT"
           else
             echo 'Native project snapshot missing; reconstructing legacy project.'
             echo 'legacy=true' >> "$GITHUB_OUTPUT"
+            # A previous snapshot may have committed only part of appsrc.
+            # Remove that partial tree before reconstructing the exact legacy baseline.
+            rm -rf appsrc
             cat native/v0.4.0/part*.b64 | base64 --decode > source.zip
             mkdir -p appsrc
-            unzip -oq source.zip -d appsrc
+            unzip -q source.zip -d appsrc
           fi
 
       - name: Verify versioned native sources
         if: steps.source_mode.outputs.legacy == 'false'
         shell: bash
         run: |
-          test -s appsrc/app/build.gradle
+          test -s appsrc/app/build.gradle || test -s appsrc/app/build.gradle.kts
           test -s appsrc/app/src/main/AndroidManifest.xml
+          test -s appsrc/settings.gradle || test -s appsrc/settings.gradle.kts
           echo 'Native source files are available in the checked-out tree.'
 
       - name: Apply previous feature patches
@@ -226,9 +230,9 @@ jobs:
           path: |
             appsrc/app/src/main/
             appsrc/app/src/main/AndroidManifest.xml
-            appsrc/app/build.gradle
-            appsrc/build.gradle
-            appsrc/settings.gradle
+            appsrc/app/build.gradle*
+            appsrc/build.gradle*
+            appsrc/settings.gradle*
             appsrc/gradle.properties
           if-no-files-found: error
           retention-days: 30
@@ -240,7 +244,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for path in appsrc/app/src/main appsrc/app/build.gradle appsrc/build.gradle appsrc/settings.gradle appsrc/gradle.properties appsrc/gradle/wrapper appsrc/gradlew; do
+          for path in appsrc/app/src/main appsrc/app/build.gradle appsrc/app/build.gradle.kts appsrc/build.gradle appsrc/build.gradle.kts appsrc/settings.gradle appsrc/settings.gradle.kts appsrc/gradle.properties appsrc/gradle/wrapper appsrc/gradlew appsrc/tools; do
             if test -e "$path"; then git add -f "$path"; fi
           done
           # Do not commit generated build outputs or secrets.
