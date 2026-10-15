@@ -839,6 +839,7 @@ jobs:
           python3 tools/job_port/extract_html_job_contract.py /tmp/novaris_jobs_v2742.html appsrc/app/src/main/assets
           test -s appsrc/app/src/main/assets/novaris_job_catalog_v2742.json
           test -s appsrc/app/src/main/assets/novaris_job_baseline_v2742.json
+          python3 tools/job_port/test_extracted_assets_integrity.py /tmp/novaris_jobs_v2742.html appsrc/app/src/main/assets
           python3 - <<'PY'
           import json
           from pathlib import Path
