@@ -814,7 +814,7 @@ jobs:
                           String structured=getSharedPreferences("novaris_job_structured",MODE_PRIVATE).getString(dexKey,null);
                           if(structured!=null)selected=new org.json.JSONObject(structured);
                           selected.put("role",String.valueOf(editedRole));
-                          if(!selected.has("label"))selected.put("label",String.valueOf(editedRole));
+                          selected.put("label",String.valueOf(editedRole));
                           item.put("selected",selected);
                           assignments.put(item);
                       }
