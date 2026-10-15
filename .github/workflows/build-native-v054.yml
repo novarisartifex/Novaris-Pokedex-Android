@@ -147,6 +147,17 @@ jobs:
         shell: bash
         run: python3 tools/native_build/wire_original_variants.py
 
+      - name: Install required shared native Java classes
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=appsrc/app/src/main/java/com/novaris/pokedex/nativeapp
+          mkdir -p "$target"
+          cp native/v0.5.4/PromptSafety.java "$target/PromptSafety.java"
+          cp native/v0.5.4/AppReleaseUpdater.java "$target/AppReleaseUpdater.java"
+          test -s "$target/PromptSafety.java"
+          test -s "$target/AppReleaseUpdater.java"
+
       - name: Convert V27.42
         shell: bash
         run: |
