@@ -251,24 +251,25 @@ jobs:
           git reset -q -- 'appsrc/**/build/**' 'appsrc/**/.gradle/**' 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git commit -m "Snapshot verified native Android sources from successful APK build"
-            # Another workflow run may have advanced main after checkout.
-            # Replay only the snapshot commit on top of the current remote head.
+            # Replay the exact verified source tree, not a potentially conflicting commit.
             snapshot_commit="$(git rev-parse HEAD)"
             for attempt in 1 2 3; do
               git fetch origin main
               git checkout -B native-snapshot-publish origin/main
-              if git cherry-pick "$snapshot_commit"; then
-                if git push origin HEAD:main; then
-                  echo "Published verified Android sources to main."
-                  break
-                fi
-              else
-                git cherry-pick --abort || true
-                echo "Native snapshot conflicts with newer main; manual resolution required."
-                exit 1
+              git checkout "$snapshot_commit" -- appsrc
+              git add -f appsrc
+              git reset -q -- 'appsrc/**/build/**' 'appsrc/**/.gradle/**' 2>/dev/null || true
+              if git diff --cached --quiet; then
+                echo "Verified Android source tree already matches main."
+                break
+              fi
+              git commit -m "Publish verified native Android source tree"
+              if git push origin HEAD:main; then
+                echo "Published verified Android sources to main."
+                break
               fi
               if test "$attempt" -eq 3; then
-                echo "Remote main advanced during all snapshot publish attempts."
+                echo "Remote main advanced during all source publish attempts."
                 exit 1
               fi
             done
