@@ -181,6 +181,23 @@ jobs:
         working-directory: appsrc
         run: gradle assembleDebug --stacktrace
 
+      - name: Persist successfully compiled native source files on main
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for path in appsrc/app/src/main/java appsrc/app/src/main/res appsrc/app/src/main/AndroidManifest.xml appsrc/app/build.gradle appsrc/build.gradle appsrc/settings.gradle appsrc/gradle.properties appsrc/gradle/wrapper appsrc/gradlew; do
+            if test -e "$path"; then git add -f "$path"; fi
+          done
+          if ! git diff --cached --quiet; then
+            git commit -m "Snapshot verified native Android sources from successful APK build"
+            git push origin HEAD:main
+          else
+            echo "Native sources already match the compiled build."
+          fi
+
       - name: Verify stable signing certificate
         shell: bash
         run: |
