@@ -27,12 +27,15 @@ jobs:
         run: python3 tools/native_build/test_build_contract.py
 
       - name: Reconstruct source only while migration is pending
+        id: source_mode
         shell: bash
         run: |
           if test -f appsrc/app/build.gradle && test -f appsrc/app/src/main/AndroidManifest.xml; then
             echo 'Using permanently versioned Android project.'
+            echo 'legacy=false' >> "$GITHUB_OUTPUT"
           else
             echo 'Native project snapshot missing; reconstructing legacy project.'
+            echo 'legacy=true' >> "$GITHUB_OUTPUT"
             cat native/v0.4.0/part*.b64 | base64 --decode > source.zip
             mkdir -p appsrc
             unzip -q source.zip -d appsrc
@@ -47,6 +50,7 @@ jobs:
           echo 'Native source files are available in the checked-out tree.'
 
       - name: Apply previous feature patches
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: |
           cat > /tmp/v050p00.b64 <<'EOF'
@@ -77,22 +81,27 @@ jobs:
           (cd appsrc && patch -p1 < ../0.5.3.patch)
 
       - name: Apply v0.5.4 navigation and button-order changes
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: python3 tools/native_build/step_01.py
 
       - name: Apply Shiny reference color authority to reconstructed source
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: python3 tools/native_build/step_02.py
 
       - name: Connect actual Shiny x1 and x3 listeners
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: python3 tools/native_build/step_03.py
 
       - name: Verify compiled native Shiny button wiring
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: python3 tools/native_build/step_04.py
 
       - name: Set v0.5.4 version
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: |
           sed -i 's/versionCode = 8/versionCode = ${{ github.run_number }} + 100/' appsrc/app/build.gradle.kts
@@ -102,6 +111,7 @@ jobs:
           grep -F 'versionName = "0.5.11-native"' appsrc/app/build.gradle.kts
 
       - name: Install Arcanine launcher icon
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: python3 tools/native_build/step_05.py
 
@@ -129,9 +139,11 @@ jobs:
         run: python3 native/v0.5.4/extract_original_variants.py
 
       - name: Install original native variant engine
+        if: steps.source_mode.outputs.legacy == 'true'
         run: cp native/v0.5.4/OriginalVariantEngine.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/OriginalVariantEngine.java
 
       - name: Wire six native optional variant buttons
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: python3 tools/native_build/wire_original_variants.py
 
@@ -143,26 +155,32 @@ jobs:
           test -s appsrc/app/src/main/assets/pokedex.db.gzdata
 
       - name: Inspect native update implementation
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: python3 tools/native_build/step_06.py
 
       - name: Install native in-app APK updater
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: python3 tools/native_build/step_07.py
 
       - name: Restore six original class and lifestyle variants for every additional form
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: python3 tools/native_build/wire_form_variants.py
 
       - name: Enforce non-anatomical species translation and independent x3 images
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: python3 tools/native_build/step_08.py
 
       - name: Install local job assignment editor and JSON export
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: python3 tools/native_build/step_09.py
 
       - name: Verify native job picker source
+        if: steps.source_mode.outputs.legacy == 'true'
         shell: bash
         run: python3 tools/native_build/step_10.py
 
