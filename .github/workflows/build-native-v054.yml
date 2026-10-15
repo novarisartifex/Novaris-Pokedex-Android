@@ -594,9 +594,25 @@ jobs:
                       while(it.hasNext())names.add(it.next());
                       java.util.Collections.sort(names);
                       new AlertDialog.Builder(this).setTitle("Klasse / Beruf")
-                        .setItems(names.toArray(new String[0]),(dialog,index)->saveSelectedJob(dex,names.get(index)))
+                        .setItems(names.toArray(new String[0]),(dialog,index)->saveStructuredJob(dex,names.get(index),system==1?"Final Fantasy XIV":system==3?"Gatherer":"Crafter","", "", ""))
                         .setNegativeButton("Abbrechen",null).show();
                   }catch(Exception e){Toast.makeText(this,"Jobauswahl fehlgeschlagen: "+e.getMessage(),Toast.LENGTH_LONG).show();}
+              }
+              private void saveStructuredJob(int dex,String selected,String group,String family,String tier,String specialization){
+                  try{
+                      org.json.JSONObject record=new org.json.JSONObject();
+                      record.put("label",selected);
+                      record.put("role",selected);
+                      record.put("group",group);
+                      record.put("class_family",family);
+                      record.put("tier",tier);
+                      record.put("specialization",specialization);
+                      String prefix="Ragnarok Online".equals(group)?"ro:":"Civilian".equals(group)?"civil:":"Final Fantasy XIV".equals(group)?"ffxiv:":"Gatherer".equals(group)?"gather:":"craft:";
+                      record.put("id",prefix+("Civilian".equals(group)?family:selected));
+                      record.put("root_key","Ragnarok Online".equals(group)?"ro-root:"+family.split(" → ")[0]:"group:"+("Final Fantasy XIV".equals(group)?"FFXIV":group));
+                      getSharedPreferences("novaris_job_structured",MODE_PRIVATE).edit().putString(String.valueOf(dex),record.toString()).apply();
+                  }catch(Exception e){Toast.makeText(this,"Metadaten fehlgeschlagen: "+e.getMessage(),Toast.LENGTH_LONG).show();}
+                  saveSelectedJob(dex,selected);
               }
               private void saveSelectedJob(int dex,String selected){
                   getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit().putString(String.valueOf(dex),selected).apply();
@@ -661,7 +677,15 @@ jobs:
                                 int separator=selected.indexOf(" · ");
                                 if(separator>=0)selected=selected.substring(separator+3);
                             }
-                            saveSelectedJob(dex,selected);
+                            String tier="";
+                            if(system==0&&entry!=null){
+                                org.json.JSONObject tierMap=entry.optJSONObject("tier_map");
+                                if(tierMap!=null){
+                                    java.util.Iterator<String> keys=tierMap.keys();
+                                    while(keys.hasNext()){String key=keys.next();if(selected.equals(tierMap.optString(key)))tier=key;}
+                                }
+                            }
+                            saveStructuredJob(dex,selected,system==0?"Ragnarok Online":"Civilian",family,tier,system==1?selected:"");
                         }).setNegativeButton("Abbrechen",null).show();
                   }catch(Exception e){Toast.makeText(this,"Stufenauswahl fehlgeschlagen",Toast.LENGTH_LONG).show();}
               }
@@ -749,6 +773,8 @@ jobs:
                           item.put("dex",Integer.parseInt(dexKey));
                           item.put("original",original==null?new org.json.JSONObject():original);
                           org.json.JSONObject selected=new org.json.JSONObject();
+                          String structured=getSharedPreferences("novaris_job_structured",MODE_PRIVATE).getString(dexKey,null);
+                          if(structured!=null)selected=new org.json.JSONObject(structured);
                           selected.put("role",String.valueOf(edit.getValue()));
                           item.put("selected",selected);
                           assignments.put(item);
