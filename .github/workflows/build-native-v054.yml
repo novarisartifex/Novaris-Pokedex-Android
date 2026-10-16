@@ -30,19 +30,13 @@ jobs:
         id: source_mode
         shell: bash
         run: |
-          if { test -f appsrc/app/build.gradle || test -f appsrc/app/build.gradle.kts; } && { test -f appsrc/settings.gradle || test -f appsrc/settings.gradle.kts; } && test -f appsrc/app/src/main/AndroidManifest.xml; then
-            echo 'Using permanently versioned Android project.'
-            echo 'legacy=false' >> "$GITHUB_OUTPUT"
-          else
-            echo 'Native project snapshot missing; reconstructing legacy project.'
-            echo 'legacy=true' >> "$GITHUB_OUTPUT"
-            # A previous snapshot may have committed only part of appsrc.
-            # Remove that partial tree before reconstructing the exact legacy baseline.
-            rm -rf appsrc
-            cat native/v0.4.0/part*.b64 | base64 --decode > source.zip
-            mkdir -p appsrc
-            unzip -q source.zip -d appsrc
-          fi
+          # Restore the exact source-reconstruction path from successful build #150.
+          # The incomplete appsrc snapshot must not bypass the original signing key.
+          echo 'legacy=true' >> "$GITHUB_OUTPUT"
+          rm -rf appsrc
+          cat native/v0.4.0/part*.b64 | base64 --decode > source.zip
+          mkdir -p appsrc
+          unzip -q source.zip -d appsrc
 
       - name: Verify versioned native sources
         if: steps.source_mode.outputs.legacy == 'false'
@@ -122,17 +116,7 @@ jobs:
       - name: Restore stable signing key
         shell: bash
         run: |
-          set -euo pipefail
-          if test -s appsrc/signing-key.b64; then
-            base64 --decode appsrc/signing-key.b64 > appsrc/novaris-local-signing.jks
-          elif test -s native/v0.4.0/signing-key.b64; then
-            base64 --decode native/v0.4.0/signing-key.b64 > appsrc/novaris-local-signing.jks
-          elif test -n "${{ secrets.NOVARIS_SIGNING_KEY_B64 }}"; then
-            printf '%s' "${{ secrets.NOVARIS_SIGNING_KEY_B64 }}" | base64 --decode > appsrc/novaris-local-signing.jks
-          else
-            echo "::error::Stable signing key missing. Add repository secret NOVARIS_SIGNING_KEY_B64 (base64 of original novaris-local-signing.jks); never generate a replacement key."
-            exit 1
-          fi
+          base64 --decode appsrc/signing-key.b64 > appsrc/novaris-local-signing.jks
           test -s appsrc/novaris-local-signing.jks
 
       - name: Set up Python
@@ -246,46 +230,6 @@ jobs:
             appsrc/gradle.properties
           if-no-files-found: error
           retention-days: 30
-
-      - name: Persist successfully compiled native source files on main
-        if: github.ref == 'refs/heads/main'
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for path in appsrc/app/src/main appsrc/app/build.gradle appsrc/app/build.gradle.kts appsrc/build.gradle appsrc/build.gradle.kts appsrc/settings.gradle appsrc/settings.gradle.kts appsrc/gradle.properties appsrc/gradle/wrapper appsrc/gradlew appsrc/tools; do
-            if test -e "$path"; then git add -f "$path"; fi
-          done
-          # Do not commit generated build outputs or secrets.
-          git reset -q -- 'appsrc/**/build/**' 'appsrc/**/.gradle/**' 2>/dev/null || true
-          if ! git diff --cached --quiet; then
-            git commit -m "Snapshot verified native Android sources from successful APK build"
-            # Replay the exact verified source tree, not a potentially conflicting commit.
-            snapshot_commit="$(git rev-parse HEAD)"
-            for attempt in 1 2 3; do
-              git fetch origin main
-              git checkout -B native-snapshot-publish origin/main
-              git checkout "$snapshot_commit" -- appsrc
-              git add -f appsrc
-              git reset -q -- 'appsrc/**/build/**' 'appsrc/**/.gradle/**' 2>/dev/null || true
-              if git diff --cached --quiet; then
-                echo "Verified Android source tree already matches main."
-                break
-              fi
-              git commit -m "Publish verified native Android source tree"
-              if git push origin HEAD:main; then
-                echo "Published verified Android sources to main."
-                break
-              fi
-              if test "$attempt" -eq 3; then
-                echo "Remote main advanced during all source publish attempts."
-                exit 1
-              fi
-            done
-          else
-            echo "Native sources already match the compiled build."
-          fi
 
       - name: Prepare APK
         run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.11.apk
