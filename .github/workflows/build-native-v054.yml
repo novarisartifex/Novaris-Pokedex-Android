@@ -24,7 +24,9 @@ jobs:
         shell: bash
         run: |
           cat native/v0.4.0/part*.b64 | base64 --decode > source.zip
-          mkdir appsrc
+          # Ignore later, incomplete source snapshots; reconstruct the pre-class-change baseline.
+          rm -rf appsrc
+          mkdir -p appsrc
           unzip -q source.zip -d appsrc
 
       - name: Apply previous feature patches
