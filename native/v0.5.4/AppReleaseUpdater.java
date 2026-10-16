@@ -93,14 +93,14 @@ public final class AppReleaseUpdater {
                     synchronized(AppReleaseUpdater.this){checking=false;}
                     if(!newer){
                         if(manual)new AlertDialog.Builder(activity).setTitle("App aktuell")
-                            .setMessage("Installiert: "+installed+" (Build "+installedCode+")\\nGitHub: "+display)
+                            .setMessage("Installiert: "+installed+" (Build "+installedCode+")\nGitHub: "+display)
                             .setPositiveButton("OK",null).show();
                         return;
                     }
                     if(!manual && buildKey.equals(lastPromptedBuild))return;
                     lastPromptedBuild=buildKey;
                     new AlertDialog.Builder(activity).setTitle("App-Update verfügbar")
-                        .setMessage("Installiert: "+installed+" (Build "+installedCode+")\\nNeu: "+display+"\\nAPK herunterladen und Android-Installation starten?")
+                        .setMessage("Installiert: "+installed+" (Build "+installedCode+")\nNeu: "+display+"\nAPK herunterladen und Android-Installation starten?")
                         .setNegativeButton("Abbrechen",null)
                         .setPositiveButton("Installieren",(d,w)->download(apkUrl)).show();
                 });
