@@ -1,4 +1,4 @@
-name: Build Novaris Native v0.5.11
+name: Build Novaris Native v0.5.12
 
 on:
   workflow_dispatch:
@@ -226,10 +226,10 @@ jobs:
         shell: bash
         run: |
           sed -i 's/versionCode = 8/versionCode = ${{ github.run_number }} + 100/' appsrc/app/build.gradle.kts
-          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.11-native"/' appsrc/app/build.gradle.kts
+          sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.12-native"/' appsrc/app/build.gradle.kts
           grep -n 'versionCode\|versionName' appsrc/app/build.gradle.kts
           grep -F 'versionCode = ${{ github.run_number }} + 100' appsrc/app/build.gradle.kts
-          grep -F 'versionName = "0.5.11-native"' appsrc/app/build.gradle.kts
+          grep -F 'versionName = "0.5.12-native"' appsrc/app/build.gradle.kts
 
       - name: Install Arcanine launcher icon
         shell: bash
@@ -406,7 +406,7 @@ jobs:
           method="""    @Override protected void onResume(){
               super.onResume();
               if(releaseUpdater==null)releaseUpdater=new AppReleaseUpdater(this);
-              getWindow().getDecorView().postDelayed(()->releaseUpdater.attach(),300);
+              getWindow().getDecorView().postDelayed(()->{releaseUpdater.attach();releaseUpdater.onAppResume();},300);
           }
           """
           s=s.replace(anchor,method+anchor,1)
@@ -566,13 +566,13 @@ jobs:
           jarsigner -verify -verbose -certs appsrc/app/build/outputs/apk/debug/app-debug.apk | grep -q 'CN=Novaris Local'
 
       - name: Prepare APK
-        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.11.apk
+        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk Novaris-Pokedex-Native-v0.5.12.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Novaris-Pokedex-Native-v0.5.11
-          path: Novaris-Pokedex-Native-v0.5.11.apk
+          name: Novaris-Pokedex-Native-v0.5.12
+          path: Novaris-Pokedex-Native-v0.5.12.apk
           if-no-files-found: error
           retention-days: 14
 
@@ -582,12 +582,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TAG="v0.5.11-native"
-          APK="Novaris-Pokedex-Native-v0.5.11.apk"
+          TAG="v0.5.12-native"
+          APK="Novaris-Pokedex-Native-v0.5.12.apk"
           test -s "$APK"
+          VERSION_CODE=$(( ${{ github.run_number }} + 100 ))
+          NOTES="NOVARIS_VERSION_CODE=${VERSION_CODE}\nNative Android APK. Datenupdates bleiben separat."
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$APK" --clobber
+            gh release edit "$TAG" --notes "$NOTES"
           else
-            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "Novaris Pokédex Native v0.5.11" --notes "Native Android APK, Klassenvarianten und Shiny-Farbpriorität. Datenupdates bleiben separat."
+            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "Novaris Pokédex Native v0.5.12" --notes "$NOTES"
           fi
           gh release view "$TAG" --json assets,url
