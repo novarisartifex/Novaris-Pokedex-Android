@@ -122,7 +122,17 @@ jobs:
       - name: Restore stable signing key
         shell: bash
         run: |
-          base64 --decode appsrc/signing-key.b64 > appsrc/novaris-local-signing.jks
+          set -euo pipefail
+          if test -s appsrc/signing-key.b64; then
+            base64 --decode appsrc/signing-key.b64 > appsrc/novaris-local-signing.jks
+          elif test -s native/v0.4.0/signing-key.b64; then
+            base64 --decode native/v0.4.0/signing-key.b64 > appsrc/novaris-local-signing.jks
+          elif test -n "${{ secrets.NOVARIS_SIGNING_KEY_B64 }}"; then
+            printf '%s' "${{ secrets.NOVARIS_SIGNING_KEY_B64 }}" | base64 --decode > appsrc/novaris-local-signing.jks
+          else
+            echo "::error::Stable signing key missing. Add repository secret NOVARIS_SIGNING_KEY_B64 (base64 of original novaris-local-signing.jks); never generate a replacement key."
+            exit 1
+          fi
           test -s appsrc/novaris-local-signing.jks
 
       - name: Set up Python
