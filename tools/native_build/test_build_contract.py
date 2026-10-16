@@ -24,7 +24,7 @@ assert "Snapshot verified native Android sources" not in workflow
 assert "'tools/native_build/**'" in workflow
 assert "'appsrc/**'" in workflow
 assert "id: source_mode" in workflow
-assert "legacy=false' >> \"$GITHUB_OUTPUT\"" in workflow
+assert "legacy=false' >> \"$GITHUB_OUTPUT\"" not in workflow
 assert "legacy=true' >> \"$GITHUB_OUTPUT\"" in workflow
 assert workflow.count("if: steps.source_mode.outputs.legacy == 'true'") >= 15
 assert "cp native/v0.5.4/PromptSafety.java" in workflow
