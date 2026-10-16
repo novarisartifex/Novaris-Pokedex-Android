@@ -15,6 +15,10 @@ public final class AppReleaseUpdater {
     private static final String API="https://api.github.com/repos/novarisartifex/Novaris-Pokedex-Android/releases/latest";
     private final Activity activity;
     private boolean added;
+    private boolean checking;
+    private long lastAutoCheck;
+    private String lastPromptedBuild="";
+    private static final long AUTO_INTERVAL_MS=60_000L;
     public AppReleaseUpdater(Activity a){activity=a;}
     public void attach(){
         if(added)return;
@@ -41,9 +45,19 @@ public final class AppReleaseUpdater {
         parent.addView(button,lp);
         button.setOnClickListener(v->check());
         added=true;
+        onAppResume();
     }
-    public void check(){
-        Toast.makeText(activity,"Prüfe App-Release …",Toast.LENGTH_SHORT).show();
+    public void onAppResume(){
+        long now=android.os.SystemClock.elapsedRealtime();
+        if(now-lastAutoCheck<AUTO_INTERVAL_MS)return;
+        lastAutoCheck=now;
+        check(false);
+    }
+    public void check(){check(true);}
+    private synchronized void check(boolean manual){
+        if(checking)return;
+        checking=true;
+        if(manual)Toast.makeText(activity,"Prüfe App-Release …",Toast.LENGTH_SHORT).show();
         new Thread(()->{
             try{
                 HttpURLConnection c=(HttpURLConnection)new URL(API).openConnection();
@@ -64,23 +78,33 @@ public final class AppReleaseUpdater {
                     if(asset.getString("name").endsWith(".apk")){url=asset.getString("browser_download_url");assetTime=asset.optString("updated_at",asset.optString("created_at",""));break;}
                 }
                 if(url.isEmpty())throw new IOException("Release ohne APK");
-                String installed=activity.getPackageManager().getPackageInfo(activity.getPackageName(),0).versionName;
+                android.content.pm.PackageInfo info=activity.getPackageManager().getPackageInfo(activity.getPackageName(),0);
+                String installed=info.versionName;
+                long installedCode=android.os.Build.VERSION.SDK_INT>=28?info.getLongVersionCode():info.versionCode;
+                String body=release.optString("body","");
+                java.util.regex.Matcher codeMatcher=java.util.regex.Pattern.compile("NOVARIS_VERSION_CODE=(\\d+)").matcher(body);
+                long remoteCode=codeMatcher.find()?Long.parseLong(codeMatcher.group(1)):-1L;
+                // Release version code is authoritative; never use upload timestamps to infer installation.
+                boolean newer=remoteCode>=0?remoteCode>installedCode:compare(tag,installed)>0;
                 final String apkUrl=url;
-                final String remoteTime=assetTime.isEmpty()?published:assetTime;
-                android.content.SharedPreferences prefs=activity.getSharedPreferences("novaris_app_release",Context.MODE_PRIVATE);
-                String installedReleaseTime=prefs.getString("installed_release_time","");
-                boolean newerVersion=compare(tag,installed)>0;
-                boolean newerBuild=compare(tag,installed)==0 && !remoteTime.isEmpty() && !remoteTime.equals(installedReleaseTime);
+                final String display=tag+" (Build "+(remoteCode>=0?remoteCode:"unbekannt")+")";
+                final String buildKey=tag+"/"+remoteCode;
                 activity.runOnUiThread(()->{
-                    if(!newerVersion && !newerBuild){
-                        new AlertDialog.Builder(activity).setTitle("App aktuell").setMessage("Installiert: "+installed+"\nGitHub: "+tag).setPositiveButton("OK",null).show();
-                    }else{
-                        new AlertDialog.Builder(activity).setTitle("App-Update verfügbar")
-                            .setMessage("Installiert: "+installed+"\nNeu: "+tag+"\nBuild: "+remoteTime+"\nAPK herunterladen und Android-Installation starten?")
-                            .setNegativeButton("Abbrechen",null).setPositiveButton("Installieren",(d,w)->download(apkUrl,remoteTime)).show();
+                    synchronized(AppReleaseUpdater.this){checking=false;}
+                    if(!newer){
+                        if(manual)new AlertDialog.Builder(activity).setTitle("App aktuell")
+                            .setMessage("Installiert: "+installed+" (Build "+installedCode+")\\nGitHub: "+display)
+                            .setPositiveButton("OK",null).show();
+                        return;
                     }
+                    if(!manual && buildKey.equals(lastPromptedBuild))return;
+                    lastPromptedBuild=buildKey;
+                    new AlertDialog.Builder(activity).setTitle("App-Update verfügbar")
+                        .setMessage("Installiert: "+installed+" (Build "+installedCode+")\\nNeu: "+display+"\\nAPK herunterladen und Android-Installation starten?")
+                        .setNegativeButton("Abbrechen",null)
+                        .setPositiveButton("Installieren",(d,w)->download(apkUrl)).show();
                 });
-            }catch(Exception e){activity.runOnUiThread(()->new AlertDialog.Builder(activity).setTitle("App-Update fehlgeschlagen").setMessage(e.getMessage()).setPositiveButton("OK",null).show());}
+            }catch(Exception e){activity.runOnUiThread(()->{synchronized(AppReleaseUpdater.this){checking=false;}if(manual)new AlertDialog.Builder(activity).setTitle("App-Update fehlgeschlagen").setMessage(e.getMessage()).setPositiveButton("OK",null).show();});}
         }).start();
     }
     private static int[] numbers(String s){
@@ -92,7 +116,7 @@ public final class AppReleaseUpdater {
         for(int i=0;i<3;i++)if(a[i]!=b[i])return Integer.compare(a[i],b[i]);
         return 0;
     }
-    private void download(String url,String releaseTime){
+    private void download(String url){
         try{
             DownloadManager manager=(DownloadManager)activity.getSystemService(Context.DOWNLOAD_SERVICE);
             DownloadManager.Request req=new DownloadManager.Request(Uri.parse(url));
@@ -106,17 +130,17 @@ public final class AppReleaseUpdater {
             Runnable poll=new Runnable(){
                 int attempts=0;
                 public void run(){
-                    if(activity.isFinishing()||attempts++>240)return;
+                    if(activity.isFinishing()||attempts++>240){if(attempts>240)Toast.makeText(activity,"APK-Download dauert zu lange. Bitte Downloads prüfen.",Toast.LENGTH_LONG).show();return;}
                     DownloadManager.Query q=new DownloadManager.Query().setFilterById(id);
                     try(android.database.Cursor c=manager.query(q)){
                         if(c!=null&&c.moveToFirst()){
                             int status=c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
                             if(status==DownloadManager.STATUS_SUCCESSFUL){
                                 Uri uri=manager.getUriForDownloadedFile(id);
-                                Intent install=new Intent(Intent.ACTION_VIEW);
+                                Intent install=new Intent(Intent.ACTION_INSTALL_PACKAGE);
                                 install.setDataAndType(uri,"application/vnd.android.package-archive");
                                 install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_ACTIVITY_NEW_TASK);
-                                try{activity.startActivity(install);activity.getSharedPreferences("novaris_app_release",Context.MODE_PRIVATE).edit().putString("installed_release_time",releaseTime).apply();}
+                                try{activity.startActivity(install);}
                                 catch(Exception e){new AlertDialog.Builder(activity).setMessage("APK heruntergeladen. Bitte über Downloads öffnen. "+e.getMessage()).setPositiveButton("OK",null).show();}
                                 return;
                             }
