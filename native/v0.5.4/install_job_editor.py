@@ -5,7 +5,7 @@ s=p.read_text()
 import re
 pattern=r'(?m)^(\s*)addFormCards\('
 if not re.search(pattern,s):raise SystemExit("Job editor UI insertion point missing")
-s=re.sub(pattern,lambda m:m.group(1)+'addJobEditor(d.item.dex,d.item.role);\n'+m.group(1)+'addChangedJobBlock(d.item);\n'+m.group(1)+'addFormCards(',s,count=1)
+s=re.sub(pattern,lambda m:m.group(1)+'addJobEditor(d.item.dex,d.item.role);\n'+m.group(1)+'addChangedJobBlock(d.item,d.formsJson);\n'+m.group(1)+'addFormCards(',s,count=1)
 anchor='private void copy(String s){'
 if anchor not in s:raise SystemExit("Job editor anchor missing")
 methods=r"""
@@ -447,7 +447,7 @@ methods=r"""
             return description;
         }catch(Exception e){android.util.Log.e("NovarisJobs","Description generation failed",e);return "";}
     }
-    private void addChangedJobBlock(DatabaseManager.PokemonItem item){
+    private void addChangedJobBlock(DatabaseManager.PokemonItem item,String formsJson){
         String changed=editedJob(item.dex,item.role);
         if(changed.equals(item.role))return;
         String description=generateClassDescription(item,changed);
@@ -463,11 +463,39 @@ methods=r"""
         row.setOrientation(LinearLayout.HORIZONTAL);
         Button x1=button("Copy Core + Dex x1");
         Button x3=button("Copy Core + Dex x3");
-        x1.setEnabled(false);
-        x3.setEnabled(false);
+        x1.setEnabled(!description.isEmpty());
+        x1.setOnClickListener(v->copy(description));
+        x3.setEnabled(!description.isEmpty());
+        x3.setOnClickListener(v->copy(PromptSafety.enforce(description,true)));
         row.addView(x1,new LinearLayout.LayoutParams(0,dp(62),1));
         row.addView(x3,new LinearLayout.LayoutParams(0,dp(62),1));
         body.addView(row);
+        try{
+            org.json.JSONArray forms=new org.json.JSONArray(formsJson);
+            String raw=getSharedPreferences("novaris_job_structured",MODE_PRIVATE).getString(String.valueOf(item.dex),"");
+            org.json.JSONObject assignment=raw.isEmpty()?new org.json.JSONObject():new org.json.JSONObject(raw);
+            org.json.JSONObject rag=loadJobCatalog().optJSONObject("V2610_RAG");
+            org.json.JSONObject family=rag==null?null:rag.optJSONObject(assignment.optString("class_family",""));
+            org.json.JSONObject tiers=family==null?null:family.optJSONObject("tier_map");
+            for(int i=0;i<forms.length();i++){
+                org.json.JSONObject form=forms.optJSONObject(i);
+                if(form==null)continue;
+                String name=form.optString("name","");
+                String lower=name.toLowerCase(java.util.Locale.ROOT);
+                if(!(lower.contains("mega")||lower.contains("gigantamax")||lower.contains("gmax")||lower.contains("gigadynamax")))continue;
+                String role="Ragnarok Online".equals(assignment.optString("group",""))&&tiers!=null?tiers.optString("T4",changed):changed;
+                String prompt=description+"\\n\\nSPECIAL FORM: "+name+"\\nFORM CLASS: "+role+"\\nFORM TIER: T4\\nSpecial-form traits are detachable costume and equipment only, never additional anatomy.";
+                section("SPEZIALFORM · "+name+" · "+role,prompt);
+                Button one=button("Copy Core + Dex x1 · "+name);
+                one.setEnabled(!description.isEmpty());
+                one.setOnClickListener(v->copy(prompt));
+                body.addView(one);
+                Button three=button("Copy Core + Dex x3 · "+name);
+                three.setEnabled(!description.isEmpty());
+                three.setOnClickListener(v->copy(PromptSafety.enforce(prompt,true)));
+                body.addView(three);
+            }
+        }catch(Exception e){android.util.Log.w("NovarisJobs","Special forms unavailable",e);}
     }
     private String applyEditedJob(int dex,String prompt,String original){
         String edited=editedJob(dex,original);
