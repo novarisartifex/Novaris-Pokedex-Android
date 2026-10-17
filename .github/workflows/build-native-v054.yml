@@ -557,7 +557,7 @@ jobs:
         run: |
           cp native/v0.5.4/novaris_job_baseline_v2742.json appsrc/app/src/main/assets/novaris_job_baseline_v2742.json
           python3 native/v0.5.4/install_job_editor.py
-          grep -q 'Job-Zuordnung auswählen / Export' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java
+          grep -q 'Ausgewählte Klasse speichern' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java
 
       - name: Set up Java
         uses: actions/setup-java@v4
