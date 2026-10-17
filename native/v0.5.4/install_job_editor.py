@@ -274,7 +274,8 @@ methods="""
                 if(structured!=null)selected=new org.json.JSONObject(structured);
                 selected.put("role",String.valueOf(editedRole));
                 selected.put("label",String.valueOf(editedRole));
-                selected.put("description",getSharedPreferences("novaris_job_descriptions",MODE_PRIVATE).getString(dexKey,""));\n                item.put("selected",selected);
+                selected.put("description",getSharedPreferences("novaris_job_descriptions",MODE_PRIVATE).getString(dexKey,""));
+                item.put("selected",selected);
                 assignments.put(item);
             }
             root.put("assignments",assignments);
