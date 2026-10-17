@@ -222,6 +222,15 @@ methods="""
             rollback.commit();
             throw new java.io.IOException("Lokales Speichern fehlgeschlagen; strukturierte Daten zurückgesetzt");
         }
+        android.content.SharedPreferences.Editor descEditor=getSharedPreferences("novaris_job_descriptions",MODE_PRIVATE).edit();
+        for(int i=0;i<assignments.length();i++){
+            org.json.JSONObject row=assignments.getJSONObject(i);
+            org.json.JSONObject selected=row.getJSONObject("selected");
+            String description=selected.optString("description","");
+            if(description.length()>100000)throw new org.json.JSONException("Beschreibung zu lang");
+            if(!description.isEmpty())descEditor.putString(String.valueOf(row.getInt("dex")),description);
+        }
+        if(!descEditor.commit())throw new java.io.IOException("Beschreibungen nicht gespeichert");
         Toast.makeText(this,imported+" Job-Zuordnungen importiert",Toast.LENGTH_LONG).show();
         recreate();
     }
@@ -265,7 +274,7 @@ methods="""
                 if(structured!=null)selected=new org.json.JSONObject(structured);
                 selected.put("role",String.valueOf(editedRole));
                 selected.put("label",String.valueOf(editedRole));
-                item.put("selected",selected);
+                selected.put("description",getSharedPreferences("novaris_job_descriptions",MODE_PRIVATE).getString(dexKey,""));\n                item.put("selected",selected);
                 assignments.put(item);
             }
             root.put("assignments",assignments);
@@ -334,7 +343,8 @@ methods="""
     private void addChangedJobBlock(DatabaseManager.PokemonItem item){
         String changed=editedJob(item.dex,item.role);
         if(changed.equals(item.role))return;
-        section("GEÄNDERTE KLASSE · "+changed,"Beschreibung ausstehend. Der vollständige neue Rollen-, Charakter- und Outfit-Text muss vor der Bildgenerierung importiert werden. Der Originalblock bleibt unverändert.");
+        String description=getSharedPreferences("novaris_job_descriptions",MODE_PRIVATE).getString(String.valueOf(item.dex),"");
+        section("GEÄNDERTE KLASSE · "+changed,description.isEmpty()?"Beschreibung ausstehend. Bitte vollständigen neuen Rollen-, Charakter- und Outfit-Text per JSON importieren. Original unverändert.":description);
         Button img=button("Copy image · geänderte Klasse");
         img.setOnClickListener(v->ImageClipboard.copy(this,item.art));
         body.addView(img);
