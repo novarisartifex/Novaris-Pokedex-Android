@@ -406,10 +406,51 @@ methods="""
         try(java.io.InputStream stream=input){while((count=stream.read(buffer))!=-1)bytes.write(buffer,0,count);}
         return new org.json.JSONObject(bytes.toString("UTF-8"));
     }
+    private String generateClassDescription(DatabaseManager.PokemonItem item,String changed){
+        try{
+            String key=String.valueOf(item.dex);
+            String saved=getSharedPreferences("novaris_job_descriptions",MODE_PRIVATE).getString(key,"");
+            if(!saved.isEmpty())return saved;
+            String raw=getSharedPreferences("novaris_job_structured",MODE_PRIVATE).getString(key,"");
+            if(raw.isEmpty())return "";
+            org.json.JSONObject record=new org.json.JSONObject(raw);
+            String group=record.optString("group","");
+            String family=record.optString("class_family","");
+            String tier=record.optString("tier","");
+            org.json.JSONObject catalog=loadJobCatalog();
+            String catalogKey="Ragnarok Online".equals(group)?"V2610_RAG":"Civilian".equals(group)?"V2610_CIV":"Final Fantasy XIV".equals(group)?"V2622_FFXIV":"Gatherer".equals(group)?"V2610_GATHER":"V2610_CRAFT";
+            org.json.JSONObject entry=catalog.optJSONObject(catalogKey)==null?null:catalog.optJSONObject(catalogKey).optJSONObject(family);
+            String purpose=entry==null?"":entry.optString("desc_de",entry.optString("description_de",""));
+            if(purpose.isEmpty())purpose="Berufliche Tätigkeiten und Aufgaben der Klasse "+changed+".";
+            String source=data.buildPokemonPrompt(item.dex,false);
+            int start=source.indexOf("SPECIES IDENTITY:");
+            int end=source.indexOf("NOVARIS LIFE ROLE:");
+            if(start<0||end<=start)return "";
+            String identity=source.substring(start,end).trim();
+            String description="#"+String.format(java.util.Locale.ROOT,"%04d",item.dex)+"."+item.en+" / "+item.de+" — "+changed+"\n\n"+
+                identity+"\n\nNOVARIS LIFE ROLE:\nCATEGORY: "+group+"\nROLE SYSTEM: "+group+
+                "\nCLASS FAMILY: "+family+"\nCURRENT CLASS: "+changed+"\nCLASS STATUS: "+tier+
+                "\nROLE PURPOSE: "+purpose+"\n\nCHARACTER BLUEPRINT:\n"+
+                "IDENTITY: "+item.en+"; human adult interpretation retaining the original Pokémon colors, motifs, temperament and recognizable species traits.\n"+
+                "STATURE AND SILHOUETTE: Follow the original species and evolution stage; normal adult human anatomy only.\n"+
+                "EXPRESSION AND POSE: Show the distinctive responsibilities of "+changed+" through stance, tools and environmental interaction.\n"+
+                "SPECIES FEATURES: Any nonhuman wings, tails, shells or appendages must be detachable garments or equipment, never anatomy.\n\n"+
+                "WORK OUTFIT BLUEPRINT:\n"+
+                "ROLE: "+changed+".\n"+
+                "OUTFIT: Purpose-built professional clothing for "+purpose+"; incorporate recognizable "+item.en+" colors and motifs.\n"+
+                "TOOLS: External handheld or wearable equipment appropriate for "+changed+"; no weapons or machinery emerging from flesh.\n"+
+                "ENVIRONMENT: A credible workplace or activity scene showing "+purpose+"\n\n"+
+                "NOVARIS OUTPUT CONTROL:\n"+
+                "Create one full-body adult human character, exactly two arms, two legs, one head and one torso. "+
+                "Preserve the species identity through color, motifs, fashion, props and lighting. "+
+                "No biological extra anatomy. One coherent character, detailed professional costume and context.\n";
+            return description;
+        }catch(Exception e){android.util.Log.e("NovarisJobs","Description generation failed",e);return "";}
+    }
     private void addChangedJobBlock(DatabaseManager.PokemonItem item){
         String changed=editedJob(item.dex,item.role);
         if(changed.equals(item.role))return;
-        String description=getSharedPreferences("novaris_job_descriptions",MODE_PRIVATE).getString(String.valueOf(item.dex),"");
+        String description=generateClassDescription(item,changed);
         section("GEÄNDERTE KLASSE · "+changed,description.isEmpty()?"Beschreibung ausstehend. Bitte vollständigen neuen Rollen-, Charakter- und Outfit-Text per JSON importieren. Original unverändert.":description);
         Button img=button("Copy image · geänderte Klasse");
         img.setOnClickListener(v->ImageClipboard.copy(this,item.art));
