@@ -13,9 +13,74 @@ methods="""
         return getSharedPreferences("novaris_job_edits",MODE_PRIVATE).getString(String.valueOf(dex),fallback==null?"":fallback);
     }
     private void addJobEditor(int dex,String current){
-        Button edit=button("Job-Zuordnung auswählen / Export");
-        body.addView(edit);
-        edit.setOnClickListener(v->openJobCatalog(dex,current));
+        try{
+            org.json.JSONObject catalog=loadJobCatalog();
+            String[] systems={"Ragnarok Online","Final Fantasy XIV","Civilian","Gatherer","Crafter"};
+            android.widget.Spinner systemSpinner=new android.widget.Spinner(this);
+            android.widget.Spinner familySpinner=new android.widget.Spinner(this);
+            android.widget.Spinner stageSpinner=new android.widget.Spinner(this);
+            body.addView(label("Klassenbearbeitung · System",15,true));
+            body.addView(systemSpinner);
+            body.addView(label("Familie / Laufbahn",14,true));
+            body.addView(familySpinner);
+            body.addView(label("Klasse / Entwicklungsstufe",14,true));
+            body.addView(stageSpinner);
+            systemSpinner.setAdapter(new android.widget.ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,systems));
+            final java.util.ArrayList<String> familyKeys=new java.util.ArrayList<>();
+            final java.util.ArrayList<String> stages=new java.util.ArrayList<>();
+            final java.util.ArrayList<String> tiers=new java.util.ArrayList<>();
+            final boolean[] initializing={true};
+            Runnable refreshStages=()->{
+                stages.clear();tiers.clear();
+                int system=systemSpinner.getSelectedItemPosition();
+                if(familyKeys.isEmpty()||familySpinner.getSelectedItemPosition()<0)return;
+                String family=familyKeys.get(Math.min(familySpinner.getSelectedItemPosition(),familyKeys.size()-1));
+                String catalogKey=system==0?"V2610_RAG":system==1?"V2622_FFXIV":system==2?"V2610_CIV":system==3?"V2610_GATHER":"V2610_CRAFT";
+                org.json.JSONObject entry=catalog.optJSONObject(catalogKey)==null?null:catalog.optJSONObject(catalogKey).optJSONObject(family);
+                if(system==0&&entry!=null){
+                    org.json.JSONObject tierMap=entry.optJSONObject("tier_map");
+                    if(tierMap!=null)for(String tier:new String[]{"T1","T2","Transcendent","T3","T4"}){
+                        String job=tierMap.optString(tier,"");
+                        if(!job.isEmpty()){stages.add(job);tiers.add(tier);}
+                    }
+                }else if(system==2&&entry!=null){
+                    org.json.JSONArray options=entry.optJSONArray("specializations");
+                    if(options!=null)for(int i=0;i<options.length();i++){stages.add(options.optString(i));tiers.add("C"+(i+1));}
+                }
+                if(stages.isEmpty()){stages.add(family);tiers.add("");}
+                stageSpinner.setAdapter(new android.widget.ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,new java.util.ArrayList<String>(stages)));
+            };
+            familySpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){
+                public void onNothingSelected(android.widget.AdapterView<?> p){}
+                public void onItemSelected(android.widget.AdapterView<?> p,android.view.View v,int pos,long id){refreshStages.run();}
+            });
+            systemSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){
+                public void onNothingSelected(android.widget.AdapterView<?> p){}
+                public void onItemSelected(android.widget.AdapterView<?> p,android.view.View v,int pos,long id){
+                    familyKeys.clear();
+                    String key=pos==0?"V2610_RAG":pos==1?"V2622_FFXIV":pos==2?"V2610_CIV":pos==3?"V2610_GATHER":"V2610_CRAFT";
+                    org.json.JSONObject options=catalog.optJSONObject(key);
+                    if(options!=null){java.util.Iterator<String> iterator=options.keys();while(iterator.hasNext())familyKeys.add(iterator.next());}
+                    java.util.Collections.sort(familyKeys);
+                    familySpinner.setAdapter(new android.widget.ArrayAdapter<String>(DetailActivity.this,android.R.layout.simple_spinner_dropdown_item,new java.util.ArrayList<String>(familyKeys)));
+                    refreshStages.run();
+                }
+            });
+            Button save=button("Ausgewählte Klasse speichern");
+            body.addView(save);
+            save.setOnClickListener(v->{
+                int sys=systemSpinner.getSelectedItemPosition();
+                int fi=familySpinner.getSelectedItemPosition();
+                int si=stageSpinner.getSelectedItemPosition();
+                if(fi<0||si<0||fi>=familyKeys.size()||si>=stages.size())return;
+                saveStructuredJob(dex,stages.get(si),systems[sys],familyKeys.get(fi),tiers.get(si),sys==2?stages.get(si):"");
+            });
+            Button transfer=button("Klassenänderungen importieren / exportieren");
+            body.addView(transfer);
+            transfer.setOnClickListener(v->new AlertDialog.Builder(this)
+                .setItems(new String[]{"JSON importieren","JSON exportieren"},(d,i)->{if(i==0)importJobEdits();else exportJobEdits();})
+                .show());
+        }catch(Exception e){Toast.makeText(this,"Klasseneditor nicht verfügbar: "+e.getMessage(),Toast.LENGTH_LONG).show();}
     }
     private void openJobCatalog(int dex,String current){
         try{
