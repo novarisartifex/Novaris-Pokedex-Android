@@ -116,41 +116,70 @@ public final class AppReleaseUpdater {
         for(int i=0;i<3;i++)if(a[i]!=b[i])return Integer.compare(a[i],b[i]);
         return 0;
     }
+    private void showUpdateProblem(String message,String url){
+        new AlertDialog.Builder(activity).setTitle("App-Update")
+            .setMessage(message)
+            .setNegativeButton("Abbrechen",null)
+            .setPositiveButton("Im Browser herunterladen",(d,w)->openBrowser(url))
+            .show();
+    }
+    private void openBrowser(String url){
+        try{activity.startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(url)));}
+        catch(Exception e){new AlertDialog.Builder(activity).setTitle("Download nicht möglich")
+            .setMessage(e.getMessage()).setPositiveButton("OK",null).show();}
+    }
     private void download(String url){
         try{
             DownloadManager manager=(DownloadManager)activity.getSystemService(Context.DOWNLOAD_SERVICE);
             DownloadManager.Request req=new DownloadManager.Request(Uri.parse(url));
             req.setTitle("Novaris Pokédex App-Update");
-            req.setDescription("Android APK");
+            req.setDescription("Neue Android-Version wird heruntergeladen");
             req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-            req.setDestinationInExternalFilesDir(activity,Environment.DIRECTORY_DOWNLOADS,"Novaris-Pokedex-Update.apk");
+            req.setDestinationInExternalFilesDir(activity,Environment.DIRECTORY_DOWNLOADS,
+                "Novaris-Pokedex-Update-"+System.currentTimeMillis()+".apk");
             long id=manager.enqueue(req);
-            Toast.makeText(activity,"APK wird heruntergeladen",Toast.LENGTH_LONG).show();
+            Toast.makeText(activity,"APK-Download gestartet",Toast.LENGTH_LONG).show();
             Handler h=new Handler(Looper.getMainLooper());
             Runnable poll=new Runnable(){
                 int attempts=0;
                 public void run(){
-                    if(activity.isFinishing()||attempts++>240){if(attempts>240)Toast.makeText(activity,"APK-Download dauert zu lange. Bitte Downloads prüfen.",Toast.LENGTH_LONG).show();return;}
-                    DownloadManager.Query q=new DownloadManager.Query().setFilterById(id);
-                    try(android.database.Cursor c=manager.query(q)){
-                        if(c!=null&&c.moveToFirst()){
-                            int status=c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
-                            if(status==DownloadManager.STATUS_SUCCESSFUL){
-                                Uri uri=manager.getUriForDownloadedFile(id);
-                                Intent install=new Intent(Intent.ACTION_INSTALL_PACKAGE);
-                                install.setDataAndType(uri,"application/vnd.android.package-archive");
-                                install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_ACTIVITY_NEW_TASK);
-                                try{activity.startActivity(install);}
-                                catch(Exception e){new AlertDialog.Builder(activity).setMessage("APK heruntergeladen. Bitte über Downloads öffnen. "+e.getMessage()).setPositiveButton("OK",null).show();}
-                                return;
-                            }
-                            if(status==DownloadManager.STATUS_FAILED){Toast.makeText(activity,"APK-Download fehlgeschlagen",Toast.LENGTH_LONG).show();return;}
-                        }
+                    if(activity.isFinishing())return;
+                    if(attempts++>120){
+                        showUpdateProblem("Der Download dauert zu lange. Du kannst die APK direkt im Browser herunterladen.",url);
+                        return;
                     }
+                    try(android.database.Cursor c=manager.query(new DownloadManager.Query().setFilterById(id))){
+                        if(c==null||!c.moveToFirst()){
+                            showUpdateProblem("Der APK-Download konnte nicht gefunden werden.",url);return;
+                        }
+                        int status=c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
+                        if(status==DownloadManager.STATUS_SUCCESSFUL){
+                            Uri uri=manager.getUriForDownloadedFile(id);
+                            if(uri==null){showUpdateProblem("APK heruntergeladen, aber nicht zugreifbar.",url);return;}
+                            Intent install=new Intent(Intent.ACTION_VIEW);
+                            install.setDataAndType(uri,"application/vnd.android.package-archive");
+                            install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            try{
+                                if(android.os.Build.VERSION.SDK_INT>=26&&!activity.getPackageManager().canRequestPackageInstalls()){
+                                    showUpdateProblem("Android muss die Installation aus dieser App zuerst erlauben. Alternativ die APK im Browser herunterladen und über Downloads öffnen.",url);
+                                    return;
+                                }
+                                activity.startActivity(install);
+                            }catch(Exception e){
+                                showUpdateProblem("APK heruntergeladen, aber Android konnte die Installation nicht öffnen: "+e.getMessage(),url);
+                            }
+                            return;
+                        }
+                        if(status==DownloadManager.STATUS_FAILED){
+                            int reason=c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON));
+                            showUpdateProblem("APK-Download fehlgeschlagen (Fehler "+reason+"). Bitte im Browser herunterladen.",url);
+                            return;
+                        }
+                    }catch(Exception e){showUpdateProblem("APK-Download konnte nicht geprüft werden: "+e.getMessage(),url);return;}
                     h.postDelayed(this,1000);
                 }
             };
             h.postDelayed(poll,1000);
-        }catch(Exception e){new AlertDialog.Builder(activity).setMessage(e.getMessage()).setPositiveButton("OK",null).show();}
+        }catch(Exception e){showUpdateProblem("APK-Download konnte nicht gestartet werden: "+e.getMessage(),url);}
     }
 }
