@@ -5,7 +5,7 @@ s=p.read_text()
 import re
 pattern=r'(?m)^(\\s*)addFormCards\\('
 if not re.search(pattern,s):raise SystemExit("Job editor UI insertion point missing")
-s=re.sub(pattern,lambda m:m.group(1)+'addJobEditor(d.item.dex,d.item.role);\\n'+m.group(1)+'addFormCards(',s,count=1)
+s=re.sub(pattern,lambda m:m.group(1)+'addJobEditor(d.item.dex,d.item.role);\\n'+m.group(1)+'addChangedJobBlock(d.item);\\n'+m.group(1)+'addFormCards(',s,count=1)
 anchor='private void copy(String s){'
 if anchor not in s:raise SystemExit("Job editor anchor missing")
 methods="""
@@ -274,6 +274,27 @@ methods="""
             Toast.makeText(this,"Job-Änderungen exportiert",Toast.LENGTH_LONG).show();
         }catch(Exception e){Toast.makeText(this,"Export fehlgeschlagen: "+e.getMessage(),Toast.LENGTH_LONG).show();}
     }
+    private void addChangedJobBlock(DatabaseManager.PokemonItem item){
+        String changed=editedJob(item.dex,item.role);
+        if(changed.equals(item.role))return;
+        section("GEÄNDERTE KLASSE · "+changed,"Beschreibung ausstehend. Der vollständige neue Rollen-, Charakter- und Outfit-Text muss vor der Bildgenerierung importiert werden. Der Originalblock bleibt unverändert.");
+        Button img=button("Copy image · geänderte Klasse");
+        img.setOnClickListener(v->ImageClipboard.copy(this,item.art));
+        body.addView(img);
+        String file=String.format(java.util.Locale.ROOT,"#%04d.%s_00_Main_%s",item.dex,item.en,changed.replaceAll("[^A-Za-z0-9]+","_"));
+        Button fn=button(file);
+        fn.setOnClickListener(v->copy(file));
+        body.addView(fn);
+        LinearLayout row=new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        Button x1=button("Copy Core + Dex x1");
+        Button x3=button("Copy Core + Dex x3");
+        x1.setEnabled(false);
+        x3.setEnabled(false);
+        row.addView(x1,new LinearLayout.LayoutParams(0,dp(62),1));
+        row.addView(x3,new LinearLayout.LayoutParams(0,dp(62),1));
+        body.addView(row);
+    }
     private String applyEditedJob(int dex,String prompt,String original){
         String edited=editedJob(dex,original);
         if(prompt==null||original==null||original.isEmpty()||edited.equals(original))return prompt;
@@ -281,7 +302,7 @@ methods="""
     }
     """
 s=s.replace(anchor,methods+'\n'+anchor,1)
-s=s.replace('v->copy(data.buildPokemonPrompt(d.item.dex,false))','v->copy(applyEditedJob(d.item.dex,data.buildPokemonPrompt(d.item.dex,false),d.item.role))',1)
-s=s.replace('v->copy(data.buildPokemonPrompt(d.item.dex,true))','v->copy(applyEditedJob(d.item.dex,data.buildPokemonPrompt(d.item.dex,true),d.item.role))',1)
+
+
 p.write_text(s)
 assert 'NOVARIS_JOB_ASSIGNMENTS_v16' in s
