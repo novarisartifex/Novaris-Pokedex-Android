@@ -545,6 +545,13 @@ jobs:
           assert 'copyTriple(' in s
           PY
 
+      - name: Bundle original V27.42 class catalog
+        shell: bash
+        run: |
+          mkdir -p appsrc/app/src/main/assets
+          cp native/v0.5.4/novaris_job_catalog_v2742.json appsrc/app/src/main/assets/novaris_job_catalog_v2742.json
+          python3 -c 'import json; x=json.load(open("appsrc/app/src/main/assets/novaris_job_catalog_v2742.json")); assert len(x["V2610_RAG"])==19 and len(x["V2610_CIV"])==60 and len(x["V2622_FFXIV"])==22'
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
