@@ -65,7 +65,9 @@ methods="""
             record.put("root_key","Ragnarok Online".equals(group)?"ro-root:"+family.split(" → ")[0]:"group:"+("Final Fantasy XIV".equals(group)?"FFXIV":group));
             boolean structuredSaved=getSharedPreferences("novaris_job_structured",MODE_PRIVATE).edit().putString(String.valueOf(dex),record.toString()).commit();
             if(!structuredSaved)throw new java.io.IOException("Strukturierte Jobdaten nicht gespeichert");
-            getSharedPreferences("novaris_job_manual",MODE_PRIVATE).edit().putBoolean(String.valueOf(dex),true).commit();\n            propagateJobForward(dex,record);\n            saveSelectedJob(dex,selected);
+            getSharedPreferences("novaris_job_manual",MODE_PRIVATE).edit().putBoolean(String.valueOf(dex),true).commit();
+            propagateJobForward(dex,record);
+            saveSelectedJob(dex,selected);
         }catch(Exception e){Toast.makeText(this,"Job nicht gespeichert: "+e.getMessage(),Toast.LENGTH_LONG).show();}
     }
     private void saveSelectedJob(int dex,String selected){
@@ -291,7 +293,7 @@ methods="""
         String group=selected.optString("group","");
         String family=selected.optString("class_family","");
         org.json.JSONObject catalog=loadJobCatalog();
-        org.json.JSONObject entries=catalog.optJSONObject("Ragnarok Online".equals(group)?"V2610_RAG":"Civilian".equals(group)?"V2610_CIV":"");
+        org.json.JSONObject entries=catalog.optJSONObject("Ragnarok Online".equals(group)?"V2610_RAG":"Civilian".equals(group)?"V2610_CIV":"V2622_FFXIV");
         org.json.JSONObject familyEntry=entries==null?null:entries.optJSONObject(family);
         for(int i=position+1;i<chain.size();i++){
             int nextDex=chain.get(i);
@@ -310,7 +312,7 @@ methods="""
             }else if("Civilian".equals(group)&&familyEntry!=null){
                 org.json.JSONArray stages=familyEntry.optJSONArray("specializations");
                 if(stages!=null&&stages.length()>0){
-                    int stage=Math.min(stages.length()-1,Math.max(0,i));
+                    int stage=Math.min(stages.length()-1,Math.max(0,i-position));
                     role=stages.optString(stage,role);
                     tier="C"+(stage+1);
                 }
