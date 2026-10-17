@@ -2,9 +2,10 @@
 from pathlib import Path
 p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java")
 s=p.read_text()
-marker='addFormCards("Weitere Formen",d.item.dex,d.formsJson,d.item.role);'
-if marker not in s:raise SystemExit("Job editor UI insertion point missing")
-s=s.replace(marker,'addJobEditor(d.item.dex,d.item.role);\n        '+marker,1)
+import re
+pattern=r'(?m)^(\\s*)addFormCards\\('
+if not re.search(pattern,s):raise SystemExit("Job editor UI insertion point missing")
+s=re.sub(pattern,lambda m:m.group(1)+'addJobEditor(d.item.dex,d.item.role);\\n'+m.group(1)+'addFormCards(',s,count=1)
 anchor='private void copy(String s){'
 if anchor not in s:raise SystemExit("Job editor anchor missing")
 methods="""
