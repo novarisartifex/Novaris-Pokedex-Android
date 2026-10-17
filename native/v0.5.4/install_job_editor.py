@@ -280,7 +280,7 @@ methods="""
         if(origin==null)return;
         String evo=origin.optString("evolution","");
         if(evo.isEmpty())return;
-        java.util.regex.Matcher matcher=java.util.regex.Pattern.compile("#(\\d{4})\\.").matcher(evo);
+        java.util.regex.Matcher matcher=java.util.regex.Pattern.compile("#([0-9]{4})[.]").matcher(evo);
         java.util.ArrayList<Integer> chain=new java.util.ArrayList<>();
         while(matcher.find()){
             int id=Integer.parseInt(matcher.group(1));
