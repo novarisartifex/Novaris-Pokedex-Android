@@ -65,7 +65,7 @@ methods="""
             record.put("root_key","Ragnarok Online".equals(group)?"ro-root:"+family.split(" → ")[0]:"group:"+("Final Fantasy XIV".equals(group)?"FFXIV":group));
             boolean structuredSaved=getSharedPreferences("novaris_job_structured",MODE_PRIVATE).edit().putString(String.valueOf(dex),record.toString()).commit();
             if(!structuredSaved)throw new java.io.IOException("Strukturierte Jobdaten nicht gespeichert");
-            saveSelectedJob(dex,selected);
+            getSharedPreferences("novaris_job_manual",MODE_PRIVATE).edit().putBoolean(String.valueOf(dex),true).commit();\n            propagateJobForward(dex,record);\n            saveSelectedJob(dex,selected);
         }catch(Exception e){Toast.makeText(this,"Job nicht gespeichert: "+e.getMessage(),Toast.LENGTH_LONG).show();}
     }
     private void saveSelectedJob(int dex,String selected){
@@ -273,6 +273,61 @@ methods="""
             }
             Toast.makeText(this,"Job-Änderungen exportiert",Toast.LENGTH_LONG).show();
         }catch(Exception e){Toast.makeText(this,"Export fehlgeschlagen: "+e.getMessage(),Toast.LENGTH_LONG).show();}
+    }
+    private void propagateJobForward(int dex,org.json.JSONObject selected)throws Exception{
+        org.json.JSONObject baseline=loadJobBaseline();
+        org.json.JSONObject origin=baseline.optJSONObject(String.valueOf(dex));
+        if(origin==null)return;
+        String evo=origin.optString("evolution","");
+        if(evo.isEmpty())return;
+        java.util.regex.Matcher matcher=java.util.regex.Pattern.compile("#(\\d{4})\\.").matcher(evo);
+        java.util.ArrayList<Integer> chain=new java.util.ArrayList<>();
+        while(matcher.find()){
+            int id=Integer.parseInt(matcher.group(1));
+            if(!chain.contains(id))chain.add(id);
+        }
+        int position=chain.indexOf(dex);
+        if(position<0)return;
+        String group=selected.optString("group","");
+        String family=selected.optString("class_family","");
+        org.json.JSONObject catalog=loadJobCatalog();
+        org.json.JSONObject entries=catalog.optJSONObject("Ragnarok Online".equals(group)?"V2610_RAG":"Civilian".equals(group)?"V2610_CIV":"");
+        org.json.JSONObject familyEntry=entries==null?null:entries.optJSONObject(family);
+        for(int i=position+1;i<chain.size();i++){
+            int nextDex=chain.get(i);
+            String key=String.valueOf(nextDex);
+            if(getSharedPreferences("novaris_job_manual",MODE_PRIVATE).getBoolean(key,false))continue;
+            org.json.JSONObject original=baseline.optJSONObject(key);
+            if(original==null)continue;
+            String role=selected.optString("role","");
+            String tier=original.optString("tier","");
+            if("Ragnarok Online".equals(group)&&familyEntry!=null){
+                org.json.JSONObject tierMap=familyEntry.optJSONObject("tier_map");
+                if(tierMap!=null){
+                    role=tierMap.optString(tier,"");
+                    if(role.isEmpty())role=selected.optString("role","");
+                }
+            }else if("Civilian".equals(group)&&familyEntry!=null){
+                org.json.JSONArray stages=familyEntry.optJSONArray("specializations");
+                if(stages!=null&&stages.length()>0){
+                    int stage=Math.min(stages.length()-1,Math.max(0,i));
+                    role=stages.optString(stage,role);
+                    tier="C"+(stage+1);
+                }
+            }
+            org.json.JSONObject child=new org.json.JSONObject(selected.toString());
+            child.put("role",role);child.put("label",role);child.put("tier",tier);
+            child.put("propagated_from",dex);
+            getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit().putString(key,role).commit();
+            getSharedPreferences("novaris_job_structured",MODE_PRIVATE).edit().putString(key,child.toString()).commit();
+        }
+    }
+    private org.json.JSONObject loadJobCatalog()throws Exception{
+        java.io.InputStream input=getAssets().open("novaris_job_catalog_v2742.json");
+        java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();
+        byte[] buffer=new byte[8192];int count;
+        try(java.io.InputStream stream=input){while((count=stream.read(buffer))!=-1)bytes.write(buffer,0,count);}
+        return new org.json.JSONObject(bytes.toString("UTF-8"));
     }
     private void addChangedJobBlock(DatabaseManager.PokemonItem item){
         String changed=editedJob(item.dex,item.role);
