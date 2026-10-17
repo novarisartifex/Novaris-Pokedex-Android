@@ -8,7 +8,7 @@ if not re.search(pattern,s):raise SystemExit("Job editor UI insertion point miss
 s=re.sub(pattern,lambda m:m.group(1)+'addJobEditor(d.item.dex,d.item.role);\n'+m.group(1)+'addChangedJobBlock(d.item);\n'+m.group(1)+'addFormCards(',s,count=1)
 anchor='private void copy(String s){'
 if anchor not in s:raise SystemExit("Job editor anchor missing")
-methods="""
+methods=r"""
     private String editedJob(int dex,String fallback){
         return getSharedPreferences("novaris_job_edits",MODE_PRIVATE).getString(String.valueOf(dex),fallback==null?"":fallback);
     }
