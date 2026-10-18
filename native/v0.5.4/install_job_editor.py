@@ -447,6 +447,17 @@ methods=r"""
             return description;
         }catch(Exception e){android.util.Log.e("NovarisJobs","Description generation failed",e);return "";}
     }
+    private String headedPokemonPrompt(int dex,String variant,String prompt){
+        DatabaseManager.PokemonDetail detail=data.pokemonDetail(dex);
+        if(detail==null)return prompt;
+        DatabaseManager.PokemonItem item=detail.item;
+        String heading=String.format(java.util.Locale.ROOT,"#%04d.%s",dex,item.en);
+        if(item.de!=null&&!item.de.trim().isEmpty()&&!item.de.equalsIgnoreCase(item.en))heading+=" / "+item.de;
+        if(variant!=null&&!variant.trim().isEmpty())heading+=" — "+variant.trim();
+        String content=prompt==null?"":prompt.trim();
+        if(content.startsWith(heading))return content;
+        return heading+"\\n\\n"+content;
+    }
     private void addChangedJobBlock(DatabaseManager.PokemonItem item,String formsJson){
         String changed=editedJob(item.dex,item.role);
         if(changed.equals(item.role))return;
