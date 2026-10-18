@@ -101,8 +101,8 @@ public class DetailActivity extends Activity {
         promptRow.setOrientation(LinearLayout.HORIZONTAL);
         Button x1=button("Copy Core + Dex x1");
         Button x3=button("Copy Core + Dex x3");
-        x1.setOnClickListener(v->copy(data.buildPokemonPrompt(d.item.dex,false)));
-        x3.setOnClickListener(v->copy(data.buildPokemonPrompt(d.item.dex,true)));
+        x1.setOnClickListener(v->copy(headedPokemonPrompt(d.item.dex,"",data.buildPokemonPrompt(d.item.dex,false))));
+        x3.setOnClickListener(v->copy(headedPokemonPrompt(d.item.dex,"",data.buildPokemonPrompt(d.item.dex,true))));
         promptRow.addView(x1,new LinearLayout.LayoutParams(0,dp(62),1));
         promptRow.addView(x3,new LinearLayout.LayoutParams(0,dp(62),1));
         body.addView(promptRow);
@@ -192,8 +192,8 @@ public class DetailActivity extends Activity {
         pr.setOrientation(LinearLayout.HORIZONTAL);
         Button b1=button("Copy "+name+(shiny?" Shiny":"")+" + Core + Dex x1");
         Button b3=button("Copy "+name+(shiny?" Shiny":"")+" + Core + Dex x3");
-        b1.setOnClickListener(v->copy(shiny?buildShinyPrompt(dex,name,false):data.buildPokemonPrompt(dex,false,name,blueprint)));
-        b3.setOnClickListener(v->copy(shiny?buildShinyPrompt(dex,name,true):data.buildPokemonPrompt(dex,true,name,blueprint)));
+        b1.setOnClickListener(v->copy(headedPokemonPrompt(dex,name,shiny?buildShinyPrompt(dex,name,false):data.buildPokemonPrompt(dex,false,name,blueprint))));
+        b3.setOnClickListener(v->copy(headedPokemonPrompt(dex,name,shiny?buildShinyPrompt(dex,name,true):data.buildPokemonPrompt(dex,true,name,blueprint))));
         pr.addView(b1,new LinearLayout.LayoutParams(0,dp(66),1));
         pr.addView(b3,new LinearLayout.LayoutParams(0,dp(66),1));
         card.addView(pr);
@@ -201,6 +201,19 @@ public class DetailActivity extends Activity {
         LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(match(),wrap());
         lp.setMargins(0,dp(6),0,dp(8));
         body.addView(card,lp);
+    }
+
+    private String headedPokemonPrompt(int dex,String variant,String prompt){
+        DatabaseManager.PokemonDetail detail=data.pokemonDetail(dex);
+        if(detail==null)return prompt;
+        DatabaseManager.PokemonItem item=detail.item;
+        String heading=String.format(Locale.ROOT,"#%04d.%s",dex,item.en);
+        if(item.de!=null&&!item.de.trim().isEmpty()&&!item.de.equalsIgnoreCase(item.en))
+            heading+=" / "+item.de;
+        if(variant!=null&&!variant.trim().isEmpty())heading+=" — "+variant.trim();
+        String content=prompt==null?"":prompt.trim();
+        if(content.startsWith(heading))return content;
+        return heading+"\\n\\n"+content;
     }
 
     private String mainFilename(DatabaseManager.PokemonItem p){
