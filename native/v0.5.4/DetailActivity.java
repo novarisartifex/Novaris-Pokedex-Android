@@ -213,7 +213,7 @@ public class DetailActivity extends Activity {
         if(variant!=null&&!variant.trim().isEmpty())heading+=" — "+variant.trim();
         String content=prompt==null?"":prompt.trim();
         if(content.startsWith(heading))return content;
-        return heading+"\\n\\n"+content;
+        return heading+"\n\n"+content;
     }
 
     private String mainFilename(DatabaseManager.PokemonItem p){
