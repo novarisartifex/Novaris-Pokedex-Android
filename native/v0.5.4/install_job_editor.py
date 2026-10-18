@@ -464,9 +464,9 @@ methods=r"""
         Button x1=button("Copy Core + Dex x1");
         Button x3=button("Copy Core + Dex x3");
         x1.setEnabled(!description.isEmpty());
-        x1.setOnClickListener(v->copy(description));
+        x1.setOnClickListener(v->copy(headedPokemonPrompt(item.dex,"",description)));
         x3.setEnabled(!description.isEmpty());
-        x3.setOnClickListener(v->copy(PromptSafety.enforce(description,true)));
+        x3.setOnClickListener(v->copy(headedPokemonPrompt(item.dex,"",PromptSafety.enforce(description,true))));
         row.addView(x1,new LinearLayout.LayoutParams(0,dp(62),1));
         row.addView(x3,new LinearLayout.LayoutParams(0,dp(62),1));
         body.addView(row);
@@ -488,11 +488,11 @@ methods=r"""
                 section("SPEZIALFORM · "+name+" · "+role,prompt);
                 Button one=button("Copy Core + Dex x1 · "+name);
                 one.setEnabled(!description.isEmpty());
-                one.setOnClickListener(v->copy(prompt));
+                one.setOnClickListener(v->copy(headedPokemonPrompt(item.dex,name,prompt)));
                 body.addView(one);
                 Button three=button("Copy Core + Dex x3 · "+name);
                 three.setEnabled(!description.isEmpty());
-                three.setOnClickListener(v->copy(PromptSafety.enforce(prompt,true)));
+                three.setOnClickListener(v->copy(headedPokemonPrompt(item.dex,name,PromptSafety.enforce(prompt,true))));
                 body.addView(three);
             }
         }catch(Exception e){android.util.Log.w("NovarisJobs","Special forms unavailable",e);}
