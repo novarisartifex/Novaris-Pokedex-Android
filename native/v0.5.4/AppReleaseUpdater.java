@@ -128,6 +128,31 @@ public final class AppReleaseUpdater {
         catch(Exception e){new AlertDialog.Builder(activity).setTitle("Download nicht möglich")
             .setMessage(e.getMessage()).setPositiveButton("OK",null).show();}
     }
+    private void requestInstallPermission(String url){
+        try{
+            if(android.os.Build.VERSION.SDK_INT>=26){
+                Intent settings=new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                    Uri.parse("package:"+activity.getPackageName()));
+                activity.startActivity(settings);
+                Toast.makeText(activity,"Installation für Novaris erlauben und danach App-Update erneut öffnen.",Toast.LENGTH_LONG).show();
+            }else showUpdateProblem("Installation nicht erlaubt.",url);
+        }catch(Exception e){showUpdateProblem("Installationsberechtigung konnte nicht geöffnet werden: "+e.getMessage(),url);}
+    }
+    private void launchInstaller(Uri uri,String url){
+        try{
+            if(android.os.Build.VERSION.SDK_INT>=26&&!activity.getPackageManager().canRequestPackageInstalls()){
+                new AlertDialog.Builder(activity).setTitle("Installationsfreigabe erforderlich")
+                    .setMessage("Die APK wurde heruntergeladen. Erlaube jetzt die Installation aus Novaris und starte danach das Update erneut.")
+                    .setPositiveButton("Android-Einstellungen",(d,w)->requestInstallPermission(url))
+                    .setNegativeButton("Abbrechen",null).show();
+                return;
+            }
+            Intent install=new Intent(Intent.ACTION_VIEW);
+            install.setDataAndType(uri,"application/vnd.android.package-archive");
+            install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(install);
+        }catch(Exception e){showUpdateProblem("APK vorhanden, Android-Installer konnte nicht geöffnet werden: "+e.getMessage(),url);}
+    }
     private void download(String url){
         try{
             DownloadManager manager=(DownloadManager)activity.getSystemService(Context.DOWNLOAD_SERVICE);
@@ -138,7 +163,7 @@ public final class AppReleaseUpdater {
             req.setDestinationInExternalFilesDir(activity,Environment.DIRECTORY_DOWNLOADS,
                 "Novaris-Pokedex-Update-"+System.currentTimeMillis()+".apk");
             long id=manager.enqueue(req);
-            Toast.makeText(activity,"APK-Download gestartet",Toast.LENGTH_LONG).show();
+            Toast.makeText(activity,"APK-Download gestartet. Download-ID: "+id,Toast.LENGTH_LONG).show();
             Handler h=new Handler(Looper.getMainLooper());
             Runnable poll=new Runnable(){
                 int attempts=0;
@@ -156,18 +181,7 @@ public final class AppReleaseUpdater {
                         if(status==DownloadManager.STATUS_SUCCESSFUL){
                             Uri uri=manager.getUriForDownloadedFile(id);
                             if(uri==null){showUpdateProblem("APK heruntergeladen, aber nicht zugreifbar.",url);return;}
-                            Intent install=new Intent(Intent.ACTION_VIEW);
-                            install.setDataAndType(uri,"application/vnd.android.package-archive");
-                            install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            try{
-                                if(android.os.Build.VERSION.SDK_INT>=26&&!activity.getPackageManager().canRequestPackageInstalls()){
-                                    showUpdateProblem("Android muss die Installation aus dieser App zuerst erlauben. Alternativ die APK im Browser herunterladen und über Downloads öffnen.",url);
-                                    return;
-                                }
-                                activity.startActivity(install);
-                            }catch(Exception e){
-                                showUpdateProblem("APK heruntergeladen, aber Android konnte die Installation nicht öffnen: "+e.getMessage(),url);
-                            }
+                            launchInstaller(uri,url);
                             return;
                         }
                         if(status==DownloadManager.STATUS_FAILED){
