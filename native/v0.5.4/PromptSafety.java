@@ -23,8 +23,14 @@ public final class PromptSafety {
         "If the image-generation interface permits only one output per invocation, make three consecutive image-generation invocations rather than silently reducing the count.";
     public static String enforce(String prompt, boolean triple){
         if(prompt==null)return "";
+        String title="";
+        java.util.regex.Matcher first=java.util.regex.Pattern.compile("(?m)^#[0-9]{4}\\.[^\\r\\n]+").matcher(prompt);
+        if(first.find()){
+            title=first.group();
+            prompt=(prompt.substring(0,first.start())+prompt.substring(first.end())).trim();
+        }
         String header="NOVARIS OUTPUT CONTROL\n"+ANATOMY+(triple?"\n\n"+TRIPLE:"");
-        return header+"\n\n"+prompt+"\n\nFINAL PRE-GENERATION CHECK: "+(triple?"three separate images; ":"one image; ")+
+        return (title.isEmpty()?"":title+"\n\n")+header+"\n\n"+prompt+"\n\nFINAL PRE-GENERATION CHECK: "+(triple?"three separate images; ":"one image; ")+
             "human anatomy only; all species appendages external wearable props, never organic extensions.";
     }
 }
