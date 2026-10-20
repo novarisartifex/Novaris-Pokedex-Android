@@ -53,9 +53,9 @@ public final class AppReleaseUpdater {
     }
     public void onAppResume(){
         long now=android.os.SystemClock.elapsedRealtime();
+        resumePendingDownload();
         if(now-lastAutoCheck<AUTO_INTERVAL_MS)return;
         lastAutoCheck=now;
-        resumePendingDownload();
         check(false);
     }
     public void check(){check(true);}
