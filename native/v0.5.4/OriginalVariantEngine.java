@@ -33,6 +33,7 @@ public final class OriginalVariantEngine {
     }
 
     private static String[] sceneBriefs(String label){
+        String[] scenes;
         switch(label){
             case "Lingerie":
                 scenes=new String[]{
