@@ -21,6 +21,43 @@ public final class OriginalVariantEngine {
         return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+"\n\n\n"+mode+"\n\n\n"+root.getString("NOVARIS_CORE_V117"),triple);
     }
 
+    /** Three independent, copyable single-image briefs. Each invocation requests exactly one image. */
+    public static String buildScene(Context context,JSONObject root,int dex,String label,int scene)throws Exception{
+        if(scene<1||scene>3)throw new IllegalArgumentException("scene must be 1..3");
+        String base=build(context,root,dex,label,false);
+        String[] scenes;
+        switch(label){
+            case "Lingerie":
+                scenes=new String[]{
+                    "LOOK 1 — luxury silk loungewear: fully lined opaque satin camisole and relaxed tailored trousers; standing three-quarter portrait in a bright designer fashion showroom; balanced frontal softbox lighting, relaxed arms, polished editorial elegance.",
+                    "LOOK 2 — refined sleepwear editorial: opaque high-neck silk slip layered under a structured lightweight robe; seated upright in a sophisticated hotel lounge chair; warm side light, hands resting naturally, cinematic medium-full portrait.",
+                    "LOOK 3 — premium evening lounge set: opaque long-sleeve satin blouse with matching wide-leg silk trousers, species-color embroidered trim; walking naturally through an upscale gallery corridor; dramatic rim lighting, full-body fashion campaign shot."
+                };break;
+            case "Nightlife":
+                scenes=new String[]{
+                    "LOOK 1 — stylish nightclub entrance: structured dark tailored jacket with vivid species-color satin details, polished boots; confident full-body standing pose outside a neon-lit venue; rain reflections and strong cinematic contrast.",
+                    "LOOK 2 — rooftop night event: distinct asymmetric fashion-forward evening outfit with layered metallic accessories, species-inspired color accents; leaning casually by a rooftop railing; wide skyline bokeh, three-quarter camera angle, cool moonlit rim.",
+                    "LOOK 3 — atmospheric jazz lounge: elegant velvet and silk night-out ensemble with distinctive silhouette and species motifs; walking past art-deco lighting, natural hands and composed gaze; warm amber spotlights, dynamic full-length editorial composition."
+                };break;
+            case "Casual":
+                scenes=new String[]{
+                    "LOOK 1 — casual city daytime: species-color overshirt, clean fitted tee, relaxed jeans and sneakers; walking on a lively pedestrian street; candid full-body eye-level photograph.",
+                    "LOOK 2 — relaxed weekend cafe: soft knit top, tailored chinos and simple accessories with species motif; seated naturally at an outdoor cafe; warm afternoon side light and three-quarter composition.",
+                    "LOOK 3 — urban park streetwear: distinctive layered lightweight jacket, wide-leg trousers and practical shoes; standing near a tree-lined pathway; overcast cinematic light and slightly low full-body camera angle."
+                };break;
+            default:
+                scenes=new String[]{
+                    "SCENE 1: clear full-body front three-quarter view, signature outfit and confident neutral stance, environmental establishing shot.",
+                    "SCENE 2: distinct camera perspective and different outfit layering, character actively interacting with scene, medium-full portrait.",
+                    "SCENE 3: different outfit construction, dynamic but anatomically natural pose, dramatic cinematic full-length composition."
+                };
+        }
+        return base+"\\n\\nNOVARIS INDIVIDUAL IMAGE BRIEF "+scene+"/3 — GENERATE ONE IMAGE ONLY. "+
+            "This is a standalone request, not a collage and not an instruction to create the other two images. "+
+            "Preserve the same adult character identity and Pokémon species color palette, but follow this unique composition exactly: "+
+            scenes[scene-1]+"\\nDo not reuse the other scenes' wardrobe, pose, camera angle or setting.";
+    }
+
     public static String slug(String s){
         return (s==null?"":s).trim().replace("♀","Female").replace("♂","Male")
                 .replaceAll("[’'`]", "")
