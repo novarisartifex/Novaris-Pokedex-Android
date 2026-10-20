@@ -52,10 +52,10 @@ public final class OriginalVariantEngine {
                     "SCENE 3: different outfit construction, dynamic but anatomically natural pose, dramatic cinematic full-length composition."
                 };
         }
-        return base+"\\n\\nNOVARIS INDIVIDUAL IMAGE BRIEF "+scene+"/3 — GENERATE ONE IMAGE ONLY. "+
+        return base+"\n\nNOVARIS INDIVIDUAL IMAGE BRIEF "+scene+"/3 — GENERATE ONE IMAGE ONLY. "+
             "This is a standalone request, not a collage and not an instruction to create the other two images. "+
             "Preserve the same adult character identity and Pokémon species color palette, but follow this unique composition exactly: "+
-            scenes[scene-1]+"\\nDo not reuse the other scenes' wardrobe, pose, camera angle or setting.";
+            scenes[scene-1]+"\nDo not reuse the other scenes' wardrobe, pose, camera angle or setting.";
     }
 
     public static String slug(String s){
