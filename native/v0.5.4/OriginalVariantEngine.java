@@ -58,6 +58,11 @@ public final class OriginalVariantEngine {
             scenes[scene-1]+"\nDo not reuse the other scenes' wardrobe, pose, camera angle or setting.";
     }
 
+    public static String buildSceneSafe(Context context,JSONObject root,int dex,String label,int scene){
+        try{return buildScene(context,root,dex,label,scene);}
+        catch(Exception e){return "Bildbeschreibung fehlgeschlagen: "+e.getMessage();}
+    }
+
     public static String slug(String s){
         return (s==null?"":s).trim().replace("♀","Female").replace("♂","Male")
                 .replaceAll("[’'`]", "")
