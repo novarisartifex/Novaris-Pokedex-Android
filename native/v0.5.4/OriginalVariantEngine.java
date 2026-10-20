@@ -25,7 +25,14 @@ public final class OriginalVariantEngine {
     public static String buildScene(Context context,JSONObject root,int dex,String label,int scene)throws Exception{
         if(scene<1||scene>3)throw new IllegalArgumentException("scene must be 1..3");
         String base=build(context,root,dex,label,false);
-        String[] scenes;
+        String[] scenes=sceneBriefs(label);
+        return base+"\n\nNOVARIS INDIVIDUAL IMAGE BRIEF "+scene+"/3 — GENERATE ONE IMAGE ONLY. "+
+            "This is a standalone request, not a collage and not an instruction to create the other two images. "+
+            "Preserve the same adult character identity and Pokémon species color palette, but follow this unique composition exactly: "+
+            scenes[scene-1]+"\nDo not reuse the other scenes' wardrobe, pose, camera angle or setting.";
+    }
+
+    private static String[] sceneBriefs(String label){
         switch(label){
             case "Lingerie":
                 scenes=new String[]{
@@ -52,10 +59,20 @@ public final class OriginalVariantEngine {
                     "SCENE 3: different outfit construction, dynamic but anatomically natural pose, dramatic cinematic full-length composition."
                 };
         }
-        return base+"\n\nNOVARIS INDIVIDUAL IMAGE BRIEF "+scene+"/3 — GENERATE ONE IMAGE ONLY. "+
-            "This is a standalone request, not a collage and not an instruction to create the other two images. "+
-            "Preserve the same adult character identity and Pokémon species color palette, but follow this unique composition exactly: "+
-            scenes[scene-1]+"\nDo not reuse the other scenes' wardrobe, pose, camera angle or setting.";
+
+        return scenes;
+    }
+
+    public static String buildTripleSceneSafe(Context context,JSONObject root,int dex,String label){
+        try{
+            String base=build(context,root,dex,label,true);
+            String[] scenes=sceneBriefs(label);
+            return base+"\n\nTHREE DISTINCT REQUIRED IMAGE DESCRIPTIONS — ONE PROMPT, THREE SEPARATE OUTPUTS. "+
+                "Generate IMAGE 1, IMAGE 2 and IMAGE 3 as three independent finished images, never a collage or multi-panel composition. "+
+                "All three depict the same adult human character and Pokémon identity; each MUST use its own specified wardrobe, setting, pose, lighting and camera angle. "+
+                "IMAGE 1: "+scenes[0]+"\n\nIMAGE 2: "+scenes[1]+"\n\nIMAGE 3: "+scenes[2]+
+                "\n\nOUTPUT CHECK: Return three separate images, one for each description, not three panels in one image.";
+        }catch(Exception e){return "Dreifach-Bildbeschreibung fehlgeschlagen: "+e.getMessage();}
     }
 
     public static String buildSceneSafe(Context context,JSONObject root,int dex,String label,int scene){
