@@ -19,6 +19,10 @@ public final class AppReleaseUpdater {
     private long lastAutoCheck;
     private String lastPromptedBuild="";
     private static final long AUTO_INTERVAL_MS=60_000L;
+    private static final String PREFS="novaris_app_update";
+    private static final String PENDING_ID="pending_download_id";
+    private static final String PENDING_URL="pending_apk_url";
+    private boolean polling;
     public AppReleaseUpdater(Activity a){activity=a;}
     public void attach(){
         if(added)return;
@@ -51,6 +55,7 @@ public final class AppReleaseUpdater {
         long now=android.os.SystemClock.elapsedRealtime();
         if(now-lastAutoCheck<AUTO_INTERVAL_MS)return;
         lastAutoCheck=now;
+        resumePendingDownload();
         check(false);
     }
     public void check(){check(true);}
@@ -128,72 +133,98 @@ public final class AppReleaseUpdater {
         catch(Exception e){new AlertDialog.Builder(activity).setTitle("Download nicht möglich")
             .setMessage(e.getMessage()).setPositiveButton("OK",null).show();}
     }
+    private void resumePendingDownload(){
+        long id=activity.getSharedPreferences(PREFS,Context.MODE_PRIVATE).getLong(PENDING_ID,-1L);
+        String url=activity.getSharedPreferences(PREFS,Context.MODE_PRIVATE).getString(PENDING_URL,"");
+        if(id>=0&&!polling)monitorDownload(id,url);
+    }
+    private void clearPending(){
+        activity.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().remove(PENDING_ID).remove(PENDING_URL).apply();
+        polling=false;
+    }
     private void requestInstallPermission(String url){
         try{
             if(android.os.Build.VERSION.SDK_INT>=26){
                 Intent settings=new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
                     Uri.parse("package:"+activity.getPackageName()));
                 activity.startActivity(settings);
-                Toast.makeText(activity,"Installation für Novaris erlauben und danach App-Update erneut öffnen.",Toast.LENGTH_LONG).show();
+                Toast.makeText(activity,"Installation erlauben, danach zu Novaris zurückkehren.",Toast.LENGTH_LONG).show();
             }else showUpdateProblem("Installation nicht erlaubt.",url);
         }catch(Exception e){showUpdateProblem("Installationsberechtigung konnte nicht geöffnet werden: "+e.getMessage(),url);}
     }
     private void launchInstaller(Uri uri,String url){
+        if(uri==null){showUpdateProblem("Die heruntergeladene APK ist nicht zugreifbar.",url);return;}
         try{
             if(android.os.Build.VERSION.SDK_INT>=26&&!activity.getPackageManager().canRequestPackageInstalls()){
                 new AlertDialog.Builder(activity).setTitle("Installationsfreigabe erforderlich")
-                    .setMessage("Die APK wurde heruntergeladen. Erlaube jetzt die Installation aus Novaris und starte danach das Update erneut.")
+                    .setMessage("Die APK wurde heruntergeladen. Erlaube die Installation aus Novaris und kehre anschließend zur App zurück. Der Installer wird dann erneut geöffnet.")
                     .setPositiveButton("Android-Einstellungen",(d,w)->requestInstallPermission(url))
                     .setNegativeButton("Abbrechen",null).show();
                 return;
             }
-            Intent install=new Intent(Intent.ACTION_VIEW);
-            install.setDataAndType(uri,"application/vnd.android.package-archive");
+            Intent install=new Intent(Intent.ACTION_INSTALL_PACKAGE);
+            install.setData(uri);
+            install.putExtra(Intent.EXTRA_RETURN_RESULT,true);
             install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_ACTIVITY_NEW_TASK);
             activity.startActivity(install);
+            clearPending();
         }catch(Exception e){showUpdateProblem("APK vorhanden, Android-Installer konnte nicht geöffnet werden: "+e.getMessage(),url);}
     }
     private void download(String url){
         try{
             DownloadManager manager=(DownloadManager)activity.getSystemService(Context.DOWNLOAD_SERVICE);
+            if(manager==null)throw new IOException("Android DownloadManager nicht verfügbar");
             DownloadManager.Request req=new DownloadManager.Request(Uri.parse(url));
             req.setTitle("Novaris Pokédex App-Update");
-            req.setDescription("Neue Android-Version wird heruntergeladen");
+            req.setDescription("APK wird heruntergeladen – Fortschritt in Android Downloads");
+            req.setMimeType("application/vnd.android.package-archive");
+            req.setAllowedOverMetered(true);
+            req.setAllowedOverRoaming(false);
             req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
             req.setDestinationInExternalFilesDir(activity,Environment.DIRECTORY_DOWNLOADS,
                 "Novaris-Pokedex-Update-"+System.currentTimeMillis()+".apk");
             long id=manager.enqueue(req);
-            Toast.makeText(activity,"APK-Download gestartet. Download-ID: "+id,Toast.LENGTH_LONG).show();
-            Handler h=new Handler(Looper.getMainLooper());
-            Runnable poll=new Runnable(){
-                int attempts=0;
-                public void run(){
-                    if(activity.isFinishing())return;
-                    if(attempts++>120){
-                        showUpdateProblem("Der Download dauert zu lange. Du kannst die APK direkt im Browser herunterladen.",url);
+            activity.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit()
+                .putLong(PENDING_ID,id).putString(PENDING_URL,url).apply();
+            new AlertDialog.Builder(activity).setTitle("APK-Download gestartet")
+                .setMessage("Android lädt die neue App-Version herunter. Die Download-Benachrichtigung zeigt den Fortschritt. Nach Abschluss öffnet sich die Installation.")
+                .setPositiveButton("OK",null).show();
+            monitorDownload(id,url);
+        }catch(Exception e){showUpdateProblem("APK-Download konnte nicht gestartet werden: "+e.getMessage(),url);}
+    }
+    private void monitorDownload(long id,String url){
+        if(polling)return;
+        polling=true;
+        DownloadManager manager=(DownloadManager)activity.getSystemService(Context.DOWNLOAD_SERVICE);
+        Handler h=new Handler(Looper.getMainLooper());
+        Runnable poll=new Runnable(){
+            public void run(){
+                if(activity.isFinishing()||activity.isDestroyed()){polling=false;return;}
+                try(android.database.Cursor c=manager.query(new DownloadManager.Query().setFilterById(id))){
+                    if(c==null||!c.moveToFirst()){
+                        clearPending();
+                        showUpdateProblem("APK-Download nicht mehr vorhanden.",url);return;
+                    }
+                    int status=c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
+                    if(status==DownloadManager.STATUS_SUCCESSFUL){
+                        Uri uri=manager.getUriForDownloadedFile(id);
+                        polling=false;
+                        launchInstaller(uri,url);
                         return;
                     }
-                    try(android.database.Cursor c=manager.query(new DownloadManager.Query().setFilterById(id))){
-                        if(c==null||!c.moveToFirst()){
-                            showUpdateProblem("Der APK-Download konnte nicht gefunden werden.",url);return;
-                        }
-                        int status=c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
-                        if(status==DownloadManager.STATUS_SUCCESSFUL){
-                            Uri uri=manager.getUriForDownloadedFile(id);
-                            if(uri==null){showUpdateProblem("APK heruntergeladen, aber nicht zugreifbar.",url);return;}
-                            launchInstaller(uri,url);
-                            return;
-                        }
-                        if(status==DownloadManager.STATUS_FAILED){
-                            int reason=c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON));
-                            showUpdateProblem("APK-Download fehlgeschlagen (Fehler "+reason+"). Bitte im Browser herunterladen.",url);
-                            return;
-                        }
-                    }catch(Exception e){showUpdateProblem("APK-Download konnte nicht geprüft werden: "+e.getMessage(),url);return;}
-                    h.postDelayed(this,1000);
+                    if(status==DownloadManager.STATUS_FAILED){
+                        int reason=c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON));
+                        clearPending();
+                        showUpdateProblem("APK-Download fehlgeschlagen (Fehler "+reason+").",url);
+                        return;
+                    }
+                }catch(Exception e){
+                    clearPending();
+                    showUpdateProblem("Downloadprüfung fehlgeschlagen: "+e.getMessage(),url);return;
                 }
-            };
-            h.postDelayed(poll,1000);
-        }catch(Exception e){showUpdateProblem("APK-Download konnte nicht gestartet werden: "+e.getMessage(),url);}
+                h.postDelayed(this,1500);
+            }
+        };
+        h.postDelayed(poll,700);
     }
 }
