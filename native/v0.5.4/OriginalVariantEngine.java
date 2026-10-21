@@ -164,16 +164,125 @@ public final class OriginalVariantEngine {
                     "Novaris neighborhood cafe terrace"
                 };
             }
+            // Independent modular wardrobe pools; never repeat the same fixed outfit recipe.
+            String[] tops;
+            String[] bottoms;
+            String[] legwear;
+            String[] details;
+            if(label.equals("Lingerie")){
+                tops=new String[]{
+                    "Chantilly lace balconette bra", "plunge bra with embroidered cups", "longline bralette",
+                    "lace-up satin bustier", "sculpted overbust corset", "underbust corset over a silk camisole",
+                    "floral lace bodysuit", "embroidered mesh-overlay teddy", "silk halterneck lingerie top",
+                    "vintage basque", "strapless bandeau with lace edging", "demi-cup bra with satin trim",
+                    "romantic babydoll", "lace camisole", "satin chemise", "architectural cut-out bodysuit"
+                };
+                bottoms=new String[]{
+                    "matching high-waist briefs", "Brazilian-cut briefs", "lace boyshorts",
+                    "French knickers", "satin tap pants", "embroidered bikini briefs",
+                    "tailored silk bloomers", "scalloped lace shorts", "matching high-rise bottoms",
+                    "layered chiffon wrap skirt", "silk side-tie briefs", "matching opaque lingerie bottoms"
+                };
+                legwear=new String[]{
+                    "garter belt with attached seamed stockings", "ornate suspender belt and lace-top stockings",
+                    "decorative thigh garters with thigh-high stockings", "fishnet stockings with lace tops",
+                    "fine patterned tights", "silk stockings with back seams",
+                    "embroidered thigh-high stockings", "lace garters and sheer-look lined legwear",
+                    "no stockings, elegant bare-leg styling", "decorative garter straps over opaque hosiery"
+                };
+                details=new String[]{
+                    "scalloped Leavers lace and pearl clasps", "guipure lace with velvet ribbon",
+                    "floral lace applique and silk bows", "metallic-thread embroidery and jewel chains",
+                    "point d'esprit tulle over opaque satin", "delicate straps and geometric lace",
+                    "silk robe worn open as an outer layer", "sheer-look chiffon cape over fully lined garments",
+                    "opera gloves and an embroidered kimono", "contrast lace panels and corset lacing",
+                    "embroidered velvet cover-up", "delicate waist chain and ornate clasps"
+                };
+                poses=new String[]{
+                    "three-quarter standing pose, one hand on hip, shoulders angled",
+                    "sitting sideways on a velvet chair, legs elegantly crossed",
+                    "standing beside a vanity, fingers touching a jewel clasp",
+                    "walking forward while a silk robe trails behind",
+                    "looking into an ornate mirror in a natural over-shoulder pose",
+                    "leaning against a marble pillar with relaxed weight shift",
+                    "perched on a cushioned bench, upright with ankles crossed",
+                    "turning mid-step, fabric and hair in motion",
+                    "standing with one foot on a low step, arms relaxed",
+                    "seated on a chaise, torso upright and gaze direct",
+                    "adjusting an embroidered glove, three-quarter profile",
+                    "walking through an archway, head turned toward camera",
+                    "standing with arms gently folded at the waist",
+                    "sitting at a dressing table with one hand on the surface",
+                    "profile pose beside a window, weight on back leg",
+                    "standing in a graceful contrapposto with a soft shoulder turn"
+                };
+            }else if(label.equals("Nightlife")){
+                tops=new String[]{
+                    "lace crop top", "structured corset top", "silk halter top",
+                    "off-shoulder satin blouse", "one-shoulder metallic top", "fitted lace bodysuit",
+                    "embroidered bustier top", "backless-look lined evening top",
+                    "sequin bandeau with tailored overlay", "velvet wrap top",
+                    "sculpted brocade waistcoat", "sheer-look mesh overlay over opaque top",
+                    "asymmetric cut-out top", "tailored cropped leather jacket",
+                    "satin camisole", "ornate fantasy cabaret jacket"
+                };
+                bottoms=new String[]{
+                    "leather mini skirt", "pleated mini skirt", "asymmetric wrap mini skirt",
+                    "high-waist pencil skirt", "decorative slit skirt", "fitted velvet mini skirt",
+                    "tailored hot pants", "high-waist leather shorts", "flared satin trousers",
+                    "sleek leather pants", "wide-leg palazzo trousers", "embroidered brocade shorts",
+                    "metallic mini skirt", "layered chiffon mini skirt", "tailored slim trousers",
+                    "sequin mini skirt"
+                };
+                legwear=new String[]{
+                    "patterned tights and knee-high boots", "fishnet tights and ankle boots",
+                    "thigh-high boots", "lace tights and platform heels",
+                    "sheer-look tights and stiletto heels", "opaque tights and polished boots",
+                    "bare-leg styling with ornate heels", "decorative stockings and velvet ankle boots"
+                };
+                details=new String[]{
+                    "statement choker and crystal jewelry", "opera gloves and jeweled belt",
+                    "metallic filigree chains and ornate clasps", "cropped velvet blazer",
+                    "faux-fur stole and gemstone earrings", "masquerade mask carried in one hand",
+                    "embroidered bolero and layered necklaces", "asymmetric fantasy capelet",
+                    "lace gloves and high-shine accessories", "dramatic belt and crystal hair ornaments",
+                    "short leather jacket and silver jewelry", "embroidered silk scarf and jeweled cuffs"
+                };
+                poses=new String[]{
+                    "confident stride across a lantern-lit ballroom",
+                    "mid-dance turn with one arm extended naturally",
+                    "sitting sideways on a velvet lounge stool, legs crossed",
+                    "leaning on a balcony rail and looking toward the city",
+                    "walking down a broad staircase, one hand on the rail",
+                    "standing in contrapposto with one hand on hip",
+                    "looking over one shoulder while walking away",
+                    "one foot on a low step, relaxed upright stance",
+                    "turning toward a companion just outside the frame",
+                    "leaning lightly against a stone arch with crossed ankles",
+                    "seated in a booth, shoulders angled toward camera",
+                    "holding a masquerade mask at waist height",
+                    "standing beneath lanterns with arms relaxed and chin raised",
+                    "mid-step crossing a fantasy skybridge, fabric in motion",
+                    "standing beside a fountain, one hand adjusting a bracelet",
+                    "dynamic side-step on a dance floor with balanced anatomy"
+                };
+            }else{
+                tops=new String[]{"knit sweater","denim jacket","linen shirt","layered cardigan","cropped utility jacket","bomber jacket"};
+                bottoms=new String[]{"straight-leg jeans","pleated trousers","cargo skirt","wide-leg chinos","midi skirt","tailored shorts"};
+                legwear=new String[]{"comfortable boots","low-profile sneakers","ankle boots","leather flats"};
+                details=new String[]{"crossbody bag","woven belt","light scarf","simple jewelry"};
+            }
             int wardrobe=seed%clothing.length;
-            int posture=(seed/3+3)%poses.length;
-            int location=(seed/5+5)%places.length;
+            int posture=Math.floorMod(seed*7+11,poses.length);
+            int location=Math.floorMod(seed*11+3,places.length);
+            String wardrobeDesign=tops[Math.floorMod(seed*3+1,tops.length)]+", paired with "+bottoms[Math.floorMod(seed*7+2,bottoms.length)]+", "+legwear[Math.floorMod(seed*11+4,legwear.length)]+", and "+details[Math.floorMod(seed*13+6,details.length)];
             String safety=label.equals("Lingerie")?
                 " All characters are clearly adults aged 25+. Elegant adult lingerie fashion editorial; opaque coverage of intimate anatomy, no nudity or explicit sexual activity.":
                 " Adult character fashion editorial.";
             return "NOVARIS LIFESTYLE VARIANT — FULL POKÉDEX DESCRIPTION\\nVARIANT: "+label+". ROLE SYSTEM: Novaris Lifestyle / non-professional presentation."+safety+
                 "\\nCHARACTER: The complete CHARACTER BLUEPRINT, SPECIES COLOR & MATERIAL BLUEPRINT and SPECIES OUTFIT TRANSLATION written above remain authoritative for complexion, face, hair, source colors, species identity and wearable visual anchors. No class equipment or work action."+
                 "\\nMATERIAL BLUEPRINT: "+b.getString("m")+". Preserve the Pokémon source-color hierarchy, saturated local colors, contrasting matte and lustrous surfaces, rich textures and species-derived motifs."+
-                "\\nCLOTHING BLUEPRINT: "+clothing[wardrobe]+". Integrate the stored lifestyle clothing blueprint as a design influence: "+b.getString("c")+". Adapt tailoring, lace patterns, trim, fastenings and accessories to the Pokémon rather than generic fashion. Avoid repeating the same silhouette for different Pokémon."+
+                "\\nCLOTHING BLUEPRINT: "+wardrobeDesign+". Silhouette inspiration: "+clothing[wardrobe]+". Integrate the stored lifestyle clothing blueprint as a design influence: "+b.getString("c")+". Adapt tailoring, lace patterns, trim, fastenings and accessories to the Pokémon rather than generic fashion. Avoid repeating the same silhouette for different Pokémon."+
                 "\\nPRESENCE / BODY LANGUAGE: "+poses[posture]+". Reflect the stored character presence: "+b.getString("s")+". Distinct weight distribution, hand gesture and camera angle; natural human anatomy."+
                 "\\nSCENE / PRESENTATION: "+places[location]+". Incorporate blueprint atmosphere: "+b.getString("e")+". Remain visibly inside the Novaris fantasy world, not a modern real-world nightclub. Vertical cinematic composition, atmospheric depth, controlled key and rim lighting, textured shadows.";
         }
