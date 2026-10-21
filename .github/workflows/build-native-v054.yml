@@ -289,6 +289,7 @@ jobs:
           cp native/v0.5.4/novaris_lifestyle_block_0051_0100_v2.json appsrc/app/src/main/assets/novaris_lifestyle_block_0051_0100_v2.json
           cp native/v0.5.4/novaris_lifestyle_block_0101_0150_v2.json appsrc/app/src/main/assets/novaris_lifestyle_block_0101_0150_v2.json
           cp native/v0.5.4/novaris_lifestyle_block_0151_0200_v2.json appsrc/app/src/main/assets/novaris_lifestyle_block_0151_0200_v2.json
+          cp native/v0.5.4/novaris_lifestyle_block_0201_0250_v2.json appsrc/app/src/main/assets/novaris_lifestyle_block_0201_0250_v2.json
 
       - name: Wire six native optional variant buttons
         shell: bash
