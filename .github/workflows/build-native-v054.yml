@@ -282,7 +282,9 @@ jobs:
         run: python3 native/v0.5.4/extract_original_variants.py
 
       - name: Install original native variant engine
-        run: cp native/v0.5.4/OriginalVariantEngine.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/OriginalVariantEngine.java
+        run: |
+          cp native/v0.5.4/OriginalVariantEngine.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/OriginalVariantEngine.java
+          cp native/v0.5.4/novaris_species_lifestyle_blueprints_v1.json appsrc/app/src/main/assets/novaris_species_lifestyle_blueprints_v1.json
 
       - name: Wire six native optional variant buttons
         shell: bash
