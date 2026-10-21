@@ -27,7 +27,7 @@ public final class OriginalVariantEngine {
         if (text.isEmpty()) throw new IllegalStateException("Missing original species text for "+dex);
         String name = species.getString("name");
         String title = String.format(Locale.ROOT, "#%04d.%s — %s",dex,slug(name),label);
-        String desc = description(context,root,dex,label);
+        String desc = description(context,root,dex,label,triple);
         String mode = root.getString(triple?"NOVARIS_OUTPUT_TRIPLE":"NOVARIS_OUTPUT_SINGLE");
         return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+"\n\n\n"+mode+"\n\n\n"+root.getString("NOVARIS_CORE_V117"),triple);
     }
@@ -56,10 +56,37 @@ public final class OriginalVariantEngine {
     private static String meta(JSONArray a,int i){
         return a==null?"":a.optString(i,"");
     }
-    public static String description(Context context,JSONObject root,int dex,String label)throws Exception{
+    public static String description(Context context,JSONObject root,int dex,String label,boolean triple)throws Exception{
         boolean life=label.equals("Casual")||label.equals("Nightlife")||label.equals("Lingerie");
         if(life){
             JSONObject b=root.getJSONObject("V2713_LIFESTYLE_BLUEPRINTS").getJSONObject(label);
+            // Individually specified first Pokédex block takes precedence over all legacy generated drafts.
+            if(dex>=1&&dex<=50){
+                try(InputStream stream=context.getAssets().open("novaris_lifestyle_block_0001_0050_v2.json")){
+                    ByteArrayOutputStream bytes=new ByteArrayOutputStream();
+                    byte[] buf=new byte[8192];int count;
+                    while((count=stream.read(buf))!=-1)bytes.write(buf,0,count);
+                    JSONObject item=new JSONObject(bytes.toString("UTF-8")).getJSONObject("species").getJSONObject(String.valueOf(dex));
+                    JSONObject variant=item.getJSONObject("variants").getJSONObject(label);
+                    JSONArray concepts=variant.getJSONArray("concepts");
+                    StringBuilder prompt=new StringBuilder("NOVARIS LIFESTYLE — SPECIES-SPECIFIC STORED BLUEPRINT\\n");
+                    prompt.append("VARIANT: ").append(label).append(". CHARACTER: Preserve exact species colors, face, hair, complexion, markings and normal adult human anatomy from the authoritative Pokémon character description above. Adults aged 25+.\\n");
+                    prompt.append("SPECIES FASHION TRANSLATION: ").append(variant.getString("identity_translation")).append(". No additional biological limbs, tails or wings. All special shapes must be clearly detachable clothing or props.\\n");
+                    prompt.append("OUTFIT: ").append(variant.getString("outfit")).append(".\\n");
+                    prompt.append("MATERIALS: ").append(variant.getString("materials")).append(".\\n");
+                    prompt.append("Fashion editorial with opaque intimate coverage, no nudity or explicit sexual activity. Cinematic Novaris fantasy world, never a generic real-world club.\\n");
+                    int limit=triple?3:1;
+                    prompt.append(triple?"THREE SEPARATE IMAGES, each a distinct full composition, NOT a collage.\\n":"SINGLE IMAGE.\\n");
+                    for(int i=0;i<limit;i++){
+                        JSONObject c=concepts.getJSONObject(i);
+                        prompt.append("IMAGE ").append(i+1).append(": Wardrobe: ").append(c.getString("outfit"))
+                              .append(". Pose: ").append(c.getString("pose"))
+                              .append(". Scene: ").append(c.getString("scene"))
+                              .append(". Lighting: ").append(c.getString("lighting")).append(".\\n");
+                    }
+                    return prompt.toString();
+                }
+            }
             // Prefer stored species-specific blueprints; unreviewed entries are automated drafts.
             try{
                     JSONObject entries=lifestyleSpecies(context);
