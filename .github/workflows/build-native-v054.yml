@@ -286,6 +286,7 @@ jobs:
           cp native/v0.5.4/OriginalVariantEngine.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/OriginalVariantEngine.java
           cp native/v0.5.4/novaris_species_lifestyle_blueprints_v1.json appsrc/app/src/main/assets/novaris_species_lifestyle_blueprints_v1.json
           cp native/v0.5.4/novaris_lifestyle_block_0001_0050_v2.json appsrc/app/src/main/assets/novaris_lifestyle_block_0001_0050_v2.json
+          cp native/v0.5.4/novaris_lifestyle_block_0051_0100_v2.json appsrc/app/src/main/assets/novaris_lifestyle_block_0051_0100_v2.json
 
       - name: Wire six native optional variant buttons
         shell: bash
