@@ -9,6 +9,17 @@ import java.util.Locale;
 /** Exact Java port of the V27.42 storedVariantPayloadV2713 / descV2713 assembly. */
 public final class OriginalVariantEngine {
     private OriginalVariantEngine(){}
+    private static volatile JSONObject lifestyleSpeciesCache;
+    private static synchronized JSONObject lifestyleSpecies(Context context) throws Exception {
+        if(lifestyleSpeciesCache!=null)return lifestyleSpeciesCache;
+        try(InputStream stream=context.getAssets().open("novaris_species_lifestyle_blueprints_v1.json")){
+            ByteArrayOutputStream bytes=new ByteArrayOutputStream();
+            byte[] buffer=new byte[8192];int n;
+            while((n=stream.read(buffer))!=-1)bytes.write(buffer,0,n);
+            lifestyleSpeciesCache=new JSONObject(bytes.toString("UTF-8")).getJSONObject("species");
+            return lifestyleSpeciesCache;
+        }
+    }
 
     public static String build(Context context, JSONObject root, int dex, String label, boolean triple) throws Exception {
         JSONObject species = root.getJSONObject("SPECIES").getJSONObject(String.valueOf(dex));
@@ -49,13 +60,9 @@ public final class OriginalVariantEngine {
         boolean life=label.equals("Casual")||label.equals("Nightlife")||label.equals("Lingerie");
         if(life){
             JSONObject b=root.getJSONObject("V2713_LIFESTYLE_BLUEPRINTS").getJSONObject(label);
-            // Prefer permanent, individually authored species blueprints over generated wardrobe pools.
-            try(InputStream stream=context.getAssets().open("novaris_species_lifestyle_blueprints_v1.json")){
-                if(stream!=null){
-                    ByteArrayOutputStream bytes=new ByteArrayOutputStream();
-                    byte[] buffer=new byte[4096];int n;
-                    while((n=stream.read(buffer))!=-1)bytes.write(buffer,0,n);
-                    JSONObject entries=new JSONObject(bytes.toString("UTF-8")).getJSONObject("species");
+            // Prefer stored species-specific blueprints; unreviewed entries are automated drafts.
+            try{
+                    JSONObject entries=lifestyleSpecies(context);
                     JSONObject entry=entries.optJSONObject(String.valueOf(dex));
                     JSONObject custom=entry==null?null:entry.optJSONObject(label);
                     if(custom!=null){
