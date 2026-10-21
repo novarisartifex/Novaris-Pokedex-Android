@@ -61,8 +61,9 @@ public final class OriginalVariantEngine {
         if(life){
             JSONObject b=root.getJSONObject("V2713_LIFESTYLE_BLUEPRINTS").getJSONObject(label);
             // Individually specified first Pokédex block takes precedence over all legacy generated drafts.
-            if(dex>=1&&dex<=50){
-                try(InputStream stream=context.getAssets().open("novaris_lifestyle_block_0001_0050_v2.json")){
+            if(dex>=1&&dex<=100){
+                String blockAsset=dex<=50?"novaris_lifestyle_block_0001_0050_v2.json":"novaris_lifestyle_block_0051_0100_v2.json";
+                try(InputStream stream=context.getAssets().open(blockAsset)){
                     ByteArrayOutputStream bytes=new ByteArrayOutputStream();
                     byte[] buf=new byte[8192];int count;
                     while((count=stream.read(buf))!=-1)bytes.write(buf,0,count);
