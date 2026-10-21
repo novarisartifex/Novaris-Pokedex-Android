@@ -16,7 +16,7 @@ public final class OriginalVariantEngine {
         if (text.isEmpty()) throw new IllegalStateException("Missing original species text for "+dex);
         String name = species.getString("name");
         String title = String.format(Locale.ROOT, "#%04d.%s — %s",dex,slug(name),label);
-        String desc = description(root,dex,label);
+        String desc = description(context,root,dex,label);
         String mode = root.getString(triple?"NOVARIS_OUTPUT_TRIPLE":"NOVARIS_OUTPUT_SINGLE");
         return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+"\n\n\n"+mode+"\n\n\n"+root.getString("NOVARIS_CORE_V117"),triple);
     }
@@ -45,10 +45,29 @@ public final class OriginalVariantEngine {
     private static String meta(JSONArray a,int i){
         return a==null?"":a.optString(i,"");
     }
-    public static String description(JSONObject root,int dex,String label)throws Exception{
+    public static String description(Context context,JSONObject root,int dex,String label)throws Exception{
         boolean life=label.equals("Casual")||label.equals("Nightlife")||label.equals("Lingerie");
         if(life){
             JSONObject b=root.getJSONObject("V2713_LIFESTYLE_BLUEPRINTS").getJSONObject(label);
+            // Prefer permanent, individually authored species blueprints over generated wardrobe pools.
+            try(InputStream stream=context.getAssets().open("novaris_species_lifestyle_blueprints_v1.json")){
+                if(stream!=null){
+                    ByteArrayOutputStream bytes=new ByteArrayOutputStream();
+                    byte[] buffer=new byte[4096];int n;
+                    while((n=stream.read(buffer))!=-1)bytes.write(buffer,0,n);
+                    JSONObject entries=new JSONObject(bytes.toString("UTF-8")).getJSONObject("species");
+                    JSONObject entry=entries.optJSONObject(String.valueOf(dex));
+                    JSONObject custom=entry==null?null:entry.optJSONObject(label);
+                    if(custom!=null){
+                        return "NOVARIS LIFESTYLE VARIANT — INDIVIDUAL SPECIES BLUEPRINT\\nVARIANT: "+label+
+                            ". CHARACTER: Preserve the exact Pokémon species identity, face, hair, complexion, palette, markings and human-only anatomy from the character blueprint above. All characters are clearly adults aged 25+."+
+                            "\\nCLOTHING BLUEPRINT: "+custom.getString("outfit")+". Adapt every color and marking to the Pokémon identity; wearable accessories only. For lingerie: editorial adult fashion with opaque intimate coverage, no nudity."+
+                            "\\nMATERIAL BLUEPRINT: "+custom.getString("materials")+". Honor the original species palette and tactile surface cues."+
+                            "\\nPRESENCE / BODY LANGUAGE: "+custom.getString("pose")+". Natural human proportions and hands."+
+                            "\\nSCENE / PRESENTATION: "+custom.getString("scene")+". Character-first cinematic vertical composition, authentic Novaris fantasy architecture and atmospheric lighting.";
+                    }
+                }
+            }catch(Exception ignored){ /* Retain legacy generated fallback when a blueprint asset is absent. */ }
             // Deterministic, species-specific wardrobe and posture rotation; all source blueprints remain authoritative.
             int seed=Math.floorMod(dex*31+label.hashCode(), 997);
             String[] clothing;
