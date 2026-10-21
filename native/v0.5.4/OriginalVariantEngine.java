@@ -101,7 +101,6 @@ public final class OriginalVariantEngine {
                             "\\nPRESENCE / BODY LANGUAGE: "+custom.getString("pose")+". Natural human proportions and hands."+
                             "\\nSCENE / PRESENTATION: "+custom.getString("scene")+". Character-first cinematic vertical composition, authentic Novaris fantasy architecture and atmospheric lighting.";
                     }
-                }
             }catch(Exception ignored){ /* Retain legacy generated fallback when a blueprint asset is absent. */ }
             // Deterministic, species-specific wardrobe and posture rotation; all source blueprints remain authoritative.
             int seed=Math.floorMod(dex*31+label.hashCode(), 997);
