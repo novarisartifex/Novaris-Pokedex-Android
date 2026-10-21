@@ -1,131 +1,133 @@
 {
   "schema": "novaris_species_lifestyle_blueprints_v1",
-  "note": "Hand-authored, per-species permanent blueprints; each variant stores outfit, materials, pose, and scene.",
+  "order": "Strict ascending National Pokédex number, starting at #0001. No skipped IDs.",
+  "completed_through": 6,
+  "note": "Hand-authored permanent Pokémon-specific Casual, Nightlife and Lingerie blueprints; next is #0007 Squirtle.",
   "species": {
-    "28": {
-      "name": "Sandslash",
+    "1": {
+      "name": "Bulbasaur",
       "Casual": {
-        "outfit": "sandstone cropped utility jacket with cream ribbed top, ochre cargo mini skirt, reinforced boots, layered spike-pattern leather panels",
-        "materials": "dry brushed cotton, suede, warm sand leather and copper stitching",
-        "pose": "crouched on a low wall with one boot planted, checking a leather wrist strap",
-        "scene": "sunset Novaris desert market beneath carved sandstone arches"
+        "outfit": "olive-green canvas utility jacket with a pale mint blouse, forest-green pleated skirt, vine-embroidered belt and sturdy ankle boots",
+        "materials": "moss cotton, mint linen, dark green suede and pink seed-bead embroidery",
+        "pose": "kneeling beside a flower stall, one hand adjusting a canvas satchel",
+        "scene": "Novaris spring botanical market"
       },
       "Nightlife": {
-        "outfit": "bronze studded corset top, fitted black leather mini skirt, patterned tights, spiked-heel boots and detachable golden quill-shaped shoulder ornaments",
-        "materials": "burnished bronze, matte black leather, sand-gold velvet and copper chains",
-        "pose": "one hip against a lantern-lit balcony, one hand lifting a masquerade mask",
-        "scene": "Novaris desert citadel masquerade terrace with amber lanterns"
+        "outfit": "deep emerald lace crop top, leaf-panel leather mini skirt, vine-shaped gold belt, patterned tights and green boots",
+        "materials": "dark emerald velvet, olive leather, blush-pink floral lace and gold leaf clasps",
+        "pose": "turning mid-step beneath hanging flower lanterns, one hand on hip",
+        "scene": "Novaris botanical festival promenade at twilight"
       },
       "Lingerie": {
-        "outfit": "sand-gold guipure-lace longline balconette, matching high-waist briefs, copper garter belt and seamed thigh-high stockings with a silk robe",
-        "materials": "opaque golden satin, cream lace, bronze filigree and copper embroidery",
-        "pose": "seated sideways on a carved stone chaise, one hand holding the robe edge",
-        "scene": "private Novaris sandstone palace couture suite"
+        "outfit": "sage-green embroidered longline bralette, high-rise floral-lace briefs, botanical garter belt and matching seamed stockings with a silk kimono",
+        "materials": "opaque sage satin, dark green guipure lace, pink bud embroidery and gold clasps",
+        "pose": "seated sideways on a moss-colored velvet bench, ankles crossed, fingers touching a robe cuff",
+        "scene": "Novaris private conservatory couture gallery"
       }
     },
-    "38": {
-      "name": "Ninetales",
+    "2": {
+      "name": "Ivysaur",
       "Casual": {
-        "outfit": "ivory wrap cardigan over a wine-red fitted top, cream pleated skirt, delicate golden foxfire embroidery and heeled ankle boots",
-        "materials": "soft cashmere, ivory wool, burgundy silk and brushed gold",
-        "pose": "walking through a garden arch, looking back while gathering the cardigan",
-        "scene": "Novaris moonlit shrine garden with floating lanterns"
+        "outfit": "forest-green cropped field coat, rose-pink knit top, moss cargo skirt, climbing-vine embroidery and dark lace-up boots",
+        "materials": "weathered green cotton, blush knit, botanical jacquard and bronze hardware",
+        "pose": "leaning against a greenhouse arch, one boot raised on a low stone step",
+        "scene": "Novaris botanical academy terrace"
       },
       "Nightlife": {
-        "outfit": "ivory off-shoulder silk mini dress with nine flowing detachable chiffon ribbon trains, gold waist chain, crimson heels and foxfire-shaped earrings",
-        "materials": "pearl satin, translucent golden chiffon over lining and glowing amber jewels",
-        "pose": "mid-dance turn with one arm raised and ribbons swirling",
-        "scene": "Novaris royal lantern ball in an enchanted shrine pavilion"
+        "outfit": "rose-pink structured corset top, dark emerald asymmetric mini skirt, floral mesh sleeves, high boots and a detachable leaf-shaped velvet capelet",
+        "materials": "pink satin, deep green leather, vine lace and burnished bronze",
+        "pose": "standing in a confident three-quarter pose, hand resting on a carved garden railing",
+        "scene": "Novaris noble garden masquerade beneath luminous vines"
       },
       "Lingerie": {
-        "outfit": "pearl lace halterneck bodysuit with lined floral cutwork, burgundy satin garter belt, lace-top stockings and long ivory silk dressing gown",
-        "materials": "ivory Chantilly lace, opaque pearl silk, burgundy ribbon and gold clasps",
-        "pose": "standing beside an antique mirror, fingers adjusting a golden clasp",
-        "scene": "moonlit Novaris shrine manor dressing gallery"
+        "outfit": "dusty-rose lace balconette, forest-green satin high-waist briefs, matching suspender belt, embroidered stockings and a floral silk wrap",
+        "materials": "opaque rose satin, emerald Leavers lace, green velvet ribbon and bronze floral clasps",
+        "pose": "standing beside a dressing mirror, one hand lightly holding the silk wrap",
+        "scene": "Novaris enchanted greenhouse fashion salon"
       }
     },
-    "65": {
-      "name": "Alakazam",
+    "3": {
+      "name": "Venusaur",
       "Casual": {
-        "outfit": "mustard tailored turtleneck, chocolate pleated trousers, long dark cardigan, brass-button boots and geometric silver accessories",
-        "materials": "ochre knit, dark wool, brushed silver and polished brass",
-        "pose": "sitting on library steps, reading an open notebook with one hand",
-        "scene": "Novaris arcane university courtyard"
+        "outfit": "broad-shouldered teal-green tailored coat over cream linen, layered botanical skirt, large crimson floral brooch and reinforced boots",
+        "materials": "thick teal wool, deep green jacquard, cream linen and crimson embroidery",
+        "pose": "standing solidly in a courtyard, shoulders relaxed, hand resting on a garden gate",
+        "scene": "Novaris royal botanical conservatory"
       },
       "Nightlife": {
-        "outfit": "mustard velvet corset-style waistcoat, fitted black tailored shorts, patterned tights, silver chain belt and a dramatic plum capelet",
-        "materials": "gold velvet, black satin, amethyst lining and silver hardware",
-        "pose": "standing in a three-quarter pose, one hand holding a silver cocktail spoon accessory",
-        "scene": "Novaris grand arcane opera foyer under violet chandeliers"
+        "outfit": "regal crimson off-shoulder corset gown with emerald brocade overskirt, giant detachable flower-petal cape panels, gold jewelry and ornate boots",
+        "materials": "rich crimson velvet, teal silk, dark green brocade and gold floral thread",
+        "pose": "descending palace garden steps, one hand holding the sweeping outer skirt",
+        "scene": "Novaris royal midnight flower ball"
       },
       "Lingerie": {
-        "outfit": "golden satin underbust corset layered over opaque plum lace camisole, high-rise matching briefs, silver suspender belt and dark seamed stockings",
-        "materials": "opaque gold satin, plum Leavers lace and cool silver clasps",
-        "pose": "perched upright on a velvet stool, one hand resting on a silver vanity",
-        "scene": "Novaris alchemist manor couture salon"
+        "outfit": "structured emerald satin corset with crimson floral lace, matching high-rise briefs, ornate suspender belt and thigh-high stockings beneath a petal-pattern silk robe",
+        "materials": "opaque emerald silk, crimson guipure lace, teal velvet and antique gold hardware",
+        "pose": "seated upright on a carved chaise, one arm along the backrest, direct regal gaze",
+        "scene": "Novaris palace botanical couture suite"
       }
     },
-    "144": {
-      "name": "Articuno",
+    "4": {
+      "name": "Charmander",
       "Casual": {
-        "outfit": "ice-blue fitted knit jacket, white layered blouse, pale blue pleated midi skirt and crystal-embroidered boots",
-        "materials": "frosted blue wool, white cotton, silver thread and translucent crystal trim",
-        "pose": "walking along a frosted bridge with one hand on the railing",
-        "scene": "Novaris alpine palace district at dawn"
+        "outfit": "warm orange bomber jacket, cream fitted tee, charcoal tapered trousers, copper flame embroidery and dark ankle boots",
+        "materials": "burnt-orange canvas, cream cotton, charcoal denim and copper accents",
+        "pose": "walking along a cobbled lane, looking toward a glowing shop window",
+        "scene": "Novaris ember artisan district"
       },
       "Nightlife": {
-        "outfit": "glacial-blue asymmetrical mini dress, silver lace crop overlay, crystal choker, white thigh-high boots and detachable feather-shaped cape panels",
-        "materials": "icy satin, blue sequins, silver filigree and crystalline beadwork",
-        "pose": "descending an illuminated staircase, hand lightly touching the balustrade",
-        "scene": "Novaris winter solstice masquerade in an ice palace"
+        "outfit": "flame-orange satin halter crop top, black leather pleated mini skirt, amber jewelry, dark tights and detachable flame-shaped chiffon shoulder scarf",
+        "materials": "orange satin, matte black leather, ember-red chiffon and amber crystals",
+        "pose": "mid-dance side-step with one arm naturally raised, scarf moving",
+        "scene": "Novaris lantern-lit fire festival courtyard"
       },
       "Lingerie": {
-        "outfit": "powder-blue embroidered lace balconette, matching French knickers, silver garter belt, pale seamed stockings and a flowing lined chiffon robe",
-        "materials": "opaque ice-blue silk, white floral lace, silver embroidery and crystal clasps",
-        "pose": "standing in profile beside a tall window, turning the head toward camera",
-        "scene": "Novaris frost palace private fashion salon"
+        "outfit": "amber lace bustier, matching high-waist satin briefs, copper garter belt and dark seamed stockings with an orange silk robe",
+        "materials": "opaque amber silk, red-orange floral lace and copper filigree",
+        "pose": "perched on a velvet stool, shoulders angled, adjusting a jeweled wrist cuff",
+        "scene": "Novaris ember manor private couture salon"
       }
     },
-    "145": {
-      "name": "Zapdos",
+    "5": {
+      "name": "Charmeleon",
       "Casual": {
-        "outfit": "electric-yellow cropped bomber, black ribbed top, charcoal cargo trousers and zigzag yellow sneaker details",
-        "materials": "matte nylon, charcoal denim, golden leather and sharp black piping",
-        "pose": "mid-stride on a skybridge, jacket lifting in the wind",
-        "scene": "Novaris stormwatch tower market"
+        "outfit": "deep rust leather biker jacket over black ribbed top, orange utility mini skirt, metal-buckle belt and sturdy heeled boots",
+        "materials": "russet leather, charcoal knit, burnt-orange twill and dark steel",
+        "pose": "leaning against a stone arch, arms loosely folded and one knee bent",
+        "scene": "Novaris volcanic guild quarter"
       },
       "Nightlife": {
-        "outfit": "lightning-yellow metallic crop top, black leather micro-pleated mini skirt, patterned tights, high boots and angular gold ear cuffs",
-        "materials": "gold lamé over opaque lining, black leather and reflective brass",
-        "pose": "energetic dance-floor side step, one arm naturally extended",
-        "scene": "Novaris thunder festival ballroom with stormglass lanterns"
+        "outfit": "scarlet corset-style crop top, black fitted leather shorts, flame-pattern tights, tall boots and dark ruby choker",
+        "materials": "scarlet satin, black leather, smoky mesh over opaque lining and ruby metalwork",
+        "pose": "striding down illuminated steps with chin raised and one hand on the rail",
+        "scene": "Novaris volcanic citadel nightlife promenade"
       },
       "Lingerie": {
-        "outfit": "gold-and-black lace bustier with lightning-shaped embroidery, matching high-waist briefs, black suspender belt and golden-edged stockings",
-        "materials": "opaque yellow satin, black guipure lace and metallic gold trim",
-        "pose": "standing in contrapposto beside a crystal mirror, adjusting a cuff",
-        "scene": "Novaris storm citadel private couture chamber"
+        "outfit": "rust-red satin balconette set with black lace panels, matching high-rise briefs, crimson suspender belt and lace-top stockings",
+        "materials": "opaque rust satin, black Chantilly lace and dark copper clasps",
+        "pose": "standing in profile beside a tall mirror, head turned toward the viewer",
+        "scene": "Novaris fire citadel private fashion chamber"
       }
     },
-    "146": {
-      "name": "Moltres",
+    "6": {
+      "name": "Charizard",
       "Casual": {
-        "outfit": "burnt-orange wrap blouse, crimson tailored shorts, warm-gold belt, flame-embroidered shawl and dark boots",
-        "materials": "orange silk, red cotton, antique gold and amber thread",
-        "pose": "sitting on warm stone steps, one hand draping the shawl",
-        "scene": "Novaris volcanic garden district"
+        "outfit": "structured burnt-orange brocade evening jacket with detachable wing-shaped cape panels, black tailored trousers and bronze boots",
+        "materials": "orange brocade, charcoal velvet, bronze filigree and flame-red lining",
+        "pose": "standing on a high terrace, one hand gripping a cape clasp",
+        "scene": "Novaris dragon citadel overlook"
       },
       "Nightlife": {
-        "outfit": "scarlet satin corset mini dress with gold lace side panels, detachable flame-shaped chiffon cape, amber heels and ruby earrings",
-        "materials": "red silk, glowing orange chiffon, gold lace and ruby stones",
-        "pose": "striding down a lantern-lit staircase, cape flowing behind",
-        "scene": "Novaris phoenix festival palace under ember lanterns"
+        "outfit": "dramatic black-and-amber corset mini dress, detachable articulated wing-shaped garment cape, high boots and molten-gold jewelry",
+        "materials": "black velvet, ember satin, bronze chain embroidery and orange chiffon",
+        "pose": "powerful mid-stride pose, cape panels sweeping behind without biological wings",
+        "scene": "Novaris dragon fortress masquerade above glowing lava canals"
       },
       "Lingerie": {
-        "outfit": "scarlet satin plunge-inspired balconette with opaque lined cups, embroidered flame-lace high-rise briefs, gold garter belt and crimson stockings",
-        "materials": "opaque scarlet silk, ember-orange lace and antique gold hardware",
-        "pose": "seated on a velvet bench, shoulders angled and gaze direct",
-        "scene": "Novaris fire palace couture antechamber"
+        "outfit": "sculpted amber satin corset with black floral-lace trim, high-waist briefs, gold garter belt, dark stockings and a wing-motif silk dressing mantle",
+        "materials": "opaque amber silk, charcoal guipure lace, bronze clasps and red-gold embroidery",
+        "pose": "standing beside a carved pillar in strong contrapposto, one hand adjusting the detachable mantle",
+        "scene": "Novaris dragon palace private couture gallery"
       }
     }
   }
