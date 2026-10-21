@@ -56,14 +56,22 @@ public final class OriginalVariantEngine {
             String[] places;
             if(label.equals("Lingerie")){
                 clothing=new String[]{
-                    "structured lace-trim balconette lingerie with matching high-waist briefs and a detachable silk robe",
-                    "delicate floral-lace bodysuit with opaque lining, tailored seams and fine embroidery",
-                    "satin-and-lace corset-inspired bustier with matching tailored lingerie bottoms and sheer outer wrap",
-                    "embroidered longline bralette with matching high-rise briefs and a flowing chiffon dressing gown",
-                    "elegant lace-panel teddy with opaque coverage and a detachable velvet kimono",
-                    "refined satin slip with contrasting lace appliques, adjustable straps and a short silk cover-up",
-                    "architectural mesh-overlay lingerie set with lined panels, decorative straps and geometric embroidery",
-                    "vintage-inspired lace-trim camisole and tap shorts with a fitted velvet dressing jacket"
+                    "ornate Chantilly-lace balconette set with high-waist briefs, embroidered garter-inspired waist detailing and a dramatic silk robe",
+                    "sculpted satin corset with contrasting guipure-lace panels, ribbon lacing, matching tailored shorts and opera-length gloves",
+                    "delicate embroidered lace bodysuit with lined geometric cutwork, jewel clasps and a floor-length translucent outer cape",
+                    "romantic longline bralette and high-rise lace shorts with scalloped edges, detachable chiffon train and pearl detailing",
+                    "black velvet-and-lace bustier with gold filigree embroidery, high-waisted matching bottoms and an open brocade jacket",
+                    "iridescent silk slip with intricate lace insets, asymmetric hem and jeweled shoulder chains",
+                    "structured brocade corset top with a sweeping satin overskirt, embroidered stockings and ornate clasp details",
+                    "sheer-look illusion tulle layered over opaque panels, floral appliques, sculptural straps and a tailored kimono",
+                    "vintage-inspired embroidered satin teddy with scalloped lace neckline and a dramatic velvet dressing mantle",
+                    "fine floral-lace camisole with satin tap shorts, elaborate ribbon trim and long embroidered gloves",
+                    "jewel-toned halter lingerie set with metallic lace overlays, high-rise bottoms and a flowing split-sleeve robe",
+                    "couture-inspired lace-up bustier with asymmetric satin draping, matching high-waist briefs and detachable shoulder cape",
+                    "delicate point d'esprit tulle overlay with opaque silk foundation, embroidered bodice and ornate waist chains",
+                    "gothic-romantic lace bodysuit with velvet ribbon motifs, fitted corset belt and a trailing chiffon wrap",
+                    "regal jacquard bustier with scalloped lace edges, matching tailored bloomers and layered silk sleeves",
+                    "art-deco geometric lace set with metallic thread embroidery, sculpted waist panel and jewel-toned satin cover-up"
                 };
                 poses=new String[]{
                     "standing three-quarter turn, weight on back leg, one hand adjusting robe cuff",
@@ -87,14 +95,22 @@ public final class OriginalVariantEngine {
                 };
             }else if(label.equals("Nightlife")){
                 clothing=new String[]{
-                    "tailored velvet mini-dress with metallic embroidery and ankle boots",
-                    "asymmetric satin evening gown with sculpted shoulder and jewelry",
-                    "sleek leather trousers with embroidered corset-style top and fitted jacket",
-                    "glittering sequin jumpsuit with dramatic wide-leg silhouette",
-                    "silk halter top with high-waisted tailored skirt and jeweled belt",
-                    "structured brocade blazer dress with tall boots and ornate fastenings",
-                    "layered chiffon party dress with fitted waist and statement accessories",
-                    "dark satin two-piece evening suit with a luminous embroidered waistcoat"
+                    "dramatic backless-look evening gown with lined illusion mesh, asymmetric train and crystal shoulder ornaments",
+                    "tailored leather-and-brocade ensemble with sculpted corset-style jacket, fitted trousers and tall heeled boots",
+                    "midnight velvet mini-dress with elaborate lace sleeves, metallic filigree belt and gemstone accents",
+                    "liquid-satin halter gown with architectural neckline, high side drape and ornate waist jewelry",
+                    "shimmering chainmail-inspired evening top over opaque lining, flowing silk trousers and a cropped velvet cape",
+                    "dark romantic lace-panel cocktail dress with structured bodice, dramatic sleeves and jeweled gloves",
+                    "iridescent sequin jumpsuit with deep V-shaped tailored lapels, sculpted shoulders and sweeping trouser legs",
+                    "gothic aristocrat tuxedo with embroidered waistcoat, fitted high-waist trousers and an ornate capelet",
+                    "asymmetric one-shoulder silk dress with layered chiffon, thigh-length draped overskirt and luminous trim",
+                    "brocade bustier-style evening top with flowing palazzo pants, layered necklaces and fitted opera gloves",
+                    "jewel-toned velvet suit with corset-inspired waistcoat, dramatic lapels and polished high boots",
+                    "metallic pleated mini-dress with embroidered detachable sleeves, tall boots and fantasy gemstone jewelry",
+                    "elegant off-shoulder satin gown with sculptural draping, embroidered side panels and long trailing ribbons",
+                    "masquerade-inspired fitted jacket with lace jabot, high-waisted shorts, patterned tights and ornate mask accessory",
+                    "luxurious silk wrap dress with lace insets, asymmetric hem, dramatic belt and crystal hair ornaments",
+                    "fantasy cabaret-inspired tailored bodysuit worn under a structured brocade coat, opaque tights and knee-high boots"
                 };
                 poses=new String[]{
                     "striding confidently toward the viewer, coat and hair moving",
