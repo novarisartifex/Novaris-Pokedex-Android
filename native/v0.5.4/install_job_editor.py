@@ -130,7 +130,10 @@ methods=r"""
             record.put("root_key","Ragnarok Online".equals(group)?"ro-root:"+family.split(" → ")[0]:"group:"+("Final Fantasy XIV".equals(group)?"FFXIV":group));
             boolean structuredSaved=getSharedPreferences("novaris_job_structured",MODE_PRIVATE).edit().putString(String.valueOf(dex),record.toString()).commit();
             if(!structuredSaved)throw new java.io.IOException("Strukturierte Jobdaten nicht gespeichert");
-            getSharedPreferences("novaris_job_manual",MODE_PRIVATE).edit().putBoolean(String.valueOf(dex),true).commit();
+            if(!getSharedPreferences("novaris_job_manual",MODE_PRIVATE).edit().putBoolean(String.valueOf(dex),true).commit())
+                throw new java.io.IOException("Manuelle Zuordnung konnte nicht gespeichert werden");
+            if(!getSharedPreferences("novaris_job_descriptions",MODE_PRIVATE).edit().remove(String.valueOf(dex)).commit())
+                throw new java.io.IOException("Veraltete Jobbeschreibung konnte nicht entfernt werden");
             propagateJobForward(dex,record);
             saveSelectedJob(dex,selected);
         }catch(Exception e){Toast.makeText(this,"Job nicht gespeichert: "+e.getMessage(),Toast.LENGTH_LONG).show();}
@@ -293,9 +296,14 @@ methods=r"""
             org.json.JSONObject selected=row.getJSONObject("selected");
             String description=selected.optString("description","");
             if(description.length()>100000)throw new org.json.JSONException("Beschreibung zu lang");
-            if(!description.isEmpty())descEditor.putString(String.valueOf(row.getInt("dex")),description);
+            String key=String.valueOf(row.getInt("dex"));
+            if(!description.isEmpty())descEditor.putString(key,description);
+            else descEditor.remove(key);
         }
         if(!descEditor.commit())throw new java.io.IOException("Beschreibungen nicht gespeichert");
+        android.content.SharedPreferences.Editor manualEditor=getSharedPreferences("novaris_job_manual",MODE_PRIVATE).edit();
+        for(String key:validated.keySet())manualEditor.putBoolean(key,true);
+        if(!manualEditor.commit())throw new java.io.IOException("Importierte Zuordnungen konnten nicht als manuell geschützt werden");
         Toast.makeText(this,imported+" Job-Zuordnungen importiert",Toast.LENGTH_LONG).show();
         recreate();
     }
@@ -387,7 +395,13 @@ methods=r"""
             }else if("Civilian".equals(group)&&familyEntry!=null){
                 org.json.JSONArray stages=familyEntry.optJSONArray("specializations");
                 if(stages!=null&&stages.length()>0){
-                    int stage=Math.min(stages.length()-1,Math.max(0,i-position));
+                    int startStage=0;
+                    java.util.regex.Matcher civilianTier=java.util.regex.Pattern.compile("^C([1-9][0-9]*)$").matcher(selected.optString("tier",""));
+                    if(civilianTier.matches()){
+                        try{startStage=Math.min(stages.length()-1,Math.max(0,Integer.parseInt(civilianTier.group(1))-1));}
+                        catch(NumberFormatException ignored){}
+                    }
+                    int stage=Math.min(stages.length()-1,startStage+i-position);
                     role=stages.optString(stage,role);
                     tier="C"+(stage+1);
                 }
@@ -397,6 +411,7 @@ methods=r"""
             child.put("propagated_from",dex);
             getSharedPreferences("novaris_job_edits",MODE_PRIVATE).edit().putString(key,role).commit();
             getSharedPreferences("novaris_job_structured",MODE_PRIVATE).edit().putString(key,child.toString()).commit();
+            getSharedPreferences("novaris_job_descriptions",MODE_PRIVATE).edit().remove(key).commit();
         }
     }
     private org.json.JSONObject loadJobCatalog()throws Exception{
