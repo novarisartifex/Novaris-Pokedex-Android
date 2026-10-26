@@ -73,17 +73,17 @@ public final class OriginalVariantEngine {
                     StringBuilder prompt=new StringBuilder("NOVARIS LIFESTYLE — SPECIES-SPECIFIC STORED BLUEPRINT\n");
                     prompt.append("VARIANT: ").append(label).append(". CHARACTER: Preserve exact species colors, face, hair, complexion, markings and normal adult human anatomy from the authoritative Pokémon character description above. Adults aged 25+.\n");
                     prompt.append("SPECIES FASHION TRANSLATION: ").append(variant.getString("identity_translation")).append(". No additional biological limbs, tails or wings. All special shapes must be clearly detachable clothing or props.\n");
-                    prompt.append("OUTFIT DIRECTION: ").append(variant.getString("outfit")).append(".\\n");
-                    prompt.append("MATERIALS: ").append(variant.getString("materials")).append(".\\n");
-                    prompt.append("NOVARIS WORLD: Asterion's established districts, architecture and institutions; no generic real-world venues. Fashion editorial featuring fully adult characters, opaque intimate coverage, no nudity.\\n");
+                    prompt.append("OUTFIT DIRECTION: ").append(variant.getString("outfit")).append(".\n");
+                    prompt.append("MATERIALS: ").append(variant.getString("materials")).append(".\n");
+                    prompt.append("NOVARIS WORLD: Asterion's established districts, architecture and institutions; no generic real-world venues. Fashion editorial featuring fully adult characters, opaque intimate coverage, no nudity.\n");
                     int limit=triple?3:1;
-                    prompt.append(triple?"THREE DISTINCT STANDALONE IMAGE BRIEFS. Render each separately, never as a collage.\\n":"ONE STANDALONE IMAGE BRIEF.\\n");
+                    prompt.append(triple?"THREE DISTINCT STANDALONE IMAGE BRIEFS. Render each separately, never as a collage.\n":"ONE STANDALONE IMAGE BRIEF.\n");
                     for(int i=0;i<limit;i++){
                         JSONObject c=concepts.getJSONObject(i);
                         prompt.append("IMAGE ").append(i+1).append(": Unique outfit: ").append(c.getString("outfit"))
                               .append(". Distinct anatomically plausible pose: ").append(c.getString("pose"))
                               .append(". Established NOVARIS/Asterion setting: ").append(c.getString("scene"))
-                              .append(". Lighting: ").append(c.getString("lighting")).append(".\\n");
+                              .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
                     }
                     return prompt.toString();
                 }
@@ -94,12 +94,12 @@ public final class OriginalVariantEngine {
                     JSONObject entry=entries.optJSONObject(String.valueOf(dex));
                     JSONObject custom=entry==null?null:entry.optJSONObject(label);
                     if(custom!=null){
-                        return "NOVARIS LIFESTYLE VARIANT — INDIVIDUAL SPECIES BLUEPRINT\\nVARIANT: "+label+
+                        return "NOVARIS LIFESTYLE VARIANT — INDIVIDUAL SPECIES BLUEPRINT\nVARIANT: "+label+
                             ". CHARACTER: Preserve the exact Pokémon species identity, face, hair, complexion, palette, markings and human-only anatomy from the character blueprint above. All characters are clearly adults aged 25+."+
-                            "\\nCLOTHING BLUEPRINT: "+custom.getString("outfit")+". Adapt every color and marking to the Pokémon identity; wearable accessories only. For lingerie: editorial adult fashion with opaque intimate coverage, no nudity."+
-                            "\\nMATERIAL BLUEPRINT: "+custom.getString("materials")+". Honor the original species palette and tactile surface cues."+
-                            "\\nPRESENCE / BODY LANGUAGE: "+custom.getString("pose")+". Natural human proportions and hands."+
-                            "\\nSCENE / PRESENTATION: "+custom.getString("scene")+". Character-first cinematic vertical composition, authentic Novaris fantasy architecture and atmospheric lighting.";
+                            "\nCLOTHING BLUEPRINT: "+custom.getString("outfit")+". Adapt every color and marking to the Pokémon identity; wearable accessories only. For lingerie: editorial adult fashion with opaque intimate coverage, no nudity."+
+                            "\nMATERIAL BLUEPRINT: "+custom.getString("materials")+". Honor the original species palette and tactile surface cues."+
+                            "\nPRESENCE / BODY LANGUAGE: "+custom.getString("pose")+". Natural human proportions and hands."+
+                            "\nSCENE / PRESENTATION: "+custom.getString("scene")+". Character-first cinematic vertical composition, authentic Novaris fantasy architecture and atmospheric lighting.";
                     }
             }catch(Exception ignored){ /* Retain legacy generated fallback when a blueprint asset is absent. */ }
             // Deterministic, species-specific wardrobe and posture rotation; all source blueprints remain authoritative.
@@ -332,12 +332,12 @@ public final class OriginalVariantEngine {
             String safety=label.equals("Lingerie")?
                 " All characters are clearly adults aged 25+. Elegant adult lingerie fashion editorial; opaque coverage of intimate anatomy, no nudity or explicit sexual activity.":
                 " Adult character fashion editorial.";
-            return "NOVARIS LIFESTYLE VARIANT — FULL POKÉDEX DESCRIPTION\\nVARIANT: "+label+". ROLE SYSTEM: Novaris Lifestyle / non-professional presentation."+safety+
-                "\\nCHARACTER: The complete CHARACTER BLUEPRINT, SPECIES COLOR & MATERIAL BLUEPRINT and SPECIES OUTFIT TRANSLATION written above remain authoritative for complexion, face, hair, source colors, species identity and wearable visual anchors. No class equipment or work action."+
-                "\\nMATERIAL BLUEPRINT: "+b.getString("m")+". Preserve the Pokémon source-color hierarchy, saturated local colors, contrasting matte and lustrous surfaces, rich textures and species-derived motifs."+
-                "\\nCLOTHING BLUEPRINT: "+wardrobeDesign+". Silhouette inspiration: "+clothing[wardrobe]+". Integrate the stored lifestyle clothing blueprint as a design influence: "+b.getString("c")+". Adapt tailoring, lace patterns, trim, fastenings and accessories to the Pokémon rather than generic fashion. Avoid repeating the same silhouette for different Pokémon."+
-                "\\nPRESENCE / BODY LANGUAGE: "+poses[posture]+". Reflect the stored character presence: "+b.getString("s")+". Distinct weight distribution, hand gesture and camera angle; natural human anatomy."+
-                "\\nSCENE / PRESENTATION: "+places[location]+". Incorporate blueprint atmosphere: "+b.getString("e")+". Remain visibly inside the Novaris fantasy world, not a modern real-world nightclub. Vertical cinematic composition, atmospheric depth, controlled key and rim lighting, textured shadows.";
+            return "NOVARIS LIFESTYLE VARIANT — FULL POKÉDEX DESCRIPTION\nVARIANT: "+label+". ROLE SYSTEM: Novaris Lifestyle / non-professional presentation."+safety+
+                "\nCHARACTER: The complete CHARACTER BLUEPRINT, SPECIES COLOR & MATERIAL BLUEPRINT and SPECIES OUTFIT TRANSLATION written above remain authoritative for complexion, face, hair, source colors, species identity and wearable visual anchors. No class equipment or work action."+
+                "\nMATERIAL BLUEPRINT: "+b.getString("m")+". Preserve the Pokémon source-color hierarchy, saturated local colors, contrasting matte and lustrous surfaces, rich textures and species-derived motifs."+
+                "\nCLOTHING BLUEPRINT: "+wardrobeDesign+". Silhouette inspiration: "+clothing[wardrobe]+". Integrate the stored lifestyle clothing blueprint as a design influence: "+b.getString("c")+". Adapt tailoring, lace patterns, trim, fastenings and accessories to the Pokémon rather than generic fashion. Avoid repeating the same silhouette for different Pokémon."+
+                "\nPRESENCE / BODY LANGUAGE: "+poses[posture]+". Reflect the stored character presence: "+b.getString("s")+". Distinct weight distribution, hand gesture and camera angle; natural human anatomy."+
+                "\nSCENE / PRESENTATION: "+places[location]+". Incorporate blueprint atmosphere: "+b.getString("e")+". Remain visibly inside the Novaris fantasy world, not a modern real-world nightclub. Vertical cinematic composition, atmospheric depth, controlled key and rim lighting, textured shadows.";
         }
         JSONObject b=root.getJSONObject("V2713_CLASS_BLUEPRINTS").optJSONObject(label);
         JSONArray m=root.getJSONObject("V2713_ASSIGNMENT_META").optJSONArray(dex+"|"+label);
