@@ -31,7 +31,7 @@ public final class Gen1TriplePrompts {
             String distinctDescription = oneDescription.substring(0,firstStart) + concept + oneDescription.substring(firstEnd);
             results[i] = base.replace(oneDescription,distinctDescription);
             if (results[i].equals(base) && i>0) throw new IllegalStateException("Concept substitution failed");
-            if (results[i].contains("THREE SEPARATE") || results[i].contains("EXACTLY THREE"))
+            if (results[i].contains("NOVARIS x3 OUTPUT"))
                 throw new IllegalStateException("Multiple-image instruction leaked");
         }
         if (results[0].equals(results[1]) || results[1].equals(results[2]) || results[0].equals(results[2]))
