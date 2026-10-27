@@ -81,22 +81,30 @@ method=r'''
             // Build the selected lifestyle once: one class blueprint, one Core, one safety block.
             // The former buildShinyPrompt() concatenation added a second full prompt,
             // including its own job scene, normal colors and Style Core.
-            String original=OriginalVariantEngine.build(this,root,dex,variant,triple);
-            String shinyAuthority="NOVARIS SHINY PALETTE — HIGHEST COLOR AUTHORITY: "+
-                "Selected Shiny form '"+shinyName+"'. The selected Shiny reference image is "+
-                "the sole authority for hair, complexion, markings, garments and accessories. "+
-                "Replace every normal-form color specification in the following species "+
-                "and lifestyle descriptions with its Shiny-reference counterpart BEFORE "+
-                "rendering. Never combine normal and Shiny colors. Keep the selected "+
-                variant+" lifestyle outfit, pose and setting; do not import any main-class "+
-                "profession, uniform, task or workplace. Preserve all non-color species "+
-                "identity and detachable wearable anatomy.";
-            // Insert after the heading/output-control block, not as a second full prompt.
-            int insertion=original.indexOf("\n\n",original.indexOf("NOVARIS OUTPUT CONTROL"));
-            if(insertion<0)insertion=original.indexOf("\n\n");
-            if(insertion<0)return shinyAuthority+"\n\n"+original;
-            return original.substring(0,insertion)+"\n\n"+shinyAuthority+
-                original.substring(insertion);
+            // Build the class-specific prompt once. Never append a second full Shiny
+            // prompt (which contains its own core, job and scene instructions).
+            JSONObject shinyRoot=new JSONObject(root.toString());
+            JSONObject species=shinyRoot.getJSONObject("SPECIES").getJSONObject(String.valueOf(dex));
+            String normalText=species.getString("text");
+            String shinyPalette=buildShinyPrompt(dex,shinyName,triple);
+            // Shiny authority is an identity reference, not a second assembled prompt.
+            // Strip any nested core and job sections before using its identity text.
+            String[] boundaries={"NOVARIS STYLE CORE", "NOVARIS CORE", "MAIN CLASS BLUEPRINT",
+                                 "NOVARIS OPTIONAL CLASS", "NOVARIS LIFESTYLE", "NOVARIS OUTPUT CONTROL"};
+            for(String boundary:boundaries){
+                int pos=shinyPalette.indexOf(boundary);
+                if(pos>=0)shinyPalette=shinyPalette.substring(0,pos);
+            }
+            species.put("text", "NOVARIS SHINY COLOR AUTHORITY: Selected form '"+shinyName+
+                "'. The Shiny reference image controls every species color and marking. "+
+                "Do not use Normal palette values. Retain the species anatomy and identity "+
+                "without importing any main profession, work outfit, work pose or workplace.\n"+
+                shinyPalette.trim()+"\n"+
+                "SPECIES IDENTITY (NON-COLOR FEATURES ONLY): "+
+                normalText.replaceAll("(?im)^.*(?:COLOR|PALETTE|COLOUR|HUE|PIGMENT).*$", ""));
+            String original=OriginalVariantEngine.build(this,shinyRoot,dex,variant,triple);
+            return original+"\nFINAL SHINY CHECK: Only the selected Shiny reference determines colors; "+
+                "the stored "+variant+" blueprint determines clothing, pose, props and setting.";
         }catch(Exception e){return "Shiny lifestyle prompt error: "+e.getMessage();}
     }
 '''
@@ -106,5 +114,5 @@ s=s.replace(anchor2,method+'\n    '+anchor2,1)
 s=s.replace('name.replaceAll("[^A-Za-z0-9_-]+","_"),safeRole(role));', 'name.replaceAll("[^A-Za-z0-9_-]+","_").replaceAll("(?i)(?:_?Shiny)+$", ""),safeRole(role));')
 p.write_text(s)
 assert add_call in s
-assert 'buildShinyPrompt(dex,shinyName,triple)' in s
+assert 'JSONObject shinyRoot=new JSONObject(root.toString())' in s
 print("Installed three Shiny lifestyle cards per existing Shiny form")
