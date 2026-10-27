@@ -29,7 +29,18 @@ public final class OriginalVariantEngine {
         String title = String.format(Locale.ROOT, "#%04d.%s — %s",dex,slug(name),label);
         String desc = description(context,root,dex,label,triple);
         String mode = root.getString(triple?"NOVARIS_OUTPUT_TRIPLE":"NOVARIS_OUTPUT_SINGLE");
-        return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+"\n\n\n"+mode+"\n\n\n"+root.getString("NOVARIS_CORE_V117"),triple);
+        String core=root.getString("NOVARIS_CORE_V117");
+        if(dex>=1 && dex<=151){
+            try(InputStream stream=context.getAssets().open("NOVARIS_STYLE_CORE_GEN1_TEST_v1.0.0.md")){
+                ByteArrayOutputStream bytes=new ByteArrayOutputStream();
+                byte[] buffer=new byte[8192];int n;
+                while((n=stream.read(buffer))!=-1)bytes.write(buffer,0,n);
+                String testCore=bytes.toString("UTF-8");
+                if(!testCore.trim().endsWith("[NOVARIS_CORE_END:v1.0.0]"))throw new IllegalStateException("Incomplete Gen1 Core v1.0.0");
+                core=core+"\n\n"+testCore;
+            }
+        }
+        return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+"\n\n\n"+mode+"\n\n\n"+core,triple);
     }
 
     public static String slug(String s){
