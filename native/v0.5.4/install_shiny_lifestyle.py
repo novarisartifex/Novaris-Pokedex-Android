@@ -78,19 +78,25 @@ method=r'''
     }
     private String shinyLifestylePrompt(int dex,String shinyName,String variant,boolean triple,JSONObject root){
         try{
+            // Build the selected lifestyle once: one class blueprint, one Core, one safety block.
+            // The former buildShinyPrompt() concatenation added a second full prompt,
+            // including its own job scene, normal colors and Style Core.
             String original=OriginalVariantEngine.build(this,root,dex,variant,triple);
-            String shinyAuthority=buildShinyPrompt(dex,shinyName,triple);
-            String shinyHeading=headedPokemonPrompt(dex,"Shiny "+variant,"");
-            return shinyHeading+"\nNOVARIS SHINY LIFESTYLE — MANDATORY: This is the selected Shiny form '"+shinyName+
-                "', not the normal form. The Shiny reference image copied with this card is the absolute "+
-                "authority for colors, markings and their placement. Any normal-form colors in the "+
-                "species blueprint, lifestyle descriptions or Style Core are overridden by the Shiny "+
-                "reference. Preserve the selected "+variant+" outfit and setting; translate all "+
-                "Shiny-specific colors onto clothing, hair, accessories and markings. "+
-                "Maintain exactly normal adult human anatomy and detachable species accessories.\n\n"+
-                shinyAuthority+"\n\n"+original+
-                "\n\nFINAL SHINY COLOR OVERRIDE: Verify all colors and markings against the "+
-                "selected Shiny reference image before generating; never revert to the normal palette.";
+            String shinyAuthority="NOVARIS SHINY PALETTE — HIGHEST COLOR AUTHORITY: "+
+                "Selected Shiny form '"+shinyName+"'. The selected Shiny reference image is "+
+                "the sole authority for hair, complexion, markings, garments and accessories. "+
+                "Replace every normal-form color specification in the following species "+
+                "and lifestyle descriptions with its Shiny-reference counterpart BEFORE "+
+                "rendering. Never combine normal and Shiny colors. Keep the selected "+
+                variant+" lifestyle outfit, pose and setting; do not import any main-class "+
+                "profession, uniform, task or workplace. Preserve all non-color species "+
+                "identity and detachable wearable anatomy.";
+            // Insert after the heading/output-control block, not as a second full prompt.
+            int insertion=original.indexOf("\n\n",original.indexOf("NOVARIS OUTPUT CONTROL"));
+            if(insertion<0)insertion=original.indexOf("\n\n");
+            if(insertion<0)return shinyAuthority+"\n\n"+original;
+            return original.substring(0,insertion)+"\n\n"+shinyAuthority+
+                original.substring(insertion);
         }catch(Exception e){return "Shiny lifestyle prompt error: "+e.getMessage();}
     }
 '''
