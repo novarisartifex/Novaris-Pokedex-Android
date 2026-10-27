@@ -30,16 +30,6 @@ public final class OriginalVariantEngine {
         String desc = description(context,root,dex,label,triple);
         String mode = root.getString(triple?"NOVARIS_OUTPUT_TRIPLE":"NOVARIS_OUTPUT_SINGLE");
         String core=root.getString("NOVARIS_CORE_V117");
-        if(dex>=1 && dex<=151){
-            try(InputStream stream=context.getAssets().open("NOVARIS_STYLE_CORE_GEN1_TEST_v1.0.0.md")){
-                ByteArrayOutputStream bytes=new ByteArrayOutputStream();
-                byte[] buffer=new byte[8192];int n;
-                while((n=stream.read(buffer))!=-1)bytes.write(buffer,0,n);
-                String testCore=bytes.toString("UTF-8");
-                if(!testCore.trim().endsWith("[NOVARIS_CORE_END:v1.0.0]"))throw new IllegalStateException("Incomplete Gen1 Core v1.0.0");
-                core=core+"\n\n"+testCore;
-            }
-        }
         String sceneRules="";
         if(label.equals("Casual")){
             sceneRules="NOVARIS LIFESTYLE FINAL AUTHORITY — CASUAL: Daytime only, clear natural daylight; relaxed practical everyday clothing. Everyday markets, cafes, gardens, streets or domestic daytime settings. No gala styling, no nighttime.";
