@@ -583,7 +583,10 @@ jobs:
           python3 native/v0.5.4/install_job_editor.py
           grep -q 'Ausgewählte Klasse speichern' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java
 
-      - name: Install Shiny lifestyle variants\n        run: python3 native/v0.5.4/install_shiny_lifestyle.py\n\n      - name: Set up Java
+      - name: Install Shiny lifestyle variants
+        run: python3 native/v0.5.4/install_shiny_lifestyle.py
+
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
