@@ -635,4 +635,10 @@ jobs:
           else
             gh release create "$TAG" "$APK" --target "$GITHUB_SHA" --title "Novaris Pokédex Native v0.5.23" --notes "$NOTES"
           fi
+          # A successful upload alone does not prove the expected APK is published.
           gh release view "$TAG" --json assets,url
+          gh release view "$TAG" --json assets --jq '.assets[].name' | grep -Fx "$APK"
+          gh release download "$TAG" --pattern "$APK" --dir /tmp/novaris-release-check --clobber
+          test -s "/tmp/novaris-release-check/$APK"
+          cmp "$APK" "/tmp/novaris-release-check/$APK"
+          echo "Verified published APK matches the locally built APK."
