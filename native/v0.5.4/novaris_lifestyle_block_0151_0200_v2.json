@@ -17,24 +17,24 @@
           "concepts": [
             {
               "image": 1,
-              "outfit": "rose cropped silk coat, white wide-leg trousers, crystal belt",
-              "pose": "crossing a cobbled market lane while adjusting a satchel",
-              "scene": "ancient psychic crystal garden",
-              "lighting": "soft directional cinematic key and detailed rim light"
+              "outfit": "rose cropped silk coat, white wide-leg trousers, crystal belt; functional artisan accessories with detachable species motifs",
+              "pose": "seated on a low architectural ledge, one leg crossed over the other",
+              "scene": "Asterion, Research District: glass-and-stone observatory lounge and scientific exhibition hall; established NOVARIS guild-world architecture, never a generic modern location",
+              "lighting": "cinematic warm key and rich atmospheric shadow depth"
             },
             {
               "image": 2,
-              "outfit": "rose cropped silk coat, white wide-leg trousers, crystal belt; add a short detachable embroidered overshoulder wrap",
-              "pose": "reading a folded map on a carved garden bench",
-              "scene": "lantern-lit elevated balcony above ancient psychic crystal garden",
-              "lighting": "moody cross-light with deep dimensional textile shadows"
+              "outfit": "rose cropped silk coat, white wide-leg trousers, crystal belt; layered city-travel styling with detachable species motifs",
+              "pose": "standing in a soft dance transition with feet visibly grounded",
+              "scene": "Asterion, Arcane Quarter: arcane atelier and illuminated scholarly gallery; established NOVARIS guild-world architecture, never a generic modern location",
+              "lighting": "low-key side light with detailed fabric texture and natural contact shadows"
             },
             {
               "image": 3,
-              "outfit": "rose cropped silk coat, white wide-leg trousers, crystal belt; exchange the wrap for a flowing species-motif silk drape and matching jewelry",
-              "pose": "leaning on a stone balustrade with a relaxed smile",
-              "scene": "ceremonial grand stairway at ancient psychic crystal garden",
-              "lighting": "dramatic backlight and crisp fabric highlights"
+              "outfit": "rose cropped silk coat, white wide-leg trousers, crystal belt; light architectural outerwear with detachable species motifs",
+              "pose": "reaching for a hanging fabric panel with one arm, feet planted",
+              "scene": "Asterion, Bastion District: armored architectural promenade and monumental defensive terrace; established NOVARIS guild-world architecture, never a generic modern location",
+              "lighting": "deep blue-hour ambience with distinct species-palette rim light"
             }
           ]
         },
@@ -45,24 +45,24 @@
           "concepts": [
             {
               "image": 1,
-              "outfit": "pink iridescent corset dress, lilac silk cape, pearl earrings",
-              "pose": "confident three-quarter standing pose with visible hands",
-              "scene": "ancient psychic crystal garden",
-              "lighting": "soft directional cinematic key and detailed rim light"
+              "outfit": "pink iridescent corset dress, lilac silk cape, pearl earrings; image 1 reinterpretation with iridescent brocade peplum and tall boots; distinct silhouette and tailoring, species-specific palette and detachable motifs, opaque coverage",
+              "pose": "seated in an armchair with ankles crossed, hands resting on armrests",
+              "scene": "Asterion, Sanctum District: quiet sanctuary cloister and luminous contemplative garden; established NOVARIS guild-world architecture, never a generic modern location",
+              "lighting": "cinematic warm key and rich atmospheric shadow depth"
             },
             {
               "image": 2,
-              "outfit": "pink iridescent corset dress, lilac silk cape, pearl earrings; add a short detachable embroidered overshoulder wrap",
-              "pose": "one controlled dance turn with a flowing outer garment",
-              "scene": "lantern-lit elevated balcony above ancient psychic crystal garden",
-              "lighting": "moody cross-light with deep dimensional textile shadows"
+              "outfit": "pink iridescent corset dress, lilac silk cape, pearl earrings; image 2 reinterpretation with tailored cropped bolero and patterned tights; distinct silhouette and tailoring, species-specific palette and detachable motifs, opaque coverage",
+              "pose": "turning toward a mirror with both hands visible",
+              "scene": "Asterion, Citadel District: fortified stone arcade and ceremonial upper terrace; established NOVARIS guild-world architecture, never a generic modern location",
+              "lighting": "low-key side light with detailed fabric texture and natural contact shadows"
             },
             {
               "image": 3,
-              "outfit": "pink iridescent corset dress, lilac silk cape, pearl earrings; exchange the wrap for a flowing species-motif silk drape and matching jewelry",
-              "pose": "descending a sweeping marble stairway, shoulders poised",
-              "scene": "ceremonial grand stairway at ancient psychic crystal garden",
-              "lighting": "dramatic backlight and crisp fabric highlights"
+              "outfit": "pink iridescent corset dress, lilac silk cape, pearl earrings; image 3 reinterpretation with sculptural satin drape and jeweled waist chain; distinct silhouette and tailoring, species-specific palette and detachable motifs, opaque coverage",
+              "pose": "walking along a colonnade, coat or robe in motion",
+              "scene": "Asterion, Harmony District: theater foyer, open amphitheater, colorful cultural façades and warm music-pavilion lanterns; established NOVARIS guild-world architecture, never a generic modern location",
+              "lighting": "deep blue-hour ambience with distinct species-palette rim light"
             }
           ]
         },
@@ -73,24 +73,24 @@
           "concepts": [
             {
               "image": 1,
-              "outfit": "blush lace balconette, pink satin briefs, amethyst garters",
-              "pose": "standing beside a dressing vanity, adjusting the sleeve of a silk robe",
-              "scene": "private couture suite overlooking ancient psychic crystal garden",
-              "lighting": "soft directional cinematic key and detailed rim light"
+              "outfit": "blush lace balconette, pink satin briefs, amethyst garters; image 1 reinterpretation with embroidered satin bralette-inspired top with lined high-rise bottoms; distinct silhouette and tailoring, species-specific palette and detachable motifs, opaque coverage",
+              "pose": "standing beside a balcony rail, one hand touching the railing",
+              "scene": "Asterion, Bastion District: armored architectural promenade and monumental defensive terrace; established NOVARIS guild-world architecture, never a generic modern location",
+              "lighting": "cinematic warm key and rich atmospheric shadow depth"
             },
             {
               "image": 2,
-              "outfit": "blush lace balconette, pink satin briefs, amethyst garters; add a short detachable embroidered overshoulder wrap",
-              "pose": "seated upright on a velvet chaise, legs naturally crossed",
-              "scene": "private silk-draped dressing salon themed after ancient psychic crystal garden",
-              "lighting": "moody cross-light with deep dimensional textile shadows"
+              "outfit": "blush lace balconette, pink satin briefs, amethyst garters; image 2 reinterpretation with silk wrap top with fitted shorts and embroidered stockings; distinct silhouette and tailoring, species-specific palette and detachable motifs, opaque coverage",
+              "pose": "resting a forearm on a high counter, shoulders relaxed",
+              "scene": "Asterion, Civic & Trade District: artisan boutique arcade and bustling covered market; established NOVARIS guild-world architecture, never a generic modern location",
+              "lighting": "low-key side light with detailed fabric texture and natural contact shadows"
             },
             {
               "image": 3,
-              "outfit": "blush lace balconette, pink satin briefs, amethyst garters; exchange the wrap for a flowing species-motif silk drape and matching jewelry",
-              "pose": "standing in profile at a full-length mirror, looking over the shoulder",
-              "scene": "private mirror-lined fashion gallery inspired by ancient psychic crystal garden",
-              "lighting": "dramatic backlight and crisp fabric highlights"
+              "outfit": "blush lace balconette, pink satin briefs, amethyst garters; image 3 reinterpretation with velvet bustier-inspired lounge set with elegant long gloves; distinct silhouette and tailoring, species-specific palette and detachable motifs, opaque coverage",
+              "pose": "seated on a low architectural ledge, one leg crossed over the other",
+              "scene": "Asterion, Umbra District: dark-stone courtyard, narrow concealed passageways and discreet archive lanterns; established NOVARIS guild-world architecture, never a generic modern location",
+              "lighting": "deep blue-hour ambience with distinct species-palette rim light"
             }
           ]
         }
@@ -4604,5 +4604,7 @@
         }
       }
     }
-  }
+  },
+  "gen1_test_version": "v1.0.0",
+  "gen1_test_scope": "Only dex 1-151 updated; remaining entries retained"
 }
