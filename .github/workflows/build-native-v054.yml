@@ -539,6 +539,7 @@ jobs:
         shell: bash
         run: |
           cp native/v0.5.4/PromptSafety.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/PromptSafety.java
+          cp native/v0.5.4/NOVARIS_STYLE_CORE_GEN1_TEST_v1.0.0.md appsrc/app/src/main/assets/NOVARIS_STYLE_CORE_GEN1_TEST_v1.0.0.md
           python3 - <<'PY'
           from pathlib import Path
           p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java")
