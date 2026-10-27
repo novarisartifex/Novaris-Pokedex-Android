@@ -48,9 +48,6 @@ public final class OriginalVariantEngine {
         }else if(label.equals("Nightlife")){
             sceneRules="NOVARIS LIFESTYLE FINAL AUTHORITY — NIGHTLIFE: Evening or nighttime at an ACTUAL social event: royal ball, masquerade, gala, formal reception, opera premiere, festive dance or grand celebration with visible event cues and guests. Clearly elegant eveningwear, not everyday casual. Avoid empty streets, solitary terraces and ordinary daytime settings. CINEMATIC GLAMOUR: deep night, torchlight, moonlight, rich shadows, warm rim light and sophisticated filmic contrast. Medieval fantasy isekai venues only; no modern clubs, neon, cars or futuristic devices. Vary events and architecture according to species habitat, type and personality.";
         }
-        if(label.equals("Lingerie") && dex==332){
-            sceneRules+=" CACTURNE SPECIFIC SAFE PRESENTATION: Adult fantasy couture fashion editorial, not erotic posing. Fully lined opaque forest-green satin bodysuit with structured embroidered corset panels, high neckline and full-coverage lower section, plus an optional flowing robe. No transparent fabric, garters, exposed cleavage or suggestive posing. Translate cactus spines solely into detachable angular embroidery, fabric ornaments and a removable pointed hat. Secluded sandstone desert-fortress dressing chamber by candlelight, natural upright fashion portrait.";
-        }
         if(!sceneRules.isEmpty()){
             sceneRules+=" HUMAN-ONLY SILHOUETTE: exactly two human arms, two human legs, one human head and torso. Every Pokemon-derived leaf, flower, wing, horn, tail, shell or other nonhuman shape must be clearly DETACHABLE jewelry, headpiece, clothing, cape or external equipment with visible straps, seams, clasps or garment attachments. No organic attachments or extra limbs. When any stored scene or clothing blueprint conflicts with these final variant rules, follow these final rules.";
         }
@@ -99,31 +96,16 @@ public final class OriginalVariantEngine {
                     prompt.append("VARIANT: ").append(label).append(". CHARACTER: Preserve exact species colors, face, hair, complexion, markings and normal adult human anatomy from the authoritative Pokémon character description above. Adults aged 25+.\n");
                     prompt.append("SPECIES FASHION TRANSLATION: ").append(variant.getString("identity_translation")).append(". No additional biological limbs, tails or wings. All special shapes must be clearly detachable clothing or props.\n");
                     if(dex>151){
-                    if(label.equals("Lingerie")){
-                        prompt.append("OUTFIT: Unmistakable elegant adult lingerie: opaque matching bra and briefs, lined lace bodysuit, satin teddy or a bustier with matching intimate underwear; optional detachable silk dressing robe. All garments are clearly worn, non-transparent and provide complete coverage. Preserve the species-specific palette and removable ornaments described above.\n");
-                        prompt.append("MATERIALS: Lined opaque silk, satin and delicate lace trim; intimate garments must remain recognizable as lingerie, not casual shorts or streetwear.\n");
-                        prompt.append("PRESENTATION: Adult tasteful lingerie fashion editorial, evening or night in private medieval fantasy chambers, noble dressing suites or artisan couture ateliers; cinematic low-key candlelight, moonlight, deep velvet shadows and jewel-toned highlights. No public streets, modern interiors, nudity or explicit sexual activity.\n");
-                    }else{
-                        prompt.append("OUTFIT: ").append(variant.getString("outfit")).append(".\n");
-                        prompt.append("MATERIALS: ").append(variant.getString("materials")).append(".\n");
-                        prompt.append("Fashion editorial with opaque intimate coverage, no nudity or explicit sexual activity. Cinematic Novaris fantasy world, never a generic real-world club.\n");
-                    }
+                    prompt.append("OUTFIT: ").append(variant.getString("outfit")).append(".\n");
+                    prompt.append("MATERIALS: ").append(variant.getString("materials")).append(".\n");
                     int limit=triple?3:1;
                     prompt.append(triple?"THREE SEPARATE IMAGES, each a distinct full composition, NOT a collage.\n":"SINGLE IMAGE.\n");
                     for(int i=0;i<limit;i++){
                         JSONObject c=concepts.getJSONObject(i);
-                        if(label.equals("Lingerie")){
-                            String pose=i==0?"standing naturally, hands resting on robe lapels":i==1?"seated upright on a couture bench, hands resting on knees":"standing in a relaxed three-quarter pose, holding a folded silk shawl";
-                            prompt.append("IMAGE ").append(i+1).append(": Wardrobe: Clearly identifiable opaque adult lingerie set or lined lace bodysuit, optional detachable silk robe, species-specific embroidered trim and removable jewelry.")
-                                  .append(" Pose: ").append(pose)
-                                  .append(". Scene: ").append(c.getString("scene"))
-                                  .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
-                        }else{
-                            prompt.append("IMAGE ").append(i+1).append(": Wardrobe: ").append(c.getString("outfit"))
-                                  .append(". Pose: ").append(c.getString("pose"))
-                                  .append(". Scene: ").append(c.getString("scene"))
-                                  .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
-                        }
+                        prompt.append("IMAGE ").append(i+1).append(": Wardrobe: ").append(c.getString("outfit"))
+                              .append(". Pose: ").append(c.getString("pose"))
+                              .append(". Scene: ").append(c.getString("scene"))
+                              .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
                     }
                     }else{
                     prompt.append("OUTFIT DIRECTION: ").append(variant.getString("outfit")).append(".\n");
