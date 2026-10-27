@@ -3,7 +3,7 @@ name: Build Novaris Native v0.5.23
 on:
   workflow_dispatch:
   push:
-    branches: [ main, 'fix/v0.5.23-lifestyle-prompts', 'fix/remove-job-editor-and-optional-classes-step1' ]
+    branches: [ main, 'fix/v0.5.23-lifestyle-prompts', 'fix/remove-job-editor-and-optional-classes-step1', 'fix/shiny-heading-filename' ]
     paths:
       - 'native/v0.5.4/**'
       - '.github/workflows/build-native-v054.yml'
