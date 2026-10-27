@@ -40,7 +40,18 @@ public final class OriginalVariantEngine {
                 core=core+"\n\n"+testCore;
             }
         }
-        return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+"\n\n\n"+mode+"\n\n\n"+core,triple);
+        String sceneRules="";
+        if(label.equals("Casual")){
+            sceneRules="NOVARIS LIFESTYLE FINAL AUTHORITY — CASUAL: Daytime only, clear natural daylight; relaxed practical everyday clothing. Everyday markets, cafes, gardens, streets or domestic daytime settings. No gala styling, no nighttime.";
+        }else if(label.equals("Lingerie")){
+            sceneRules="NOVARIS LIFESTYLE FINAL AUTHORITY — LINGERIE: Clearly recognizable adult lingerie: matching bra and briefs, lace bodysuit, satin teddy, bustier with matching underwear or other unmistakable intimate apparel; optional removable robe. NOT streetwear, shorts-and-jacket casual styling or an ordinary dress. Prefer evening or nighttime, warm intimate indoor lighting. Appropriate scenes: private bedrooms, luxurious sleeping chambers, elegant lingerie ateliers, luxury lingerie boutiques or private dressing suites. Never daytime shopping streets or outdoor public promenades. Fully adult, tasteful, opaque intimate coverage; no nudity.";
+        }else if(label.equals("Nightlife")){
+            sceneRules="NOVARIS LIFESTYLE FINAL AUTHORITY — NIGHTLIFE: Evening or nighttime at an ACTUAL social event: royal ball, masquerade, gala, formal reception, opera premiere, festive dance or grand celebration with visible event cues and guests. Clearly elegant eveningwear, not everyday casual. Avoid empty streets, solitary terraces and ordinary daytime settings.";
+        }
+        if(!sceneRules.isEmpty()){
+            sceneRules+=" HUMAN-ONLY SILHOUETTE: exactly two human arms, two human legs, one human head and torso. Every Pokemon-derived leaf, flower, wing, horn, tail, shell or other nonhuman shape must be clearly DETACHABLE jewelry, headpiece, clothing, cape or external equipment with visible straps, seams, clasps or garment attachments. No organic attachments or extra limbs. When any stored scene or clothing blueprint conflicts with these final variant rules, follow these final rules.";
+        }
+        return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+"\n\n\n"+mode+"\n\n\n"+core+(sceneRules.isEmpty()?"":"\n\n"+sceneRules),triple);
     }
 
     public static String slug(String s){
