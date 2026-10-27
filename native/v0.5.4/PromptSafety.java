@@ -20,7 +20,9 @@ public final class PromptSafety {
         "Each is a complete single-character illustration with its own independent composition and camera variation. "+
         "Do not produce only one image; do not combine images into a triptych, collage, contact sheet or multi-panel image. "+
         "Generate three individual images as separate outputs, preserving the same identity and species palette. "+
-        "If the image-generation interface permits only one output per invocation, make three consecutive image-generation invocations rather than silently reducing the count.";
+        "Execute IMAGE 1, IMAGE 2 and IMAGE 3 as three distinct generation tasks with visibly different poses, outfits, camera framing and scene composition; do not stop after IMAGE 1. "+
+        "If the image-generation interface permits only one output per invocation, make three consecutive image-generation invocations rather than silently reducing the count. "+
+        "If this interface cannot perform all three generation tasks, explicitly state the limitation instead of claiming three images were created.";
     public static String enforce(String prompt, boolean triple){
         if(prompt==null)return "";
         String title="";
