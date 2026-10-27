@@ -332,14 +332,14 @@ jobs:
                   if(variants==null||variants.length()!=6)return;
                   LinearLayout section=new LinearLayout(this);
                   section.setOrientation(LinearLayout.VERTICAL);
-                  Button toggle=button("Optionale Klassen & Varianten · 6  ▾");
+                  Button toggle=button("Lifestyle · 3  ▾");
                   section.addView(toggle);
                   LinearLayout contents=new LinearLayout(this);
                   contents.setOrientation(LinearLayout.VERTICAL);
                   contents.setVisibility(android.view.View.GONE);
-                  toggle.setOnClickListener(v->{boolean open=contents.getVisibility()!=android.view.View.VISIBLE;contents.setVisibility(open?android.view.View.VISIBLE:android.view.View.GONE);toggle.setText(open?"Optionale Klassen & Varianten · 6  ▴":"Optionale Klassen & Varianten · 6  ▾");});
+                  toggle.setOnClickListener(v->{boolean open=contents.getVisibility()!=android.view.View.VISIBLE;contents.setVisibility(open?android.view.View.VISIBLE:android.view.View.GONE);toggle.setText(open?"Lifestyle · 3  ▴":"Lifestyle · 3  ▾");});
                   section.addView(contents);
-                  for(int i=0;i<6;i++){
+                  for(int i=3;i<6;i++){
                       final String variant=variants.optString(i);
                       final boolean lifestyle=i>=3;
                       DatabaseManager.PokemonDetail detail=data.pokemonDetail(dex);
@@ -483,14 +483,14 @@ jobs:
                       toggle.setText(open?"Optionale Klassen & Varianten · 6  ▴":"Optionale Klassen & Varianten · 6  ▾");
                   });
                   section.addView(contents);
-                  for(int i=0;i<6;i++){
+                  for(int i=3;i<6;i++){
                       final String variant=variants.optString(i);
                       final String title=String.format(java.util.Locale.ROOT,"#%04d.%s_%02d_%s_%s",dex,
                           OriginalVariantEngine.slug(detail.item.en),formIndex,OriginalVariantEngine.slug(formName),OriginalVariantEngine.slug(variant));
                       LinearLayout card=new LinearLayout(this);
                       card.setOrientation(LinearLayout.VERTICAL);
                       card.setPadding(dp(8),dp(10),dp(8),dp(10));
-                      card.addView(label((i<3?"OPTIONALE KLASSE ":"LIFESTYLE ")+(i+1)+"/6",14,true));
+                      card.addView(label("LIFESTYLE "+(i-2)+"/3",14,true));
                       ImageView preview=image(dp(84),dp(84));
                       card.addView(preview,new LinearLayout.LayoutParams(dp(84),dp(84)));
                       ImageLoader.load(this,formUrl,preview);
