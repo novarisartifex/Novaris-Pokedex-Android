@@ -97,9 +97,9 @@ public final class OriginalVariantEngine {
                     prompt.append("SPECIES FASHION TRANSLATION: ").append(variant.getString("identity_translation")).append(". No additional biological limbs, tails or wings. All special shapes must be clearly detachable clothing or props.\n");
                     if(dex>151){
                     if(label.equals("Lingerie")){
-                        prompt.append("OUTFIT: Fully opaque, elegant corset-inspired satin lounge ensemble with a lined high-neck camisole, tailored high-waisted shorts, and a long silk dressing robe. All garments are clearly worn, non-transparent and provide complete coverage. Preserve the species-specific palette and removable ornaments described above.\n");
-                        prompt.append("MATERIALS: Opaque silk, lined satin, embroidered brocade and ornamental lace trim used only as surface decoration.\n");
-                        prompt.append("PRESENTATION: Adult couture sleepwear lookbook; neutral standing or seated fashion poses, no suggestive gestures, no emphasis on intimate body areas. Cinematic Novaris fantasy dressing room.\n");
+                        prompt.append("OUTFIT: Unmistakable elegant adult lingerie: opaque matching bra and briefs, lined lace bodysuit, satin teddy or a bustier with matching intimate underwear; optional detachable silk dressing robe. All garments are clearly worn, non-transparent and provide complete coverage. Preserve the species-specific palette and removable ornaments described above.\n");
+                        prompt.append("MATERIALS: Lined opaque silk, satin and delicate lace trim; intimate garments must remain recognizable as lingerie, not casual shorts or streetwear.\n");
+                        prompt.append("PRESENTATION: Adult tasteful lingerie fashion editorial, evening or night in private chambers, luxury lingerie boutiques, elegant ateliers or dressing suites; no public street settings. No nudity or explicit sexual activity.\n");
                     }else{
                         prompt.append("OUTFIT: ").append(variant.getString("outfit")).append(".\n");
                         prompt.append("MATERIALS: ").append(variant.getString("materials")).append(".\n");
@@ -111,7 +111,7 @@ public final class OriginalVariantEngine {
                         JSONObject c=concepts.getJSONObject(i);
                         if(label.equals("Lingerie")){
                             String pose=i==0?"standing naturally, hands resting on robe lapels":i==1?"seated upright on a couture bench, hands resting on knees":"standing in a relaxed three-quarter pose, holding a folded silk shawl";
-                            prompt.append("IMAGE ").append(i+1).append(": Wardrobe: Fully opaque satin lounge ensemble and long silk robe with species-specific embroidered trim and removable jewelry.")
+                            prompt.append("IMAGE ").append(i+1).append(": Wardrobe: Clearly identifiable opaque adult lingerie set or lined lace bodysuit, optional detachable silk robe, species-specific embroidered trim and removable jewelry.")
                                   .append(" Pose: ").append(pose)
                                   .append(". Scene: ").append(c.getString("scene"))
                                   .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
