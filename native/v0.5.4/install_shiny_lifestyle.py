@@ -48,7 +48,7 @@ method=r'''
             for(String variant:variants){
                 String filename=String.format(java.util.Locale.ROOT,"#%04d.%s_%02d_%s_Shiny_%s",dex,
                     OriginalVariantEngine.slug(detail.item.en),shinyIndex,
-                    OriginalVariantEngine.slug(shinyName),OriginalVariantEngine.slug(variant));
+                    OriginalVariantEngine.slug(shinyName).replaceAll("(?i)(?:_?Shiny)+$", ""),OriginalVariantEngine.slug(variant));
                 LinearLayout card=new LinearLayout(this);
                 card.setOrientation(LinearLayout.VERTICAL);
                 card.setPadding(dp(8),dp(10),dp(8),dp(12));
@@ -80,7 +80,8 @@ method=r'''
         try{
             String original=OriginalVariantEngine.build(this,root,dex,variant,triple);
             String shinyAuthority=buildShinyPrompt(dex,shinyName,triple);
-            return "NOVARIS SHINY LIFESTYLE — MANDATORY: This is the selected Shiny form '"+shinyName+
+            String shinyHeading=headedPokemonPrompt(dex,"Shiny "+variant,"");
+            return shinyHeading+"\nNOVARIS SHINY LIFESTYLE — MANDATORY: This is the selected Shiny form '"+shinyName+
                 "', not the normal form. The Shiny reference image copied with this card is the absolute "+
                 "authority for colors, markings and their placement. Any normal-form colors in the "+
                 "species blueprint, lifestyle descriptions or Style Core are overridden by the Shiny "+
@@ -96,6 +97,7 @@ method=r'''
 anchor2='private void copy(String s){'
 if s.count(anchor2)!=1:raise SystemExit("Method insertion anchor missing")
 s=s.replace(anchor2,method+'\n    '+anchor2,1)
+s=s.replace('name.replaceAll("[^A-Za-z0-9_-]+","_"),safeRole(role));', 'name.replaceAll("[^A-Za-z0-9_-]+","_").replaceAll("(?i)(?:_?Shiny)+$", ""),safeRole(role));')
 p.write_text(s)
 assert add_call in s
 assert 'buildShinyPrompt(dex,shinyName,triple)' in s
