@@ -1,9 +1,25 @@
 from pathlib import Path
 p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java")
 s=p.read_text()
-anchor='addImagePromptCard(dex,i+1,name,url,"",role,true);'
-if s.count(anchor)!=1: raise SystemExit("Shiny card insertion anchor missing or ambiguous")
-s=s.replace(anchor,anchor+'\n                addShinyLifestyleVariants(dex,i+1,name,url);',1)
+import re
+# The reconstructed Android source uses addShinyCards(item, formsJson, shinyJson),
+# not the older addImagePromptCard(...) signature.
+start=s.find('private void addShinyCards(')
+if start<0: raise SystemExit("Shiny card method missing")
+end=s.find('private ',start+len('private '))
+if end<0: raise SystemExit("Shiny card method boundary missing")
+block=s[start:end]
+index_match=re.search(r'for\s*\(\s*int\s+(\w+)\s*=\s*0\s*;',block)
+if not index_match: raise SystemExit("Shiny card index loop missing")
+idx=index_match.group(1)
+add_call='addShinyLifestyleVariants(item.dex,'+idx+'+1,name,url);'
+# Render the lifestyle section immediately after its Shiny card.
+card_match=re.search(r'body\.addView\(card(?:,[^;]*)?\);',block)
+if not card_match: raise SystemExit("Shiny card body insertion point missing")
+anchor=card_match.group(0)
+if block.count(anchor)!=1: raise SystemExit("Shiny card body insertion point ambiguous")
+block=block.replace(anchor,anchor+'\n                '+add_call,1)
+s=s[:start]+block+s[end:]
 method=r'''
     private void addShinyLifestyleVariants(int dex,int shinyIndex,String shinyName,String shinyUrl){
         try{
@@ -81,6 +97,6 @@ anchor2='private void copy(String s){'
 if s.count(anchor2)!=1:raise SystemExit("Method insertion anchor missing")
 s=s.replace(anchor2,method+'\n    '+anchor2,1)
 p.write_text(s)
-assert 'addShinyLifestyleVariants(dex,i+1,name,url);' in s
+assert add_call in s
 assert 'buildShinyPrompt(dex,shinyName,triple)' in s
 print("Installed three Shiny lifestyle cards per existing Shiny form")
