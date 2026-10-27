@@ -569,6 +569,13 @@ jobs:
           assert 'copyTriple(' in s
           PY
 
+      - name: Install Gen1 x3 individual prompt chooser
+        shell: bash
+        run: |
+          cp native/v0.5.4/Gen1TriplePrompts.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/Gen1TriplePrompts.java
+          python3 native/v0.5.4/install_gen1_x3_chooser.py
+          grep -q 'showGen1X3' appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java
+
       - name: Bundle original V27.42 class catalog
         shell: bash
         run: |
