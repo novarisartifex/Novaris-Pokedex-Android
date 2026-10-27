@@ -3,7 +3,7 @@ name: Build Novaris Native v0.5.20
 on:
   workflow_dispatch:
   push:
-    branches: [ main, 'test/gen1-lifestyle-diversity-v1' ]
+    branches: [ main, 'test/gen1-lifestyle-diversity-v1', 'test/x3-three-independent-prompts-v1' ]
     paths:
       - 'native/v0.5.4/**'
       - '.github/workflows/build-native-v054.yml'
