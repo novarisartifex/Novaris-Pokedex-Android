@@ -73,6 +73,34 @@ public final class OriginalVariantEngine {
                     StringBuilder prompt=new StringBuilder("NOVARIS LIFESTYLE — SPECIES-SPECIFIC STORED BLUEPRINT\n");
                     prompt.append("VARIANT: ").append(label).append(". CHARACTER: Preserve exact species colors, face, hair, complexion, markings and normal adult human anatomy from the authoritative Pokémon character description above. Adults aged 25+.\n");
                     prompt.append("SPECIES FASHION TRANSLATION: ").append(variant.getString("identity_translation")).append(". No additional biological limbs, tails or wings. All special shapes must be clearly detachable clothing or props.\n");
+                    if(dex>151){
+                    if(label.equals("Lingerie")){
+                        prompt.append("OUTFIT: Fully opaque, elegant corset-inspired satin lounge ensemble with a lined high-neck camisole, tailored high-waisted shorts, and a long silk dressing robe. All garments are clearly worn, non-transparent and provide complete coverage. Preserve the species-specific palette and removable ornaments described above.\n");
+                        prompt.append("MATERIALS: Opaque silk, lined satin, embroidered brocade and ornamental lace trim used only as surface decoration.\n");
+                        prompt.append("PRESENTATION: Adult couture sleepwear lookbook; neutral standing or seated fashion poses, no suggestive gestures, no emphasis on intimate body areas. Cinematic Novaris fantasy dressing room.\n");
+                    }else{
+                        prompt.append("OUTFIT: ").append(variant.getString("outfit")).append(".\n");
+                        prompt.append("MATERIALS: ").append(variant.getString("materials")).append(".\n");
+                        prompt.append("Fashion editorial with opaque intimate coverage, no nudity or explicit sexual activity. Cinematic Novaris fantasy world, never a generic real-world club.\n");
+                    }
+                    int limit=triple?3:1;
+                    prompt.append(triple?"THREE SEPARATE IMAGES, each a distinct full composition, NOT a collage.\n":"SINGLE IMAGE.\n");
+                    for(int i=0;i<limit;i++){
+                        JSONObject c=concepts.getJSONObject(i);
+                        if(label.equals("Lingerie")){
+                            String pose=i==0?"standing naturally, hands resting on robe lapels":i==1?"seated upright on a couture bench, hands resting on knees":"standing in a relaxed three-quarter pose, holding a folded silk shawl";
+                            prompt.append("IMAGE ").append(i+1).append(": Wardrobe: Fully opaque satin lounge ensemble and long silk robe with species-specific embroidered trim and removable jewelry.")
+                                  .append(" Pose: ").append(pose)
+                                  .append(". Scene: ").append(c.getString("scene"))
+                                  .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
+                        }else{
+                            prompt.append("IMAGE ").append(i+1).append(": Wardrobe: ").append(c.getString("outfit"))
+                                  .append(". Pose: ").append(c.getString("pose"))
+                                  .append(". Scene: ").append(c.getString("scene"))
+                                  .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
+                        }
+                    }
+                    }else{
                     prompt.append("OUTFIT DIRECTION: ").append(variant.getString("outfit")).append(".\n");
                     prompt.append("MATERIALS: ").append(variant.getString("materials")).append(".\n");
                     prompt.append("NOVARIS WORLD: Asterion's established districts, architecture and institutions; no generic real-world venues. Fashion editorial featuring fully adult characters, opaque intimate coverage, no nudity.\n");
@@ -84,6 +112,7 @@ public final class OriginalVariantEngine {
                               .append(". Distinct anatomically plausible pose: ").append(c.getString("pose"))
                               .append(". Established NOVARIS/Asterion setting: ").append(c.getString("scene"))
                               .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
+                    }
                     }
                     return prompt.toString();
                 }
