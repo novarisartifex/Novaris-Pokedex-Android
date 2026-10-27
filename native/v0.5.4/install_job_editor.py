@@ -5,7 +5,7 @@ s=p.read_text()
 import re
 pattern=r'(?m)^(\s*)addFormCards\('
 if not re.search(pattern,s):raise SystemExit("Job editor UI insertion point missing")
-s=re.sub(pattern,lambda m:m.group(1)+'addJobEditor(d.item.dex,d.item.role);\n'+m.group(1)+'addChangedJobBlock(d.item,d.formsJson);\n'+m.group(1)+'addFormCards(',s,count=1)
+s=re.sub(pattern,lambda m:m.group(1)+'addChangedJobBlock(d.item,d.formsJson);\n'+m.group(1)+'addFormCards(',s,count=1)
 anchor='private void copy(String s){'
 if anchor not in s:raise SystemExit("Job editor anchor missing")
 methods=r"""
