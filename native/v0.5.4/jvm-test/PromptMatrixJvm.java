@@ -31,6 +31,11 @@ public final class PromptMatrixJvm {
             require(occurrences(prompt,"NOVARIS LIFESTYLE — SPECIES-SPECIFIC STORED BLUEPRINT")==1,id+" blueprint");
             require(occurrences(prompt,"NOVARIS x3 OUTPUT")== (triple?1:0),id+" count");
             require(occurrences(prompt,"SHINY LIFESTYLE PALETTE OVERRIDE")== (shiny?1:0),id+" shiny override");
+            require(!prompt.contains("Copy design direction"),id+" copy UI residue");
+            if(shiny){
+              String lifestyle=prompt.substring(prompt.indexOf("NOVARIS LIFESTYLE — SPECIES-SPECIFIC STORED BLUEPRINT"),prompt.indexOf("NOVARIS LIFESTYLE FINAL AUTHORITY"));
+              require(!lifestyle.matches("(?s).*\\\\b(?:purple|violet|lavender|lilac|plum)\\\\b.*"),id+" normal palette residue");
+            }
             require(prompt.contains("VARIANT: "+role),id+" class");
             require(prompt.contains("IMAGE "+(triple?3:1)+":"),id+" image count");
             require(!prompt.contains("IMAGE "+(triple?4:2)+":"),id+" excess image");
