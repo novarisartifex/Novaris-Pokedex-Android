@@ -689,6 +689,10 @@ jobs:
               }
               '''
           gradle.write_text(src)
+          props=Path("appsrc/gradle.properties")
+          current=props.read_text() if props.exists() else ""
+          if "android.useAndroidX=true" not in current:
+              props.write_text(current+"\nandroid.useAndroidX=true\n")
           dest=Path("appsrc/app/src/test/java/com/novaris/pokedex/nativeapp/MainPromptRegressionTest.java")
           dest.parent.mkdir(parents=True,exist_ok=True)
           dest.write_bytes(Path("native/v0.5.4/jvm-test/MainPromptRegressionTest.java").read_bytes())
