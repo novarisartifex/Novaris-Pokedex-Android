@@ -40,14 +40,6 @@ public final class OriginalVariantEngine {
                 "adjectives. This instruction overrides ALL conflicting color descriptions " +
                 "in the stored lifestyle blueprint below.\n"+desc;
         }
-        // Remove normal-form color adjectives from stored lifestyle descriptions
-        // BEFORE assembly. The Shiny reference remains the only palette authority.
-        if(text.contains("NOVARIS SHINY COLOR AUTHORITY:")){
-            desc=stripNormalPalette(desc);
-            text=stripShinyCharacterColors(text);
-        }
-        text=text.replaceAll("(?m)^Copy design direction\\s*$", "")
-                 .replaceAll("(?m)^Copy feminine progression\\s*$", "");
         String mode = root.getString(triple?"NOVARIS_OUTPUT_TRIPLE":"NOVARIS_OUTPUT_SINGLE");
         String core=root.getString("NOVARIS_CORE_V117");
         String sceneRules="";
@@ -62,50 +54,6 @@ public final class OriginalVariantEngine {
             sceneRules+=" HUMAN-ONLY SILHOUETTE: exactly two human arms, two human legs, one human head and torso. Every Pokemon-derived leaf, flower, wing, horn, tail, shell or other nonhuman shape must be clearly DETACHABLE jewelry, headpiece, clothing, cape or external equipment with visible straps, seams, clasps or garment attachments. No organic attachments or extra limbs. When any stored scene or clothing blueprint conflicts with these final variant rules, follow these final rules.";
         }
         return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+(sceneRules.isEmpty()?"":"\n\n"+sceneRules)+"\n\n\n"+mode+"\n\n\n"+core,triple);
-    }
-
-    private static final String NORMAL_COLORS =
-        "(?i)\\b(?:purple|violet|lavender|lilac|plum|pink|magenta|fuchsia|red|orange|yellow|golden|gold|green|lime|teal|cyan|blue|navy|indigo|brown|tan|beige|cream|white|black|gray|grey|silver|charcoal|crimson|scarlet|burgundy|maroon|turquoise|azure|emerald|olive|peach|coral|copper|bronze)\\b";
-
-    private static String replacePaletteWords(String value){
-        return value.replaceAll(NORMAL_COLORS,"Shiny-reference-colored");
-    }
-
-    private static String stripNormalPalette(String description){
-        // Only recolor wardrobe, materials and species-fashion translation.
-        // Preserve scene, lighting, pose and physical material construction.
-        String[] lines=description.split("\\n",-1);
-        for(int i=0;i<lines.length;i++){
-            String line=lines[i];
-            if(line.startsWith("SPECIES FASHION TRANSLATION:") ||
-               line.startsWith("OUTFIT:") || line.startsWith("OUTFIT DIRECTION:") ||
-               line.startsWith("MATERIALS:") || line.startsWith("CLOTHING BLUEPRINT:") ||
-               line.startsWith("MATERIAL BLUEPRINT:")){
-                lines[i]=replacePaletteWords(line);
-            }else if(line.startsWith("IMAGE ")){
-                int wardrobe=line.indexOf("Wardrobe: ");
-                if(wardrobe<0)wardrobe=line.indexOf("Unique outfit: ");
-                int pose=line.indexOf(". Pose: ");
-                if(pose<0)pose=line.indexOf(". Distinct anatomically plausible pose: ");
-                if(wardrobe>=0 && pose>wardrobe){
-                    lines[i]=replacePaletteWords(line.substring(0,pose))+line.substring(pose);
-                }
-            }
-        }
-        return String.join("\n",lines);
-    }
-
-    private static String stripShinyCharacterColors(String text){
-        String[] lines=text.split("\\n",-1);
-        for(int i=0;i<lines.length;i++){
-            String line=lines[i];
-            if(line.startsWith("SKIN / COMPLEXION:") || line.startsWith("HAIR:") ||
-               line.startsWith("COLOR DISTRIBUTION:") || line.startsWith("COLOR LAYOUT:") ||
-               line.startsWith("POKÉDEX PRIMARY COLOR:")){
-                lines[i]=replacePaletteWords(line);
-            }
-        }
-        return String.join("\n",lines);
     }
 
     public static String slug(String s){
