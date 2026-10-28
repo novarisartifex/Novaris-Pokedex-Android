@@ -92,7 +92,7 @@ method=r'''
             // Do not splice a complete main-class Shiny prompt into a lifestyle prompt.
             // Its output-control header previously truncated the extracted palette to empty.
             // The selected Shiny image remains the sole color reference.
-            String nonColorIdentity=normalText.replaceAll("(?im)^.*(?:COLOR|PALETTE|COLOUR|HUE|PIGMENT|SHADE|TONE).*$", "");
+            String nonColorIdentity=normalText.replaceAll("(?im)^.*\\b(?:COLOR|PALETTE|COLOUR|HUE|PIGMENT|SHADE|TONE)\\b.*$", "");
             species.put("text", "NOVARIS SHINY COLOR AUTHORITY: Selected form '"+shinyName+
                 "'. Use the selected Shiny reference image for ALL species colors, markings, "+
                 "skin, hair, clothing accents and accessories. Never use Normal palette colors. "+
