@@ -577,6 +577,7 @@ jobs:
               s,n=re.subn(pattern,r'\1copyTriple(',s)
               matches+=n
           if matches<2:raise SystemExit("x3 copy wiring missing")
+          # Keep the original copy method intact; wrap only the triple listeners.
           s=s.replace(anchor,'private void copyTriple(String s){ copy(PromptSafety.enforce(s,true)); }\n    '+anchor,1)
           # The ordinary copy path must also enforce the species-to-fashion guard.
           # Avoid double-appending to prompts that already include the safety header.
