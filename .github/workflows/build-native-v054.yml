@@ -626,6 +626,24 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
+      - name: Execute real Java lifestyle prompt regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/novaris-jvm/classes
+          curl --fail --location --retry 3 --silent --show-error \
+            https://repo.maven.apache.org/maven2/org/json/json/20240303/json-20240303.jar \
+            -o /tmp/novaris-jvm/json.jar
+          javac -encoding UTF-8 -cp /tmp/novaris-jvm/json.jar \
+            -d /tmp/novaris-jvm/classes \
+            native/v0.5.4/jvm-test/android/content/Context.java \
+            native/v0.5.4/jvm-test/android/content/res/AssetManager.java \
+            native/v0.5.4/PromptSafety.java \
+            native/v0.5.4/OriginalVariantEngine.java \
+            native/v0.5.4/jvm-test/PromptMatrixJvm.java
+          java -cp /tmp/novaris-jvm/classes:/tmp/novaris-jvm/json.jar \
+            PromptMatrixJvm appsrc/app/src/main/assets
+
       - name: Build APK
         working-directory: appsrc
         run: gradle assembleDebug --stacktrace
