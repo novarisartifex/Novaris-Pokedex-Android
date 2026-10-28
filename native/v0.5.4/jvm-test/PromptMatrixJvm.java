@@ -32,6 +32,7 @@ public final class PromptMatrixJvm {
             require(occurrences(prompt,"NOVARIS x3 OUTPUT")== (triple?1:0),id+" count");
             require(occurrences(prompt,"SHINY LIFESTYLE PALETTE OVERRIDE")== (shiny?1:0),id+" shiny override");
             require(!prompt.contains("Copy design direction"),id+" copy UI residue");
+            require(!prompt.contains("Copy feminine progression"),id+" feminine UI residue");
             if(shiny){
               String lifestyle=prompt.substring(prompt.indexOf("NOVARIS LIFESTYLE — SPECIES-SPECIFIC STORED BLUEPRINT"),prompt.indexOf("NOVARIS LIFESTYLE FINAL AUTHORITY"));
               String[] lines=lifestyle.split("\\n");
