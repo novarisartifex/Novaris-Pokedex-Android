@@ -41,7 +41,7 @@ public final class OriginalVariantEngine {
         if(!sceneRules.isEmpty()){
             sceneRules+=" HUMAN-ONLY SILHOUETTE: exactly two human arms, two human legs, one human head and torso. Every Pokemon-derived leaf, flower, wing, horn, tail, shell or other nonhuman shape must be clearly DETACHABLE jewelry, headpiece, clothing, cape or external equipment with visible straps, seams, clasps or garment attachments. No organic attachments or extra limbs. When any stored scene or clothing blueprint conflicts with these final variant rules, follow these final rules.";
         }
-        return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+"\n\n\n"+mode+"\n\n\n"+core,triple);
+        return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+(sceneRules.isEmpty()?"":"\n\n"+sceneRules)+"\n\n\n"+mode+"\n\n\n"+core,triple);
     }
 
     public static String slug(String s){
