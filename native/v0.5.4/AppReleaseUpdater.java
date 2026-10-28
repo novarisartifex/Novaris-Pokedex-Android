@@ -12,7 +12,8 @@ import java.io.*;
 
 /** Native GitHub Release APK update, independent of the existing Pokédex data updater. */
 public final class AppReleaseUpdater {
-    private static final String API="https://api.github.com/repos/novarisartifex/Novaris-Pokedex-Android/releases/latest";
+    private static final String API="https://api.github.com/repos/novarisartifex/Novaris-Pokedex-Android/releases/tags/v0.5.23-native";
+    private static final String EXPECTED_APK="Novaris-Pokedex-Native-v0.5.23.apk";
     private final Activity activity;
     private boolean added;
     private boolean checking;
@@ -80,9 +81,9 @@ public final class AppReleaseUpdater {
                 String assetTime="";
                 for(int i=0;i<assets.length();i++){
                     JSONObject asset=assets.getJSONObject(i);
-                    if(asset.getString("name").endsWith(".apk")){url=asset.getString("browser_download_url");assetTime=asset.optString("updated_at",asset.optString("created_at",""));break;}
+                    if(EXPECTED_APK.equals(asset.getString("name"))){url=asset.getString("browser_download_url");assetTime=asset.optString("updated_at",asset.optString("created_at",""));break;}
                 }
-                if(url.isEmpty())throw new IOException("Release ohne APK");
+                if(url.isEmpty())throw new IOException("Erwartete Novaris-APK im Release nicht vorhanden");
                 android.content.pm.PackageInfo info=activity.getPackageManager().getPackageInfo(activity.getPackageName(),0);
                 String installed=info.versionName;
                 long installedCode=android.os.Build.VERSION.SDK_INT>=28?info.getLongVersionCode():info.versionCode;
