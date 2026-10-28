@@ -6,7 +6,7 @@ import re
 # not the older addImagePromptCard(...) signature.
 start=s.find('private void addShinyCards(')
 if start<0: raise SystemExit("Shiny card method missing")
-end=s.find('private ',start+len('private '))
+end=s.find('\n    private ',start+len('private '))
 if end<0: raise SystemExit("Shiny card method boundary missing")
 block=s[start:end]
 index_match=re.search(r'for\s*\(\s*int\s+(\w+)\s*=\s*0\s*;',block)
