@@ -25,6 +25,13 @@ public final class PromptSafety {
         "If this interface cannot perform all three generation tasks, explicitly state the limitation instead of claiming three images were created.";
     public static String enforce(String prompt, boolean triple){
         if(prompt==null)return "";
+        // OriginalVariantEngine already applies this wrapper. Copying x3 must
+        // not duplicate the anatomy header, x3 instructions or final check.
+        if(prompt.contains("NOVARIS OUTPUT CONTROL") &&
+           prompt.contains("NOVARIS HUMAN ANATOMY SAFETY") &&
+           (!triple || prompt.contains("NOVARIS x3 OUTPUT"))){
+            return prompt;
+        }
         String title="";
         java.util.regex.Matcher first=java.util.regex.Pattern.compile("(?m)^#[0-9]{4}\\.[^\\r\\n]+").matcher(prompt);
         if(first.find()){
