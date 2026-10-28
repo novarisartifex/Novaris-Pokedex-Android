@@ -691,9 +691,17 @@ jobs:
           gradle.write_text(src)
           settings=Path("appsrc/settings.gradle.kts")
           settings_src=settings.read_text()
-          if "mavenCentral()" not in settings_src:
-              settings_src=settings_src.replace("dependencyResolutionManagement {", "dependencyResolutionManagement {\n    repositories { mavenCentral() }",1)
-              settings.write_text(settings_src)
+          import re
+          match=re.search(r"dependencyResolutionManagement\s*\{",settings_src)
+          if not match:
+              raise RuntimeError("Missing dependencyResolutionManagement in settings.gradle.kts")
+          tail=settings_src[match.end():]
+          repo_match=re.search(r"repositories\s*\{",tail)
+          if not repo_match:
+              raise RuntimeError("Missing dependency repositories block")
+          insertion=match.end()+repo_match.end()
+          settings_src=settings_src[:insertion]+"\n        mavenCentral()\n"+settings_src[insertion:]
+          settings.write_text(settings_src)
           props=Path("appsrc/gradle.properties")
           current=props.read_text() if props.exists() else ""
           if "android.useAndroidX=true" not in current:
