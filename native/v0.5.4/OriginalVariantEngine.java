@@ -40,6 +40,13 @@ public final class OriginalVariantEngine {
                 "adjectives. This instruction overrides ALL conflicting color descriptions " +
                 "in the stored lifestyle blueprint below.\n"+desc;
         }
+        // Remove normal-form color adjectives from stored lifestyle descriptions
+        // BEFORE assembly. The Shiny reference remains the only palette authority.
+        if(text.contains("NOVARIS SHINY COLOR AUTHORITY:")){
+            desc=stripNormalPalette(desc);
+        }
+        text=text.replaceAll("(?m)^Copy design direction\\\\s*$", "")
+                 .replaceAll("(?m)^Copy feminine progression\\\\s*$", "");
         String mode = root.getString(triple?"NOVARIS_OUTPUT_TRIPLE":"NOVARIS_OUTPUT_SINGLE");
         String core=root.getString("NOVARIS_CORE_V117");
         String sceneRules="";
@@ -54,6 +61,14 @@ public final class OriginalVariantEngine {
             sceneRules+=" HUMAN-ONLY SILHOUETTE: exactly two human arms, two human legs, one human head and torso. Every Pokemon-derived leaf, flower, wing, horn, tail, shell or other nonhuman shape must be clearly DETACHABLE jewelry, headpiece, clothing, cape or external equipment with visible straps, seams, clasps or garment attachments. No organic attachments or extra limbs. When any stored scene or clothing blueprint conflicts with these final variant rules, follow these final rules.";
         }
         return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+(sceneRules.isEmpty()?"":"\n\n"+sceneRules)+"\n\n\n"+mode+"\n\n\n"+core,triple);
+    }
+
+    private static String stripNormalPalette(String description){
+        // Color vocabulary is intentionally finite and only applied to the
+        // stored Normal-form lifestyle blueprint, not the Style Core or scene.
+        // Keep garment nouns, construction, pose and venue unchanged.
+        String colors="(?i)\\\\b(?:purple|violet|lavender|lilac|plum|pink|magenta|fuchsia|red|orange|yellow|golden|gold|green|lime|teal|cyan|blue|navy|indigo|brown|tan|beige|cream|white|black|gray|grey|silver|charcoal|crimson|scarlet|burgundy|maroon|turquoise|azure|emerald|olive|peach|coral|copper|bronze)\\\\b";
+        return description.replaceAll(colors,"Shiny-reference-colored");
     }
 
     public static String slug(String s){
