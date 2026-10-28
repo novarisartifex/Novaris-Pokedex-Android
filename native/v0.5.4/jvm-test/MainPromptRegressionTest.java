@@ -37,6 +37,10 @@ public class MainPromptRegressionTest {
                         ? (String)shiny.invoke(activity,dex,"Shiny",triple)
                         : data.buildPokemonPrompt(dex,triple);
                     assertNotNull(id,prompt);
+                    // The production copy buttons apply PromptSafety.enforce before
+                    // placing the assembled main-class prompt on the clipboard.
+                    // Verify that final output, not the unwrapped database string.
+                    prompt=PromptSafety.enforce(prompt,triple);
                     assertTrue(id+" empty",prompt.length()>300);
                     assertEquals(id+" anatomy safety",1,count(prompt,"NOVARIS HUMAN ANATOMY SAFETY"));
                     assertEquals(id+" output control",1,count(prompt,"NOVARIS OUTPUT CONTROL"));
