@@ -38,7 +38,7 @@ public final class OriginalVariantEngine {
                 "from the selected Shiny reference image. Preserve garment construction, " +
                 "species motifs, pose, props and setting; do not preserve Normal palette " +
                 "adjectives. This instruction overrides ALL conflicting color descriptions " +
-                "in the stored lifestyle blueprint below.\\n"+desc;
+                "in the stored lifestyle blueprint below.\n"+desc;
         }
         String mode = root.getString(triple?"NOVARIS_OUTPUT_TRIPLE":"NOVARIS_OUTPUT_SINGLE");
         String core=root.getString("NOVARIS_CORE_V117");
