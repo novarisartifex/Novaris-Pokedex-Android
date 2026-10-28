@@ -688,6 +688,8 @@ jobs:
                   testImplementation("androidx.test:core:1.6.1")
               }
               '''
+          if "repositories { mavenCentral() }" not in src:
+              src += "\nrepositories { mavenCentral() }\n"
           gradle.write_text(src)
           props=Path("appsrc/gradle.properties")
           current=props.read_text() if props.exists() else ""
