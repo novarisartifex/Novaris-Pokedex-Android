@@ -94,7 +94,7 @@ method=r'''
                 "'. Use the selected Shiny reference image for ALL species colors, markings, "+
                 "skin, hair, clothing accents and accessories. Never use Normal palette colors. "+
                 "Preserve non-color Pokémon identity and human-only anatomy. "+
-                "Do not import the main profession, work outfit, work pose or workplace.\\n"+
+                "Do not import the main profession, work outfit, work pose or workplace.\n"+
                 "SPECIES IDENTITY (NON-COLOR FEATURES ONLY): "+nonColorIdentity);
             String original=OriginalVariantEngine.build(this,shinyRoot,dex,variant,triple);
             return original+"\nFINAL SHINY CHECK: Only the selected Shiny reference determines colors; "+
