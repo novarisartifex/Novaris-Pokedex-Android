@@ -86,22 +86,16 @@ method=r'''
             JSONObject shinyRoot=new JSONObject(root.toString());
             JSONObject species=shinyRoot.getJSONObject("SPECIES").getJSONObject(String.valueOf(dex));
             String normalText=species.getString("text");
-            String shinyPalette=buildShinyPrompt(dex,shinyName,triple);
-            // Shiny authority is an identity reference, not a second assembled prompt.
-            // Strip any nested core and job sections before using its identity text.
-            String[] boundaries={"NOVARIS STYLE CORE", "NOVARIS CORE", "MAIN CLASS BLUEPRINT",
-                                 "NOVARIS OPTIONAL CLASS", "NOVARIS LIFESTYLE", "NOVARIS OUTPUT CONTROL"};
-            for(String boundary:boundaries){
-                int pos=shinyPalette.indexOf(boundary);
-                if(pos>=0)shinyPalette=shinyPalette.substring(0,pos);
-            }
+            // Do not splice a complete main-class Shiny prompt into a lifestyle prompt.
+            // Its output-control header previously truncated the extracted palette to empty.
+            // The selected Shiny image remains the sole color reference.
+            String nonColorIdentity=normalText.replaceAll("(?im)^.*(?:COLOR|PALETTE|COLOUR|HUE|PIGMENT|SHADE|TONE).*$", "");
             species.put("text", "NOVARIS SHINY COLOR AUTHORITY: Selected form '"+shinyName+
-                "'. The Shiny reference image controls every species color and marking. "+
-                "Do not use Normal palette values. Retain the species anatomy and identity "+
-                "without importing any main profession, work outfit, work pose or workplace.\n"+
-                shinyPalette.trim()+"\n"+
-                "SPECIES IDENTITY (NON-COLOR FEATURES ONLY): "+
-                normalText.replaceAll("(?im)^.*(?:COLOR|PALETTE|COLOUR|HUE|PIGMENT).*$", ""));
+                "'. Use the selected Shiny reference image for ALL species colors, markings, "+
+                "skin, hair, clothing accents and accessories. Never use Normal palette colors. "+
+                "Preserve non-color Pokémon identity and human-only anatomy. "+
+                "Do not import the main profession, work outfit, work pose or workplace.\\n"+
+                "SPECIES IDENTITY (NON-COLOR FEATURES ONLY): "+nonColorIdentity);
             String original=OriginalVariantEngine.build(this,shinyRoot,dex,variant,triple);
             return original+"\nFINAL SHINY CHECK: Only the selected Shiny reference determines colors; "+
                 "the stored "+variant+" blueprint determines clothing, pose, props and setting.";
