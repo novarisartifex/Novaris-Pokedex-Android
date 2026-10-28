@@ -460,7 +460,7 @@ jobs:
           manifest.write_text(m)
           assert 'releaseUpdater.attach()' in s
           assert s.count('private AppReleaseUpdater releaseUpdater;') == 1
-          assert len(re.findall(r'\\bvoid\\s+onResume\\s*\\(',s)) == 1
+          assert len(re.findall(r'\bvoid\s+onResume\s*\(',s)) == 1
           assert 'android.permission.REQUEST_INSTALL_PACKAGES' in m
           assert m.count('android.permission.REQUEST_INSTALL_PACKAGES') == 1
           PY
