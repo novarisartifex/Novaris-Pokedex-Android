@@ -635,7 +635,7 @@ jobs:
           p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java")
           s=p.read_text()
           for match in re.finditer(r'\\bbuildPokemonPrompt\\s*\\(',s):
-              start=s.rfind("\\n",0,match.start())+1
+              start=s.rfind("\n",0,match.start())+1
               brace=s.find("{",match.end())
               if brace<0:continue
               depth=0
