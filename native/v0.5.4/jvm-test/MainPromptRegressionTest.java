@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
+@org.robolectric.annotation.Config(sdk = 33)
 public class MainPromptRegressionTest {
     private static int count(String text,String part) {
         int count=0, from=0;
