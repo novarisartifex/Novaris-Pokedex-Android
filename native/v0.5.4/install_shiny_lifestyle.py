@@ -6,8 +6,20 @@ import re
 # not the older addImagePromptCard(...) signature.
 start=s.find('private void addShinyCards(')
 if start<0: raise SystemExit("Shiny card method missing")
-end=s.find('\n    private ',start+len('private '))
-if end<0: raise SystemExit("Shiny card method boundary missing")
+# Match braces, not the next "private" token: lambdas and nested blocks may
+# contain that keyword without ending addShinyCards.
+brace=s.find('{',start)
+if brace<0: raise SystemExit("Shiny card opening brace missing")
+depth=0
+end=-1
+for pos in range(brace,len(s)):
+    if s[pos]=='{': depth+=1
+    elif s[pos]=='}':
+        depth-=1
+        if depth==0:
+            end=pos+1
+            break
+if end<0: raise SystemExit("Shiny card method closing brace missing")
 # Guard against inserting a second lifestyle section if a source snapshot already has it.
 if 'addShinyLifestyleVariants(item.dex,' in s:
     raise SystemExit("Shiny lifestyle wiring already present; refusing duplicate insertion")
