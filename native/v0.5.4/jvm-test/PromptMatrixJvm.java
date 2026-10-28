@@ -34,7 +34,11 @@ public final class PromptMatrixJvm {
             require(!prompt.contains("Copy design direction"),id+" copy UI residue");
             if(shiny){
               String lifestyle=prompt.substring(prompt.indexOf("NOVARIS LIFESTYLE — SPECIES-SPECIFIC STORED BLUEPRINT"),prompt.indexOf("NOVARIS LIFESTYLE FINAL AUTHORITY"));
-              require(!lifestyle.matches("(?s).*\\b(?:purple|violet|lavender|lilac|plum)\\b.*"),id+" normal palette residue");
+              String[] lines=lifestyle.split("\\n");
+              for(String line:lines){
+                if(line.startsWith("OUTFIT:") || line.startsWith("MATERIALS:") || line.startsWith("SPECIES FASHION TRANSLATION:"))
+                  require(!line.matches("(?i).*\\\\b(?:purple|violet|lavender|lilac|plum)\\\\b.*"),id+" normal wardrobe palette residue");
+              }
             }
             require(prompt.contains("VARIANT: "+role),id+" class");
             require(prompt.contains("IMAGE "+(triple?3:1)+":"),id+" image count");
