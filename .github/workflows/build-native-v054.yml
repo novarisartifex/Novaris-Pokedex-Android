@@ -456,6 +456,8 @@ jobs:
           manifest=Path("appsrc/app/src/main/AndroidManifest.xml")
           m=manifest.read_text()
           if 'android.permission.REQUEST_INSTALL_PACKAGES' not in m:
+              if m.count('<application')!=1:
+                  raise SystemExit("Cannot safely insert package-install permission: application tag missing or ambiguous")
               m=m.replace('<application','<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n    <application',1)
           manifest.write_text(m)
           assert 'releaseUpdater.attach()' in s
