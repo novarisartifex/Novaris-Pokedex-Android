@@ -47,6 +47,7 @@ public class MainPromptRegressionTest {
                     // The Core mentions its own marker in its completeness instructions.
                     // Only count the actual standalone terminal marker line.
                     assertEquals(id+" Style Core terminal line",1,count(prompt,"\n[NOVARIS_CORE_END:v1.1.8]\n"));
+                    assertTrue(id+" core must be final line",prompt.trim().endsWith("[NOVARIS_CORE_END:v1.1.8]"));
                     assertEquals(id+" Style Core header",1,count(prompt,"NOVARIS STYLE CORE"));
                     assertEquals(id+" shiny color authority",isShiny?1:0,
                         count(prompt,"SHINY REFERENCE IMAGE — MANDATORY COLOR AUTHORITY"));
