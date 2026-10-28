@@ -44,6 +44,14 @@ public class MainPromptRegressionTest {
                     assertTrue(id+" empty",prompt.length()>300);
                     assertEquals(id+" anatomy safety",1,count(prompt,"NOVARIS HUMAN ANATOMY SAFETY"));
                     assertEquals(id+" output control",1,count(prompt,"NOVARIS OUTPUT CONTROL"));
+                    if(count(prompt,"[NOVARIS_CORE_END:v1.1.8]")!=1) {
+                        System.err.println("STYLE_CORE_DIAGNOSTIC "+id+" end_count="+count(prompt,"[NOVARIS_CORE_END:v1.1.8]")+" header_count="+count(prompt,"NOVARIS STYLE CORE"));
+                        int from=0;
+                        while((from=prompt.indexOf("[NOVARIS_CORE_END:v1.1.8]",from))>=0) {
+                            System.err.println("STYLE_CORE_CONTEXT "+id+" offset="+from+" surrounding="+prompt.substring(Math.max(0,from-220),Math.min(prompt.length(),from+120)).replace("\\n"," "));
+                            from+="[NOVARIS_CORE_END:v1.1.8]".length();
+                        }
+                    }
                     assertEquals(id+" Style Core end",1,count(prompt,"[NOVARIS_CORE_END:v1.1.8]"));
                     assertEquals(id+" Style Core header",1,count(prompt,"NOVARIS STYLE CORE"));
                     assertEquals(id+" shiny color authority",isShiny?1:0,
