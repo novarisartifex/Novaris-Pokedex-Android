@@ -8,6 +8,9 @@ start=s.find('private void addShinyCards(')
 if start<0: raise SystemExit("Shiny card method missing")
 end=s.find('\n    private ',start+len('private '))
 if end<0: raise SystemExit("Shiny card method boundary missing")
+# Guard against inserting a second lifestyle section if a source snapshot already has it.
+if 'addShinyLifestyleVariants(item.dex,' in s:
+    raise SystemExit("Shiny lifestyle wiring already present; refusing duplicate insertion")
 block=s[start:end]
 index_match=re.search(r'for\s*\(\s*int\s+(\w+)\s*=\s*0\s*;',block)
 if not index_match: raise SystemExit("Shiny card index loop missing")
