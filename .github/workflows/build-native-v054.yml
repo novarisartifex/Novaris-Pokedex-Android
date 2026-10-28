@@ -432,7 +432,26 @@ jobs:
               getWindow().getDecorView().postDelayed(()->{releaseUpdater.attach();releaseUpdater.onAppResume();},300);
           }
           """
-          s=s.replace(anchor,method+anchor,1)
+          # Do not generate a duplicate lifecycle override when the reconstructed source already has one.
+          import re
+          existing=re.search(r'@Override\\s+protected\\s+void\\s+onResume\\s*\\(\\s*\\)\\s*\\{',s)
+          if existing:
+              start=existing.end()
+              depth=1
+              end=start
+              while end<len(s) and depth:
+                  if s[end]=='{':depth+=1
+                  elif s[end]=='}':depth-=1
+                  end+=1
+              if depth:raise SystemExit("Unbalanced existing onResume method")
+              block=s[start:end-1]
+              if 'releaseUpdater.onAppResume()' not in block:
+                  if 'super.onResume();' not in block:raise SystemExit("Existing onResume has no super call")
+                  s=s[:start]+block.replace('super.onResume();','super.onResume();\\n        if(releaseUpdater==null)releaseUpdater=new AppReleaseUpdater(this);\\n        getWindow().getDecorView().postDelayed(()->{releaseUpdater.attach();releaseUpdater.onAppResume();},300);',1)+s[end-1:]
+          else:
+              s=s.replace(anchor,method+anchor,1)
+          if len(re.findall(r'\\bvoid\\s+onResume\\s*\\(',s))!=1:
+              raise SystemExit("Expected exactly one MainActivity onResume method")
           p.write_text(s)
           manifest=Path("appsrc/app/src/main/AndroidManifest.xml")
           m=manifest.read_text()
