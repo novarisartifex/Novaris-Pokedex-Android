@@ -664,7 +664,18 @@ jobs:
           # A successful upload alone does not prove the expected APK is published.
           gh release view "$TAG" --json assets,url
           gh release view "$TAG" --json assets --jq '.assets[].name' | grep -Fx "$APK"
-          gh release download "$TAG" --pattern "$APK" --dir /tmp/novaris-release-check --clobber
-          test -s "/tmp/novaris-release-check/$APK"
+          # GitHub's asset listing can precede download availability by a few seconds.
+          # Retry the verification download rather than failing a successful APK build.
+          verified_download=0
+          for attempt in 1 2 3 4 5; do
+            if gh release download "$TAG" --pattern "$APK" --dir /tmp/novaris-release-check --clobber \
+               && test -s "/tmp/novaris-release-check/$APK"; then
+              verified_download=1
+              break
+            fi
+            echo "Release asset not downloadable yet (attempt $attempt/5)"
+            sleep 5
+          done
+          test "$verified_download" -eq 1
           cmp "$APK" "/tmp/novaris-release-check/$APK"
           echo "Verified published APK matches the locally built APK."
