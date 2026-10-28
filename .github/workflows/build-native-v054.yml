@@ -666,6 +666,36 @@ jobs:
           java -cp /tmp/novaris-jvm/classes:/tmp/novaris-jvm/json.jar \
             PromptMatrixJvm appsrc/app/src/main/assets
 
+      - name: Execute 16 production main-class prompt tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          gradle=Path("appsrc/app/build.gradle.kts")
+          src=gradle.read_text()
+          if 'testImplementation("org.robolectric:robolectric:' not in src:
+              src += '''
+              
+              android {
+                  testOptions {
+                      unitTests.isIncludeAndroidResources = true
+                  }
+              }
+              dependencies {
+                  testImplementation("junit:junit:4.13.2")
+                  testImplementation("org.robolectric:robolectric:4.13.2")
+                  testImplementation("androidx.test:core:1.6.1")
+              }
+              '''
+          gradle.write_text(src)
+          dest=Path("appsrc/app/src/test/java/com/novaris/pokedex/nativeapp/MainPromptRegressionTest.java")
+          dest.parent.mkdir(parents=True,exist_ok=True)
+          dest.write_bytes(Path("native/v0.5.4/jvm-test/MainPromptRegressionTest.java").read_bytes())
+          PY
+          cd appsrc
+          gradle :app:testDebugUnitTest --tests '*MainPromptRegressionTest' --stacktrace
+
       - name: Build APK
         working-directory: appsrc
         run: gradle assembleDebug --stacktrace
