@@ -688,9 +688,12 @@ jobs:
                   testImplementation("androidx.test:core:1.6.1")
               }
               '''
-          if "repositories { mavenCentral() }" not in src:
-              src += "\nrepositories { mavenCentral() }\n"
           gradle.write_text(src)
+          settings=Path("appsrc/settings.gradle.kts")
+          settings_src=settings.read_text()
+          if "mavenCentral()" not in settings_src:
+              settings_src=settings_src.replace("dependencyResolutionManagement {", "dependencyResolutionManagement {\n    repositories { mavenCentral() }",1)
+              settings.write_text(settings_src)
           props=Path("appsrc/gradle.properties")
           current=props.read_text() if props.exists() else ""
           if "android.useAndroidX=true" not in current:
