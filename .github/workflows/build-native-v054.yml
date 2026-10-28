@@ -626,6 +626,28 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
+      - name: Inspect production main prompt assembly
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DatabaseManager.java")
+          s=p.read_text()
+          for match in re.finditer(r'\\bbuildPokemonPrompt\\s*\\(',s):
+              start=s.rfind("\\n",0,match.start())+1
+              brace=s.find("{",match.end())
+              if brace<0:continue
+              depth=0
+              for pos in range(brace,len(s)):
+                  if s[pos]=="{":depth+=1
+                  elif s[pos]=="}":
+                      depth-=1
+                      if depth==0:
+                          print("PRODUCTION_MAIN_PROMPT_METHOD",s[start:pos+1][:18000])
+                          break
+          PY
+
       - name: Execute real Java lifestyle prompt regression
         shell: bash
         run: |
