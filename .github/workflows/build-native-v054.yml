@@ -725,7 +725,11 @@ jobs:
           dest.write_bytes(Path("native/v0.5.4/jvm-test/MainPromptRegressionTest.java").read_bytes())
           PY
           cd appsrc
-          gradle :app:testDebugUnitTest --tests '*MainPromptRegressionTest' --stacktrace
+          if ! gradle :app:testDebugUnitTest --tests '*MainPromptRegressionTest' --stacktrace; then
+            echo '=== Detailed MainPromptRegressionTest failure report ==='
+            find app/build/test-results/testDebugUnitTest -name 'TEST-*MainPromptRegressionTest*.xml' -type f -exec cat {} \; || true
+            exit 1
+          fi
 
       - name: Build APK
         working-directory: appsrc
