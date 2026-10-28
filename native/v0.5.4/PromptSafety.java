@@ -39,20 +39,7 @@ public final class PromptSafety {
             prompt=(prompt.substring(0,first.start())+prompt.substring(first.end())).trim();
         }
         String header="NOVARIS OUTPUT CONTROL\n"+ANATOMY+(triple?"\n\n"+TRIPLE:"");
-        String check="FINAL PRE-GENERATION CHECK: "+(triple?"three separate images; ":"one image; ")+
+        return (title.isEmpty()?"":title+"\n\n")+header+"\n\n"+prompt+"\n\nFINAL PRE-GENERATION CHECK: "+(triple?"three separate images; ":"one image; ")+
             "human anatomy only; all species appendages external wearable props, never organic extensions.";
-        // Keep the immutable Style Core terminal marker as the last line.
-        String marker="[NOVARIS_CORE_END:v1.1.8]";
-        int terminal=prompt.lastIndexOf(marker);
-        if(terminal>=0 && prompt.substring(terminal+marker.length()).trim().isEmpty()){
-            int coreStart=prompt.lastIndexOf("NOVARIS STYLE CORE v1.1.8",terminal);
-            if(coreStart>=0){
-                prompt=prompt.substring(0,coreStart).trim()+"\n\n"+check+"\n\n"+prompt.substring(coreStart).trim();
-            }else{
-                prompt=prompt.substring(0,terminal).trim()+"\n\n"+check+"\n\n"+marker;
-            }
-            return (title.isEmpty()?"":title+"\n\n")+header+"\n\n"+prompt;
-        }
-        return (title.isEmpty()?"":title+"\n\n")+header+"\n\n"+prompt+"\n\n"+check;
     }
 }
