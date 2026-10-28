@@ -50,7 +50,6 @@ public final class AppReleaseUpdater {
         parent.addView(button,lp);
         button.setOnClickListener(v->check());
         added=true;
-        onAppResume();
     }
     public void onAppResume(){
         long now=android.os.SystemClock.elapsedRealtime();
