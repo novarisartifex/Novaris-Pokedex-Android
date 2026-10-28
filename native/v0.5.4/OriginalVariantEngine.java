@@ -44,6 +44,7 @@ public final class OriginalVariantEngine {
         // BEFORE assembly. The Shiny reference remains the only palette authority.
         if(text.contains("NOVARIS SHINY COLOR AUTHORITY:")){
             desc=stripNormalPalette(desc);
+            text=stripShinyCharacterColors(text);
         }
         text=text.replaceAll("(?m)^Copy design direction\\s*$", "")
                  .replaceAll("(?m)^Copy feminine progression\\s*$", "");
@@ -63,12 +64,48 @@ public final class OriginalVariantEngine {
         return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+(sceneRules.isEmpty()?"":"\n\n"+sceneRules)+"\n\n\n"+mode+"\n\n\n"+core,triple);
     }
 
+    private static final String NORMAL_COLORS =
+        "(?i)\\b(?:purple|violet|lavender|lilac|plum|pink|magenta|fuchsia|red|orange|yellow|golden|gold|green|lime|teal|cyan|blue|navy|indigo|brown|tan|beige|cream|white|black|gray|grey|silver|charcoal|crimson|scarlet|burgundy|maroon|turquoise|azure|emerald|olive|peach|coral|copper|bronze)\\b";
+
+    private static String replacePaletteWords(String value){
+        return value.replaceAll(NORMAL_COLORS,"Shiny-reference-colored");
+    }
+
     private static String stripNormalPalette(String description){
-        // Color vocabulary is intentionally finite and only applied to the
-        // stored Normal-form lifestyle blueprint, not the Style Core or scene.
-        // Keep garment nouns, construction, pose and venue unchanged.
-        String colors="(?i)\\b(?:purple|violet|lavender|lilac|plum|pink|magenta|fuchsia|red|orange|yellow|golden|gold|green|lime|teal|cyan|blue|navy|indigo|brown|tan|beige|cream|white|black|gray|grey|silver|charcoal|crimson|scarlet|burgundy|maroon|turquoise|azure|emerald|olive|peach|coral|copper|bronze)\\b";
-        return description.replaceAll(colors,"Shiny-reference-colored");
+        // Only recolor wardrobe, materials and species-fashion translation.
+        // Preserve scene, lighting, pose and physical material construction.
+        String[] lines=description.split("\\n",-1);
+        for(int i=0;i<lines.length;i++){
+            String line=lines[i];
+            if(line.startsWith("SPECIES FASHION TRANSLATION:") ||
+               line.startsWith("OUTFIT:") || line.startsWith("OUTFIT DIRECTION:") ||
+               line.startsWith("MATERIALS:") || line.startsWith("CLOTHING BLUEPRINT:") ||
+               line.startsWith("MATERIAL BLUEPRINT:")){
+                lines[i]=replacePaletteWords(line);
+            }else if(line.startsWith("IMAGE ")){
+                int wardrobe=line.indexOf("Wardrobe: ");
+                if(wardrobe<0)wardrobe=line.indexOf("Unique outfit: ");
+                int pose=line.indexOf(". Pose: ");
+                if(pose<0)pose=line.indexOf(". Distinct anatomically plausible pose: ");
+                if(wardrobe>=0 && pose>wardrobe){
+                    lines[i]=replacePaletteWords(line.substring(0,pose))+line.substring(pose);
+                }
+            }
+        }
+        return String.join("\n",lines);
+    }
+
+    private static String stripShinyCharacterColors(String text){
+        String[] lines=text.split("\\n",-1);
+        for(int i=0;i<lines.length;i++){
+            String line=lines[i];
+            if(line.startsWith("SKIN / COMPLEXION:") || line.startsWith("HAIR:") ||
+               line.startsWith("COLOR DISTRIBUTION:") || line.startsWith("COLOR LAYOUT:") ||
+               line.startsWith("POKÉDEX PRIMARY COLOR:")){
+                lines[i]=replacePaletteWords(line);
+            }
+        }
+        return String.join("\n",lines);
     }
 
     public static String slug(String s){
