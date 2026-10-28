@@ -82,7 +82,7 @@ method=r'''
                 Button one=button("Copy "+variant+" x1");
                 Button three=button("Copy "+variant+" x3");
                 one.setOnClickListener(v->copy(shinyLifestylePrompt(dex,shinyName,variant,false,root)));
-                three.setOnClickListener(v->copy(shinyLifestylePrompt(dex,shinyName,variant,true,root)));
+                three.setOnClickListener(v->copyTriple(shinyLifestylePrompt(dex,shinyName,variant,true,root)));
                 actions.addView(one,new LinearLayout.LayoutParams(0,dp(66),1));
                 actions.addView(three,new LinearLayout.LayoutParams(0,dp(66),1));
                 card.addView(actions);
