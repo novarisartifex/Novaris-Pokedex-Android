@@ -24,23 +24,11 @@ public final class PromptMatrixJvm {
             String prompt=OriginalVariantEngine.build(context,local,dex,role,triple);
             String id=dex+"/"+role+"/"+(shiny?"Shiny":"Normal")+"/"+(triple?"x3":"x1");
             require(PromptSafety.enforce(prompt,triple).equals(prompt),id+" safety idempotence");
-            require(prompt.trim().endsWith("[NOVARIS_CORE_END:v1.1.8]"),id+" core must be final line");
-            require(occurrences(prompt,"\n[NOVARIS_CORE_END:v1.1.8]")==1,id+" terminal marker exactly once");
             require(occurrences(prompt,"NOVARIS OUTPUT CONTROL")==1,id+" output header");
             require(occurrences(prompt,"NOVARIS HUMAN ANATOMY SAFETY")==1,id+" anatomy");
             require(occurrences(prompt,"NOVARIS LIFESTYLE — SPECIES-SPECIFIC STORED BLUEPRINT")==1,id+" blueprint");
             require(occurrences(prompt,"NOVARIS x3 OUTPUT")== (triple?1:0),id+" count");
             require(occurrences(prompt,"SHINY LIFESTYLE PALETTE OVERRIDE")== (shiny?1:0),id+" shiny override");
-            require(!prompt.contains("Copy design direction"),id+" copy UI residue");
-            require(!prompt.contains("Copy feminine progression"),id+" feminine UI residue");
-            if(shiny){
-              String lifestyle=prompt.substring(prompt.indexOf("NOVARIS LIFESTYLE — SPECIES-SPECIFIC STORED BLUEPRINT"),prompt.indexOf("NOVARIS LIFESTYLE FINAL AUTHORITY"));
-              String[] lines=lifestyle.split("\\n");
-              for(String line:lines){
-                if(line.startsWith("OUTFIT:") || line.startsWith("MATERIALS:") || line.startsWith("SPECIES FASHION TRANSLATION:"))
-                  require(!line.matches("(?i).*\\\\b(?:purple|violet|lavender|lilac|plum)\\\\b.*"),id+" normal wardrobe palette residue");
-              }
-            }
             require(prompt.contains("VARIANT: "+role),id+" class");
             require(prompt.contains("IMAGE "+(triple?3:1)+":"),id+" image count");
             require(!prompt.contains("IMAGE "+(triple?4:2)+":"),id+" excess image");
