@@ -30,7 +30,7 @@ public final class PromptMatrixJvm {
             require(prompt.contains("VARIANT: "+role),id+" class");
             require(prompt.contains("IMAGE "+(triple?3:1)+":"),id+" image count");
             require(!prompt.contains("IMAGE "+(triple?4:2)+":"),id+" excess image");
-            require(occurrences(prompt,"NOVARIS_CORE_END:")<=1,id+" core end marker");
+            require(occurrences(prompt,root.getString("NOVARIS_CORE_V117"))==1,id+" core exactly once");
             verified++;
           }
     System.out.println("Executed "+verified+" REAL Java lifestyle prompt assemblies; 16 main-class cases remain untested.");
