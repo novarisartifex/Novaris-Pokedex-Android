@@ -28,6 +28,18 @@ public final class OriginalVariantEngine {
         String name = species.getString("name");
         String title = String.format(Locale.ROOT, "#%04d.%s — %s",dex,slug(name),label);
         String desc = description(context,root,dex,label,triple);
+        // Stored lifestyle outfits were authored for Normal forms. Their color
+        // adjectives must not override the selected Shiny reference image.
+        if(text.contains("NOVARIS SHINY COLOR AUTHORITY:") &&
+           (label.equals("Casual")||label.equals("Nightlife")||label.equals("Lingerie"))){
+            desc="SHINY LIFESTYLE PALETTE OVERRIDE — The stored blueprint's color words " +
+                "describe the Normal form ONLY. Replace EVERY Normal color in its outfit, " +
+                "materials, accessories, markings and lighting accents with colors derived " +
+                "from the selected Shiny reference image. Preserve garment construction, " +
+                "species motifs, pose, props and setting; do not preserve Normal palette " +
+                "adjectives. This instruction overrides ALL conflicting color descriptions " +
+                "in the stored lifestyle blueprint below.\\n"+desc;
+        }
         String mode = root.getString(triple?"NOVARIS_OUTPUT_TRIPLE":"NOVARIS_OUTPUT_SINGLE");
         String core=root.getString("NOVARIS_CORE_V117");
         String sceneRules="";
