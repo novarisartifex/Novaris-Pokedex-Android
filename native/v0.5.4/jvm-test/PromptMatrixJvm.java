@@ -24,6 +24,8 @@ public final class PromptMatrixJvm {
             String prompt=OriginalVariantEngine.build(context,local,dex,role,triple);
             String id=dex+"/"+role+"/"+(shiny?"Shiny":"Normal")+"/"+(triple?"x3":"x1");
             require(PromptSafety.enforce(prompt,triple).equals(prompt),id+" safety idempotence");
+            require(prompt.trim().endsWith("[NOVARIS_CORE_END:v1.1.8]"),id+" core must be final line");
+            require(occurrences(prompt,"\n[NOVARIS_CORE_END:v1.1.8]")==1,id+" terminal marker exactly once");
             require(occurrences(prompt,"NOVARIS OUTPUT CONTROL")==1,id+" output header");
             require(occurrences(prompt,"NOVARIS HUMAN ANATOMY SAFETY")==1,id+" anatomy");
             require(occurrences(prompt,"NOVARIS LIFESTYLE — SPECIES-SPECIFIC STORED BLUEPRINT")==1,id+" blueprint");
