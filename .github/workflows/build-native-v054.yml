@@ -646,6 +646,20 @@ jobs:
                       if depth==0:
                           print("PRODUCTION_MAIN_PROMPT_METHOD",s[start:pos+1][:18000])
                           break
+          for match in re.finditer(r"\bbuildPokemonPromptInternal\s*\(",s):
+              start=s.rfind("\n",0,match.start())+1
+              if not re.search(r"(?:private|public|protected)\s+.*buildPokemonPromptInternal\s*\(",s[start:match.end()]):
+                  continue
+              brace=s.find("{",match.end())
+              if brace<0:continue
+              depth=0
+              for pos in range(brace,len(s)):
+                  if s[pos]=="{":depth+=1
+                  elif s[pos]=="}":
+                      depth-=1
+                      if depth==0:
+                          print("PRODUCTION_MAIN_INTERNAL_METHOD",s[start:pos+1][:28000])
+                          break
           PY
 
       - name: Execute real Java lifestyle prompt regression
