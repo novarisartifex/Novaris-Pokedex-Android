@@ -1,5 +1,6 @@
 import android.content.Context;
 import com.novaris.pokedex.nativeapp.OriginalVariantEngine;
+import com.novaris.pokedex.nativeapp.PromptSafety;
 import org.json.JSONObject;
 import java.nio.file.*;
 public final class PromptMatrixJvm {
@@ -22,6 +23,7 @@ public final class PromptMatrixJvm {
             }
             String prompt=OriginalVariantEngine.build(context,local,dex,role,triple);
             String id=dex+"/"+role+"/"+(shiny?"Shiny":"Normal")+"/"+(triple?"x3":"x1");
+            require(PromptSafety.enforce(prompt,triple).equals(prompt),id+" safety idempotence");
             require(occurrences(prompt,"NOVARIS OUTPUT CONTROL")==1,id+" output header");
             require(occurrences(prompt,"NOVARIS HUMAN ANATOMY SAFETY")==1,id+" anatomy");
             require(occurrences(prompt,"NOVARIS LIFESTYLE — SPECIES-SPECIFIC STORED BLUEPRINT")==1,id+" blueprint");
