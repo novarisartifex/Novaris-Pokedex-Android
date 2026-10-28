@@ -45,8 +45,8 @@ public final class OriginalVariantEngine {
         if(text.contains("NOVARIS SHINY COLOR AUTHORITY:")){
             desc=stripNormalPalette(desc);
         }
-        text=text.replaceAll("(?m)^Copy design direction\\\\s*$", "")
-                 .replaceAll("(?m)^Copy feminine progression\\\\s*$", "");
+        text=text.replaceAll("(?m)^Copy design direction\\s*$", "")
+                 .replaceAll("(?m)^Copy feminine progression\\s*$", "");
         String mode = root.getString(triple?"NOVARIS_OUTPUT_TRIPLE":"NOVARIS_OUTPUT_SINGLE");
         String core=root.getString("NOVARIS_CORE_V117");
         String sceneRules="";
@@ -67,7 +67,7 @@ public final class OriginalVariantEngine {
         // Color vocabulary is intentionally finite and only applied to the
         // stored Normal-form lifestyle blueprint, not the Style Core or scene.
         // Keep garment nouns, construction, pose and venue unchanged.
-        String colors="(?i)\\\\b(?:purple|violet|lavender|lilac|plum|pink|magenta|fuchsia|red|orange|yellow|golden|gold|green|lime|teal|cyan|blue|navy|indigo|brown|tan|beige|cream|white|black|gray|grey|silver|charcoal|crimson|scarlet|burgundy|maroon|turquoise|azure|emerald|olive|peach|coral|copper|bronze)\\\\b";
+        String colors="(?i)\\b(?:purple|violet|lavender|lilac|plum|pink|magenta|fuchsia|red|orange|yellow|golden|gold|green|lime|teal|cyan|blue|navy|indigo|brown|tan|beige|cream|white|black|gray|grey|silver|charcoal|crimson|scarlet|burgundy|maroon|turquoise|azure|emerald|olive|peach|coral|copper|bronze)\\b";
         return description.replaceAll(colors,"Shiny-reference-colored");
     }
 
