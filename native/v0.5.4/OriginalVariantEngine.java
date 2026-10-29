@@ -59,14 +59,6 @@ public final class OriginalVariantEngine {
         if(!sceneRules.isEmpty()){
             sceneRules+=" HUMAN-ONLY SILHOUETTE: exactly two human arms, two human legs, one human head and torso. Every Pokemon-derived leaf, flower, wing, horn, tail, shell or other nonhuman shape must be clearly DETACHABLE jewelry, headpiece, clothing, cape or external equipment with visible straps, seams, clasps or garment attachments. No organic attachments or extra limbs. When any stored scene or clothing blueprint conflicts with these final variant rules, follow these final rules.";
         }
-        if(triple && (label.equals("Casual")||label.equals("Nightlife")||label.equals("Lingerie"))){
-            mode=mode.replace("1. Generate interpretation A from the original input package.", "1. Generate interpretation A independently from the original input package using only CONCEPT 1.");
-            mode=mode.replace("2. Generate interpretation B independently from the original input package.", "2. Generate interpretation B independently from the original input package using only CONCEPT 2.");
-            mode=mode.replace("3. Generate interpretation C independently from the original input package.", "3. Generate interpretation C independently from the original input package using only CONCEPT 3.");
-            mode=mode.replace("- profession", "- selected lifestyle class").replace("- concrete professional action", "- assigned lifestyle action and scene");
-            mode=mode.replace("- outfit architecture", "- shared species outfit identity; each concept controls its own outfit details");
-            mode=mode.replace("CONSISTENCY ACROSS OUTPUTS", "LIFESTYLE ISOLATION: Each independent call receives only its assigned concept wardrobe, pose, scene and lighting, plus the same species identity, Genesis and Style Core. Never forward the other two concepts to the image generator. No professional activity unless specified by the assigned lifestyle concept.\n\nCONSISTENCY ACROSS OUTPUTS");
-        }
         return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+(sceneRules.isEmpty()?"":"\n\n"+sceneRules)+"\n\n\n"+mode+"\n\n\n"+core,triple);
     }
 
@@ -118,11 +110,11 @@ public final class OriginalVariantEngine {
                     if(dex>151){
                     prompt.append("OUTFIT: ").append(variant.getString("outfit")).append(".\n");
                     prompt.append("MATERIALS: ").append(variant.getString("materials")).append(".\n");
-                    int limit=triple?3:1;
-                    prompt.append(triple?"THREE STORED CONCEPT BRIEFS FOR THREE INDEPENDENT GENERATOR CALLS; never send all concepts to one generator call.\n":"SINGLE IMAGE.\n");
+                    int limit=1;
+                    prompt.append(triple?"THREE INDEPENDENT INTERPRETATIONS OF THE SAME LIFESTYLE BRIEF.\n":"SINGLE IMAGE.\n");
                     for(int i=0;i<limit;i++){
-                        JSONObject c=concepts.getJSONObject(triple?i:conceptIndex);
-                        prompt.append(triple?"CONCEPT ":"IMAGE ").append(i+1).append(": Wardrobe: ").append(c.getString("outfit"))
+                        JSONObject c=concepts.getJSONObject(triple?0:conceptIndex);
+                        prompt.append("IMAGE ").append(i+1).append(": Wardrobe: ").append(c.getString("outfit"))
                               .append(". Pose: ").append(c.getString("pose"))
                               .append(". Scene: ").append(c.getString("scene"))
                               .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
@@ -131,11 +123,11 @@ public final class OriginalVariantEngine {
                     prompt.append("OUTFIT DIRECTION: ").append(variant.getString("outfit")).append(".\n");
                     prompt.append("MATERIALS: ").append(variant.getString("materials")).append(".\n");
                     prompt.append("NOVARIS WORLD: Asterion's established districts, architecture and institutions; no generic real-world venues. Fashion editorial featuring fully adult characters, opaque intimate coverage, no nudity.\n");
-                    int limit=triple?3:1;
-                    prompt.append(triple?"THREE STORED CONCEPT BRIEFS FOR THREE INDEPENDENT GENERATOR CALLS; never send all concepts to one generator call.\n":"ONE STANDALONE IMAGE BRIEF.\n");
+                    int limit=1;
+                    prompt.append(triple?"THREE INDEPENDENT INTERPRETATIONS OF THE SAME LIFESTYLE BRIEF.\n":"ONE STANDALONE IMAGE BRIEF.\n");
                     for(int i=0;i<limit;i++){
-                        JSONObject c=concepts.getJSONObject(triple?i:conceptIndex);
-                        prompt.append(triple?"CONCEPT ":"IMAGE ").append(i+1).append(": Unique outfit: ").append(c.getString("outfit"))
+                        JSONObject c=concepts.getJSONObject(triple?0:conceptIndex);
+                        prompt.append("IMAGE ").append(i+1).append(": Unique outfit: ").append(c.getString("outfit"))
                               .append(". Distinct anatomically plausible pose: ").append(c.getString("pose"))
                               .append(". Established NOVARIS/Asterion setting: ").append(c.getString("scene"))
                               .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
