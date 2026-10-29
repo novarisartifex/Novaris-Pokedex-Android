@@ -400,7 +400,7 @@ jobs:
           p.write_text(s)
           assert s.index('addOriginalVariants(dex);') < s.index('addFormCards("Weitere Formen",d.item,d.formsJson);')
           assert 'ImageClipboard.copy(this,detail.item.art)' in s
-          assert 'originalVariantPrompt(dex,variant,lifestyle,true,root)' in s
+          assert 'originalVariantPrompt(dex,variant,true,root,0)' in s
           PY
 
       - name: Convert V27.42
