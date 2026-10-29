@@ -63,16 +63,16 @@ public final class OriginalVariantEngine {
         // Each stored concept is assigned to exactly one independent image invocation.
         String lifestyleTriplePlan="";
         if(triple && (label.equals("Casual")||label.equals("Nightlife")||label.equals("Lingerie"))){
-            lifestyleTriplePlan="NOVARIS LIFESTYLE x3 — THREE INDEPENDENT GENERATOR CALLS (ASSISTANT ORCHESTRATION ONLY)\\n"+
-                "Execute exactly three independent image-generation tool calls, one per stored concept in the lifestyle blueprint above.\\n"+
-                "CALL 1: Use only the wardrobe, pose, scene and lighting from CONCEPT 1.\\n"+
-                "CALL 2: Use only the wardrobe, pose, scene and lighting from CONCEPT 2.\\n"+
-                "CALL 3: Use only the wardrobe, pose, scene and lighting from CONCEPT 3.\\n"+
-                "For EVERY call, reuse the same original species reference, shared species/character blueprint, current Genesis and unchanged Style Core. Apply the same lifestyle final authority and Normal/Shiny color authority independently.\\n"+
-                "Each call receives ONE concept only, and requests exactly ONE 9:16 artwork with ONE primary heroine and ONE continuous scene. Never forward the other two concepts, the x3 count, or this orchestration plan to the image generator. Never combine the results into a collage. Do not use the output of one call as a reference for another.\\n"+
-                "Do not stop after the first call. Return three separate image outputs. If the interface cannot make three calls, explicitly report the limitation rather than silently producing only one.\\n";
+            lifestyleTriplePlan="NOVARIS LIFESTYLE x3 — THREE INDEPENDENT GENERATOR CALLS (ASSISTANT ORCHESTRATION ONLY)\n"+
+                "Execute exactly three independent image-generation tool calls, one per stored concept in the lifestyle blueprint above.\n"+
+                "CALL 1: Use only the wardrobe, pose, scene and lighting from CONCEPT 1.\n"+
+                "CALL 2: Use only the wardrobe, pose, scene and lighting from CONCEPT 2.\n"+
+                "CALL 3: Use only the wardrobe, pose, scene and lighting from CONCEPT 3.\n"+
+                "For EVERY call, reuse the same original species reference, shared species/character blueprint, current Genesis and unchanged Style Core. Apply the same lifestyle final authority and Normal/Shiny color authority independently.\n"+
+                "Each call receives ONE concept only, and requests exactly ONE 9:16 artwork with ONE primary heroine and ONE continuous scene. Never forward the other two concepts, the x3 count, or this orchestration plan to the image generator. Never combine the results into a collage. Do not use the output of one call as a reference for another.\n"+
+                "Do not stop after the first call. Return three separate image outputs. If the interface cannot make three calls, explicitly report the limitation rather than silently producing only one.\n";
         }
-        return PromptSafety.enforce(title+"\\n\\n"+text+"\\n\\n\\n"+desc+(sceneRules.isEmpty()?"":"\\n\\n"+sceneRules)+(lifestyleTriplePlan.isEmpty()?"":"\\n\\n"+lifestyleTriplePlan)+"\\n\\n\\n"+mode+"\\n\\n\\n"+core,triple);
+        return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+(sceneRules.isEmpty()?"":"\n\n"+sceneRules)+(lifestyleTriplePlan.isEmpty()?"":"\n\n"+lifestyleTriplePlan)+"\n\n\n"+mode+"\n\n\n"+core,triple);
     }
 
     public static String slug(String s){
