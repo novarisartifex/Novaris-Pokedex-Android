@@ -361,11 +361,20 @@ jobs:
                       card.addView(copyFilename,new LinearLayout.LayoutParams(match(),wrap()));
                       LinearLayout row=new LinearLayout(this);
                       row.setOrientation(LinearLayout.HORIZONTAL);
-                      Button x1=button("Copy "+variant+" + Core + Dex x1");
+                      if(lifestyle){
+                          for(int concept=0;concept<3;concept++){
+                              final int selectedConcept=concept;
+                              Button single=button("Copy "+variant+" Bild "+(concept+1));
+                              single.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,false,root,selectedConcept)));
+                              row.addView(single,new LinearLayout.LayoutParams(0,dp(66),1));
+                          }
+                      }else{
+                          Button x1=button("Copy "+variant+" + Core + Dex x1");
+                          x1.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,false,root,0)));
+                          row.addView(x1,new LinearLayout.LayoutParams(0,dp(66),1));
+                      }
                       Button x3=button("Copy "+variant+" + Core + Dex x3");
-                      x1.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,lifestyle,false,root)));
-                      x3.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,lifestyle,true,root)));
-                      row.addView(x1,new LinearLayout.LayoutParams(0,dp(66),1));
+                      x3.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,true,root,0)));
                       row.addView(x3,new LinearLayout.LayoutParams(0,dp(66),1));
                       card.addView(row);
                       contents.addView(card);
@@ -374,8 +383,11 @@ jobs:
               }catch(Exception e){android.util.Log.e("NovarisVariants","Cannot load original variants",e);}
           }
           private String originalVariantPrompt(int dex,String variant,boolean lifestyle,boolean triple,JSONObject root){
+              return originalVariantPrompt(dex,variant,triple,root,0);
+          }
+          private String originalVariantPrompt(int dex,String variant,boolean triple,JSONObject root,int conceptIndex){
               try{
-                  return OriginalVariantEngine.build(this,root,dex,variant,triple);
+                  return OriginalVariantEngine.build(this,root,dex,variant,triple,conceptIndex);
               }catch(Exception e){
                   android.util.Log.e("NovarisVariants","Original prompt failed",e);
                   return "Variant prompt error: "+e.getMessage();
