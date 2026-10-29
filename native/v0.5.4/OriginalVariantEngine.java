@@ -59,20 +59,15 @@ public final class OriginalVariantEngine {
         if(!sceneRules.isEmpty()){
             sceneRules+=" HUMAN-ONLY SILHOUETTE: exactly two human arms, two human legs, one human head and torso. Every Pokemon-derived leaf, flower, wing, horn, tail, shell or other nonhuman shape must be clearly DETACHABLE jewelry, headpiece, clothing, cape or external equipment with visible straps, seams, clasps or garment attachments. No organic attachments or extra limbs. When any stored scene or clothing blueprint conflicts with these final variant rules, follow these final rules.";
         }
-        // The lifestyle x3 brief is an assistant-side call plan, not one generator request.
-        // Each stored concept is assigned to exactly one independent image invocation.
-        String lifestyleTriplePlan="";
         if(triple && (label.equals("Casual")||label.equals("Nightlife")||label.equals("Lingerie"))){
-            lifestyleTriplePlan="NOVARIS LIFESTYLE x3 — THREE INDEPENDENT GENERATOR CALLS (ASSISTANT ORCHESTRATION ONLY)\n"+
-                "Execute exactly three independent image-generation tool calls, one per stored concept in the lifestyle blueprint above.\n"+
-                "CALL 1: Use only the wardrobe, pose, scene and lighting from CONCEPT 1.\n"+
-                "CALL 2: Use only the wardrobe, pose, scene and lighting from CONCEPT 2.\n"+
-                "CALL 3: Use only the wardrobe, pose, scene and lighting from CONCEPT 3.\n"+
-                "For EVERY call, reuse the same original species reference, shared species/character blueprint, current Genesis and unchanged Style Core. Apply the same lifestyle final authority and Normal/Shiny color authority independently.\n"+
-                "Each call receives ONE concept only, and requests exactly ONE 9:16 artwork with ONE primary heroine and ONE continuous scene. Never forward the other two concepts, the x3 count, or this orchestration plan to the image generator. Never combine the results into a collage. Do not use the output of one call as a reference for another.\n"+
-                "Do not stop after the first call. Return three separate image outputs. If the interface cannot make three calls, explicitly report the limitation rather than silently producing only one.\n";
+            mode=mode.replace("1. Generate interpretation A from the original input package.", "1. Generate interpretation A independently from the original input package using only CONCEPT 1.");
+            mode=mode.replace("2. Generate interpretation B independently from the original input package.", "2. Generate interpretation B independently from the original input package using only CONCEPT 2.");
+            mode=mode.replace("3. Generate interpretation C independently from the original input package.", "3. Generate interpretation C independently from the original input package using only CONCEPT 3.");
+            mode=mode.replace("- profession", "- selected lifestyle class").replace("- concrete professional action", "- assigned lifestyle action and scene");
+            mode=mode.replace("- outfit architecture", "- shared species outfit identity; each concept controls its own outfit details");
+            mode=mode.replace("CONSISTENCY ACROSS OUTPUTS", "LIFESTYLE ISOLATION: Each independent call receives only its assigned concept wardrobe, pose, scene and lighting, plus the same species identity, Genesis and Style Core. Never forward the other two concepts to the image generator. No professional activity unless specified by the assigned lifestyle concept.\n\nCONSISTENCY ACROSS OUTPUTS");
         }
-        return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+(sceneRules.isEmpty()?"":"\n\n"+sceneRules)+(lifestyleTriplePlan.isEmpty()?"":"\n\n"+lifestyleTriplePlan)+"\n\n\n"+mode+"\n\n\n"+core,triple);
+        return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+(sceneRules.isEmpty()?"":"\n\n"+sceneRules)+"\n\n\n"+mode+"\n\n\n"+core,triple);
     }
 
     public static String slug(String s){
