@@ -22,12 +22,18 @@ public final class OriginalVariantEngine {
     }
 
     public static String build(Context context, JSONObject root, int dex, String label, boolean triple) throws Exception {
+        return build(context, root, dex, label, triple, 0);
+    }
+
+    /** Zero-based lifestyle concept index. Legacy callers keep concept 1. */
+    public static String build(Context context, JSONObject root, int dex, String label, boolean triple, int conceptIndex) throws Exception {
+        if (conceptIndex < 0 || conceptIndex > 2) throw new IllegalArgumentException("Lifestyle concept index must be 0..2");
         JSONObject species = root.getJSONObject("SPECIES").getJSONObject(String.valueOf(dex));
         String text = species.getString("text");
         if (text.isEmpty()) throw new IllegalStateException("Missing original species text for "+dex);
         String name = species.getString("name");
         String title = String.format(Locale.ROOT, "#%04d.%s — %s",dex,slug(name),label);
-        String desc = description(context,root,dex,label,triple);
+        String desc = description(context,root,dex,label,triple,conceptIndex);
         // Stored lifestyle outfits were authored for Normal forms. Their color
         // adjectives must not override the selected Shiny reference image.
         if(text.contains("NOVARIS SHINY COLOR AUTHORITY:") &&
@@ -81,6 +87,10 @@ public final class OriginalVariantEngine {
         return a==null?"":a.optString(i,"");
     }
     public static String description(Context context,JSONObject root,int dex,String label,boolean triple)throws Exception{
+        return description(context,root,dex,label,triple,0);
+    }
+    public static String description(Context context,JSONObject root,int dex,String label,boolean triple,int conceptIndex)throws Exception{
+        if(conceptIndex<0||conceptIndex>2)throw new IllegalArgumentException("Lifestyle concept index must be 0..2");
         boolean life=label.equals("Casual")||label.equals("Nightlife")||label.equals("Lingerie");
         if(life){
             JSONObject b=root.getJSONObject("V2713_LIFESTYLE_BLUEPRINTS").getJSONObject(label);
@@ -103,7 +113,7 @@ public final class OriginalVariantEngine {
                     int limit=triple?3:1;
                     prompt.append(triple?"THREE SEPARATE IMAGES, each a distinct full composition, NOT a collage.\n":"SINGLE IMAGE.\n");
                     for(int i=0;i<limit;i++){
-                        JSONObject c=concepts.getJSONObject(i);
+                        JSONObject c=concepts.getJSONObject(triple?i:conceptIndex);
                         prompt.append("IMAGE ").append(i+1).append(": Wardrobe: ").append(c.getString("outfit"))
                               .append(". Pose: ").append(c.getString("pose"))
                               .append(". Scene: ").append(c.getString("scene"))
@@ -116,7 +126,7 @@ public final class OriginalVariantEngine {
                     int limit=triple?3:1;
                     prompt.append(triple?"THREE DISTINCT STANDALONE IMAGE BRIEFS. Render each separately, never as a collage.\n":"ONE STANDALONE IMAGE BRIEF.\n");
                     for(int i=0;i<limit;i++){
-                        JSONObject c=concepts.getJSONObject(i);
+                        JSONObject c=concepts.getJSONObject(triple?i:conceptIndex);
                         prompt.append("IMAGE ").append(i+1).append(": Unique outfit: ").append(c.getString("outfit"))
                               .append(". Distinct anatomically plausible pose: ").append(c.getString("pose"))
                               .append(". Established NOVARIS/Asterion setting: ").append(c.getString("scene"))
