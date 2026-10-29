@@ -25,6 +25,15 @@ assert 'NOVARIS SHINY COLOR AUTHORITY:' in installer
 assert 'copyTriple(shinyLifestylePrompt(' in installer
 assert 'prompt.contains("NOVARIS OUTPUT CONTROL")' in safety
 assert 'String core=root.getString("NOVARIS_CORE_V117")' in engine
+assert 'return build(context, root, dex, label, triple, 0);' in engine
+assert engine.count('getJSONObject(triple?i:conceptIndex)') == 2
+assert 'conceptIndex<0||conceptIndex>2' in engine
+assert 'OriginalVariantEngine.build(this,shinyRoot,dex,variant,triple,conceptIndex)' in installer
+assert 'for(int concept=0;concept<3;concept++)' in installer
+workflow = (ROOT.parent.parent / '.github/workflows/build-native-v054.yml').read_text(encoding='utf-8')
+assert 'originalVariantPrompt(dex,variant,false,root,selectedConcept)' in workflow
+assert 'originalVariantPrompt(dex,variant,true,root,0)' in workflow
+
 
 checked = 0
 for dex in SPECIES:
