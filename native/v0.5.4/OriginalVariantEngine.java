@@ -59,7 +59,20 @@ public final class OriginalVariantEngine {
         if(!sceneRules.isEmpty()){
             sceneRules+=" HUMAN-ONLY SILHOUETTE: exactly two human arms, two human legs, one human head and torso. Every Pokemon-derived leaf, flower, wing, horn, tail, shell or other nonhuman shape must be clearly DETACHABLE jewelry, headpiece, clothing, cape or external equipment with visible straps, seams, clasps or garment attachments. No organic attachments or extra limbs. When any stored scene or clothing blueprint conflicts with these final variant rules, follow these final rules.";
         }
-        return PromptSafety.enforce(title+"\n\n"+text+"\n\n\n"+desc+(sceneRules.isEmpty()?"":"\n\n"+sceneRules)+"\n\n\n"+mode+"\n\n\n"+core,triple);
+        // The lifestyle x3 brief is an assistant-side call plan, not one generator request.
+        // Each stored concept is assigned to exactly one independent image invocation.
+        String lifestyleTriplePlan="";
+        if(triple && (label.equals("Casual")||label.equals("Nightlife")||label.equals("Lingerie"))){
+            lifestyleTriplePlan="NOVARIS LIFESTYLE x3 — THREE INDEPENDENT GENERATOR CALLS (ASSISTANT ORCHESTRATION ONLY)\\n"+
+                "Execute exactly three independent image-generation tool calls, one per stored concept in the lifestyle blueprint above.\\n"+
+                "CALL 1: Use only the wardrobe, pose, scene and lighting from CONCEPT 1.\\n"+
+                "CALL 2: Use only the wardrobe, pose, scene and lighting from CONCEPT 2.\\n"+
+                "CALL 3: Use only the wardrobe, pose, scene and lighting from CONCEPT 3.\\n"+
+                "For EVERY call, reuse the same original species reference, shared species/character blueprint, current Genesis and unchanged Style Core. Apply the same lifestyle final authority and Normal/Shiny color authority independently.\\n"+
+                "Each call receives ONE concept only, and requests exactly ONE 9:16 artwork with ONE primary heroine and ONE continuous scene. Never forward the other two concepts, the x3 count, or this orchestration plan to the image generator. Never combine the results into a collage. Do not use the output of one call as a reference for another.\\n"+
+                "Do not stop after the first call. Return three separate image outputs. If the interface cannot make three calls, explicitly report the limitation rather than silently producing only one.\\n";
+        }
+        return PromptSafety.enforce(title+"\\n\\n"+text+"\\n\\n\\n"+desc+(sceneRules.isEmpty()?"":"\\n\\n"+sceneRules)+(lifestyleTriplePlan.isEmpty()?"":"\\n\\n"+lifestyleTriplePlan)+"\\n\\n\\n"+mode+"\\n\\n\\n"+core,triple);
     }
 
     public static String slug(String s){
@@ -111,10 +124,10 @@ public final class OriginalVariantEngine {
                     prompt.append("OUTFIT: ").append(variant.getString("outfit")).append(".\n");
                     prompt.append("MATERIALS: ").append(variant.getString("materials")).append(".\n");
                     int limit=triple?3:1;
-                    prompt.append(triple?"THREE SEPARATE IMAGES, each a distinct full composition, NOT a collage.\n":"SINGLE IMAGE.\n");
+                    prompt.append(triple?"THREE STORED CONCEPT BRIEFS FOR THREE INDEPENDENT GENERATOR CALLS; never send all concepts to one generator call.\n":"SINGLE IMAGE.\n");
                     for(int i=0;i<limit;i++){
                         JSONObject c=concepts.getJSONObject(triple?i:conceptIndex);
-                        prompt.append("IMAGE ").append(i+1).append(": Wardrobe: ").append(c.getString("outfit"))
+                        prompt.append(triple?"CONCEPT ":"IMAGE ").append(i+1).append(": Wardrobe: ").append(c.getString("outfit"))
                               .append(". Pose: ").append(c.getString("pose"))
                               .append(". Scene: ").append(c.getString("scene"))
                               .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
@@ -124,10 +137,10 @@ public final class OriginalVariantEngine {
                     prompt.append("MATERIALS: ").append(variant.getString("materials")).append(".\n");
                     prompt.append("NOVARIS WORLD: Asterion's established districts, architecture and institutions; no generic real-world venues. Fashion editorial featuring fully adult characters, opaque intimate coverage, no nudity.\n");
                     int limit=triple?3:1;
-                    prompt.append(triple?"THREE DISTINCT STANDALONE IMAGE BRIEFS. Render each separately, never as a collage.\n":"ONE STANDALONE IMAGE BRIEF.\n");
+                    prompt.append(triple?"THREE STORED CONCEPT BRIEFS FOR THREE INDEPENDENT GENERATOR CALLS; never send all concepts to one generator call.\n":"ONE STANDALONE IMAGE BRIEF.\n");
                     for(int i=0;i<limit;i++){
                         JSONObject c=concepts.getJSONObject(triple?i:conceptIndex);
-                        prompt.append("IMAGE ").append(i+1).append(": Unique outfit: ").append(c.getString("outfit"))
+                        prompt.append(triple?"CONCEPT ":"IMAGE ").append(i+1).append(": Unique outfit: ").append(c.getString("outfit"))
                               .append(". Distinct anatomically plausible pose: ").append(c.getString("pose"))
                               .append(". Established NOVARIS/Asterion setting: ").append(c.getString("scene"))
                               .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
