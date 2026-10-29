@@ -30,8 +30,17 @@ public final class PromptMatrixJvm {
             require(occurrences(prompt,"NOVARIS x3 OUTPUT")== (triple?1:0),id+" count");
             require(occurrences(prompt,"SHINY LIFESTYLE PALETTE OVERRIDE")== (shiny?1:0),id+" shiny override");
             require(prompt.contains("VARIANT: "+role),id+" class");
-            require(prompt.contains("IMAGE "+(triple?3:1)+":"),id+" image count");
-            require(!prompt.contains("IMAGE "+(triple?4:2)+":"),id+" excess image");
+            if(triple){
+              for(int concept=1;concept<=3;concept++)
+                require(occurrences(prompt,"CONCEPT "+concept+":")==1,id+" concept "+concept+" exactly once");
+              require(!prompt.contains("CONCEPT 4:"),id+" excess concept");
+              require(prompt.contains("THREE INDEPENDENT GENERATOR CALLS"),id+" independent call plan");
+              for(int call=1;call<=3;call++)
+                require(prompt.contains("CALL "+call+": Use only"),id+" independent call "+call);
+            }else{
+              require(prompt.contains("IMAGE 1:"),id+" single image");
+              require(!prompt.contains("IMAGE 2:"),id+" excess image");
+            }
             require(occurrences(prompt,root.getString("NOVARIS_CORE_V117"))==1,id+" core exactly once");
             verified++;
           }
