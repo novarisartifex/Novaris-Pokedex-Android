@@ -34,9 +34,12 @@ public final class PromptMatrixJvm {
               for(int concept=1;concept<=3;concept++)
                 require(occurrences(prompt,"CONCEPT "+concept+":")==1,id+" concept "+concept+" exactly once");
               require(!prompt.contains("CONCEPT 4:"),id+" excess concept");
-              require(prompt.contains("THREE INDEPENDENT GENERATOR CALLS"),id+" independent call plan");
+              require(occurrences(prompt,"NOVARIS OUTPUT MODE — TRIPLE SELECTION")==1,id+" one output mode");
+              require(!prompt.contains("NOVARIS LIFESTYLE x3 —"),id+" no duplicate orchestration");
               for(int call=1;call<=3;call++)
-                require(prompt.contains("CALL "+call+": Use only"),id+" independent call "+call);
+                require(prompt.contains("using only CONCEPT "+call+"."),id+" independent call "+call);
+              require(prompt.contains("LIFESTYLE ISOLATION:"),id+" concept isolation");
+              require(!prompt.contains("- concrete professional action"),id+" no profession action");
             }else{
               require(prompt.contains("IMAGE 1:"),id+" single image");
               require(!prompt.contains("IMAGE 2:"),id+" excess image");
