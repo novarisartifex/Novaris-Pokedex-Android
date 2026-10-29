@@ -79,11 +79,14 @@ method=r'''
                 card.addView(fileButton);
                 LinearLayout actions=new LinearLayout(this);
                 actions.setOrientation(LinearLayout.HORIZONTAL);
-                Button one=button("Copy "+variant+" x1");
+                for(int concept=0;concept<3;concept++){
+                    final int selectedConcept=concept;
+                    Button one=button("Copy "+variant+" Bild "+(concept+1));
+                    one.setOnClickListener(v->copy(shinyLifestylePrompt(dex,shinyName,variant,false,root,selectedConcept)));
+                    actions.addView(one,new LinearLayout.LayoutParams(0,dp(66),1));
+                }
                 Button three=button("Copy "+variant+" x3");
-                one.setOnClickListener(v->copy(shinyLifestylePrompt(dex,shinyName,variant,false,root)));
-                three.setOnClickListener(v->copyTriple(shinyLifestylePrompt(dex,shinyName,variant,true,root)));
-                actions.addView(one,new LinearLayout.LayoutParams(0,dp(66),1));
+                three.setOnClickListener(v->copyTriple(shinyLifestylePrompt(dex,shinyName,variant,true,root,0)));
                 actions.addView(three,new LinearLayout.LayoutParams(0,dp(66),1));
                 card.addView(actions);
                 contents.addView(card);
@@ -92,6 +95,9 @@ method=r'''
         }catch(Exception e){android.util.Log.e("NovarisShinyLifestyle","Cannot render shiny lifestyle variants",e);}
     }
     private String shinyLifestylePrompt(int dex,String shinyName,String variant,boolean triple,JSONObject root){
+        return shinyLifestylePrompt(dex,shinyName,variant,triple,root,0);
+    }
+    private String shinyLifestylePrompt(int dex,String shinyName,String variant,boolean triple,JSONObject root,int conceptIndex){
         try{
             // Build the selected lifestyle once: one class blueprint, one Core, one safety block.
             // The former buildShinyPrompt() concatenation added a second full prompt,
@@ -111,7 +117,7 @@ method=r'''
                 "Preserve non-color Pokémon identity and human-only anatomy. "+
                 "Do not import the main profession, work outfit, work pose or workplace.\n"+
                 "SPECIES IDENTITY (NON-COLOR FEATURES ONLY): "+nonColorIdentity);
-            String original=OriginalVariantEngine.build(this,shinyRoot,dex,variant,triple);
+            String original=OriginalVariantEngine.build(this,shinyRoot,dex,variant,triple,conceptIndex);
             return original+"\nFINAL SHINY CHECK: Only the selected Shiny reference determines colors; "+
                 "the stored "+variant+" blueprint determines clothing, pose, props and setting.";
         }catch(Exception e){return "Shiny lifestyle prompt error: "+e.getMessage();}
