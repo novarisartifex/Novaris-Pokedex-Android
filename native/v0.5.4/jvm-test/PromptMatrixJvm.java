@@ -31,15 +31,12 @@ public final class PromptMatrixJvm {
             require(occurrences(prompt,"SHINY LIFESTYLE PALETTE OVERRIDE")== (shiny?1:0),id+" shiny override");
             require(prompt.contains("VARIANT: "+role),id+" class");
             if(triple){
-              for(int concept=1;concept<=3;concept++)
-                require(occurrences(prompt,"CONCEPT "+concept+":")==1,id+" concept "+concept+" exactly once");
-              require(!prompt.contains("CONCEPT 4:"),id+" excess concept");
-              require(occurrences(prompt,"NOVARIS OUTPUT MODE — TRIPLE SELECTION")==1,id+" one output mode");
-              require(!prompt.contains("NOVARIS LIFESTYLE x3 —"),id+" no duplicate orchestration");
-              for(int call=1;call<=3;call++)
-                require(prompt.contains("using only CONCEPT "+call+"."),id+" independent call "+call);
-              require(prompt.contains("LIFESTYLE ISOLATION:"),id+" concept isolation");
-              require(!prompt.contains("- concrete professional action"),id+" no profession action");
+              require(occurrences(prompt,"NOVARIS OUTPUT MODE — TRIPLE SELECTION")==1,id+" main x3 mode");
+              require(prompt.contains("THREE INDEPENDENT INTERPRETATIONS OF THE SAME LIFESTYLE BRIEF"),id+" one lifestyle brief");
+              require(occurrences(prompt,"IMAGE 1:")==1,id+" only first stored concept");
+              require(!prompt.contains("IMAGE 2:")&&!prompt.contains("IMAGE 3:"),id+" no other concepts");
+              require(!prompt.contains("CONCEPT 2:")&&!prompt.contains("CONCEPT 3:"),id+" no additional concepts");
+              require(!prompt.contains("LIFESTYLE ISOLATION:")&&!prompt.contains("NOVARIS LIFESTYLE x3 —"),id+" no extra orchestration");
             }else{
               require(prompt.contains("IMAGE 1:"),id+" single image");
               require(!prompt.contains("IMAGE 2:"),id+" excess image");
