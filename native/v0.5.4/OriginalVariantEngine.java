@@ -50,10 +50,10 @@ public final class OriginalVariantEngine {
         // Lifestyle x3 keeps the main-class three-call orchestration, but removes
         // professional-action constraints that contradict non-professional scenes.
         if(triple && (label.equals("Casual")||label.equals("Nightlife")||label.equals("Lingerie"))){
-            mode=mode.replace("profession", "selected lifestyle class")
-                     .replace("concrete professional action", "specified lifestyle scene action")
+            mode=mode.replace("concrete professional action", "specified lifestyle scene action")
                      .replace("prescribed professional action", "specified lifestyle scene action")
-                     .replace("professional action", "lifestyle scene action");
+                     .replace("professional action", "lifestyle scene action")
+                     .replaceAll("\\bprofession\\b", "selected lifestyle class");
             mode=mode.replace("visibly different poses, outfits, camera framing and scene composition",
                               "visibly different pose nuances, camera framing and scene composition while preserving the specified lifestyle outfit");
         }
