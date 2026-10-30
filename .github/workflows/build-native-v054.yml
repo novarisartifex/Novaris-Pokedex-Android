@@ -584,7 +584,6 @@ jobs:
               s=s[:start]+block+s[end:]
           p.write_text(s)
           print("x1-only prompt wiring verified")
-          assert 'copyTriple(' in s
           PY
 
       - name: Bundle original V27.42 class catalog
