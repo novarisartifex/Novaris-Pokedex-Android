@@ -573,7 +573,6 @@ jobs:
           anchor='private void copy(String s){'
           if anchor not in s:raise SystemExit("Copy method not found")
           # x1-only interface: no triple copy listeners remain.
-          s=s.replace(anchor,'private void copyTriple(String s){ copy(PromptSafety.enforce(s,true)); }\n    '+anchor,1)
           # The ordinary copy path must also enforce the species-to-fashion guard.
           # Avoid double-appending to prompts that already include the safety header.
           start=s.index(anchor)
