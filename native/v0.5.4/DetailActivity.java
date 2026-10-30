@@ -100,11 +100,8 @@ public class DetailActivity extends Activity {
         LinearLayout promptRow=new LinearLayout(this);
         promptRow.setOrientation(LinearLayout.HORIZONTAL);
         Button x1=button("Copy Core + Dex x1");
-        Button x3=button("Copy Core + Dex x3");
         x1.setOnClickListener(v->copy(headedPokemonPrompt(d.item.dex,"",data.buildPokemonPrompt(d.item.dex,false))));
-        x3.setOnClickListener(v->copy(headedPokemonPrompt(d.item.dex,"",data.buildPokemonPrompt(d.item.dex,true))));
         promptRow.addView(x1,new LinearLayout.LayoutParams(0,dp(62),1));
-        promptRow.addView(x3,new LinearLayout.LayoutParams(0,dp(62),1));
         body.addView(promptRow);
 
         small("Generation "+d.item.generation+
@@ -191,11 +188,8 @@ public class DetailActivity extends Activity {
         LinearLayout pr=new LinearLayout(this);
         pr.setOrientation(LinearLayout.HORIZONTAL);
         Button b1=button("Copy "+name+(shiny?" Shiny":"")+" + Core + Dex x1");
-        Button b3=button("Copy "+name+(shiny?" Shiny":"")+" + Core + Dex x3");
         b1.setOnClickListener(v->copy(headedPokemonPrompt(dex,name,shiny?buildShinyPrompt(dex,name,false):data.buildPokemonPrompt(dex,false,name,blueprint))));
-        b3.setOnClickListener(v->copy(headedPokemonPrompt(dex,name,shiny?buildShinyPrompt(dex,name,true):data.buildPokemonPrompt(dex,true,name,blueprint))));
         pr.addView(b1,new LinearLayout.LayoutParams(0,dp(66),1));
-        pr.addView(b3,new LinearLayout.LayoutParams(0,dp(66),1));
         card.addView(pr);
 
         LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(match(),wrap());
