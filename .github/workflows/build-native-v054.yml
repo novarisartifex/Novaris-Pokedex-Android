@@ -584,7 +584,7 @@ jobs:
               block=block.replace(anchor,anchor+'\n        if(s!=null && !s.startsWith("NOVARIS OUTPUT CONTROL") && (s.contains("SPECIES IDENTITY:") || s.contains("NOVARIS OPTIONAL CLASS") || s.contains("NOVARIS LIFESTYLE VARIANT"))) s=PromptSafety.enforce(s,false);',1)
               s=s[:start]+block+s[end:]
           p.write_text(s)
-          print("Triple copy listeners:",matches)
+          print("x1-only prompt wiring verified")
           assert 'copyTriple(' in s
           PY
 
