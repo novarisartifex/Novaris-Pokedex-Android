@@ -33,7 +33,9 @@ public final class PromptMatrixJvm {
             if(triple){
               require(occurrences(prompt,"NOVARIS OUTPUT MODE — TRIPLE SELECTION")==1,id+" main x3 mode");
               require(prompt.contains("THREE INDEPENDENT INTERPRETATIONS OF THE SAME LIFESTYLE BRIEF"),id+" one lifestyle brief");
-              require(occurrences(prompt,"IMAGE 1:")==1,id+" only first stored concept");
+              require(occurrences(prompt,"LIFESTYLE BRIEF:")==1,id+" one unnumbered lifestyle brief");
+              require(!prompt.contains("IMAGE 1:"),id+" no misleading single-image label");
+              require(prompt.contains("selected lifestyle class") && prompt.contains("specified lifestyle scene action"),id+" lifestyle-specific orchestration");
               require(!prompt.contains("IMAGE 2:")&&!prompt.contains("IMAGE 3:"),id+" no other concepts");
               require(!prompt.contains("CONCEPT 2:")&&!prompt.contains("CONCEPT 3:"),id+" no additional concepts");
               require(!prompt.contains("LIFESTYLE ISOLATION:")&&!prompt.contains("NOVARIS LIFESTYLE x3 —"),id+" no extra orchestration");
