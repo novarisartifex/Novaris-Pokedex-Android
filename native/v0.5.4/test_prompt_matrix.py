@@ -34,7 +34,7 @@ assert 'OriginalVariantEngine.build(this,shinyRoot,dex,variant,triple,conceptInd
 assert 'for(int concept=0;concept<3;concept++)' not in installer
 workflow = (ROOT.parent.parent / '.github/workflows/build-native-v054.yml').read_text(encoding='utf-8')
 assert 'originalVariantPrompt(dex,variant,false,root,0)' in workflow
-assert 'originalVariantPrompt(dex,variant,true,root,0)' not in workflow
+assert 'single.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,false,root,0)))' in workflow
 
 
 checked = 0
