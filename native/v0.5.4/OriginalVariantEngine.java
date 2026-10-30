@@ -47,6 +47,16 @@ public final class OriginalVariantEngine {
                 "in the stored lifestyle blueprint below.\n"+desc;
         }
         String mode = root.getString(triple?"NOVARIS_OUTPUT_TRIPLE":"NOVARIS_OUTPUT_SINGLE");
+        // Lifestyle x3 keeps the main-class three-call orchestration, but removes
+        // professional-action constraints that contradict non-professional scenes.
+        if(triple && (label.equals("Casual")||label.equals("Nightlife")||label.equals("Lingerie"))){
+            mode=mode.replace("profession", "selected lifestyle class")
+                     .replace("concrete professional action", "specified lifestyle scene action")
+                     .replace("prescribed professional action", "specified lifestyle scene action")
+                     .replace("professional action", "lifestyle scene action");
+            mode=mode.replace("visibly different poses, outfits, camera framing and scene composition",
+                              "visibly different pose nuances, camera framing and scene composition while preserving the specified lifestyle outfit");
+        }
         String core=root.getString("NOVARIS_CORE_V117");
         String sceneRules="";
         if(label.equals("Casual")){
@@ -114,7 +124,7 @@ public final class OriginalVariantEngine {
                     prompt.append(triple?"THREE INDEPENDENT INTERPRETATIONS OF THE SAME LIFESTYLE BRIEF.\n":"SINGLE IMAGE.\n");
                     for(int i=0;i<limit;i++){
                         JSONObject c=concepts.getJSONObject(triple?0:conceptIndex);
-                        prompt.append("IMAGE ").append(i+1).append(": Wardrobe: ").append(c.getString("outfit"))
+                        prompt.append(triple?"LIFESTYLE BRIEF: Wardrobe: ":"IMAGE "+(i+1)+": Wardrobe: ").append(c.getString("outfit"))
                               .append(". Pose: ").append(c.getString("pose"))
                               .append(". Scene: ").append(c.getString("scene"))
                               .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
@@ -127,7 +137,7 @@ public final class OriginalVariantEngine {
                     prompt.append(triple?"THREE INDEPENDENT INTERPRETATIONS OF THE SAME LIFESTYLE BRIEF.\n":"ONE STANDALONE IMAGE BRIEF.\n");
                     for(int i=0;i<limit;i++){
                         JSONObject c=concepts.getJSONObject(triple?0:conceptIndex);
-                        prompt.append("IMAGE ").append(i+1).append(": Unique outfit: ").append(c.getString("outfit"))
+                        prompt.append(triple?"LIFESTYLE BRIEF: Unique outfit: ":"IMAGE "+(i+1)+": Unique outfit: ").append(c.getString("outfit"))
                               .append(". Distinct anatomically plausible pose: ").append(c.getString("pose"))
                               .append(". Established NOVARIS/Asterion setting: ").append(c.getString("scene"))
                               .append(". Lighting: ").append(c.getString("lighting")).append(".\n");
