@@ -601,6 +601,29 @@ jobs:
       - name: Install Shiny lifestyle variants
         run: python3 native/v0.5.4/install_shiny_lifestyle.py
 
+      - name: Enforce x1-only buttons in compiled Android source
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java")
+          s=p.read_text()
+          # Legacy reconstructed source may still contain standalone x3 buttons.
+          for name in ("b3","x3","three"):
+              declaration=re.compile(r'Button\\s+'+name+r'\\s*=\\s*button\\([^;]*?x3[^;]*?\\);')
+              if declaration.search(s):
+                  s=declaration.sub('',s)
+                  s=re.sub(r'\\b'+name+r'\\.set(?:OnClickListener|Enabled)\\([^;]*?;', '',s)
+                  s=re.sub(r'\\b(?:pr|row|actions|body|card)\\.addView\\(\\s*'+name+r'\\s*(?:,[^;]*)?\\);', '',s)
+          p.write_text(s)
+          if re.search(r'Button\\s+\\w+\\s*=\\s*button\\([^;]*?x3[^;]*?\\);',s):
+              raise SystemExit("x3 button still exists in compiled DetailActivity")
+          if re.search(r'\\b(?:b3|x3|three)\\.setOnClickListener\\(',s):
+              raise SystemExit("x3 click listener still exists in compiled DetailActivity")
+          print("Verified: no x3 buttons or listeners in compiled DetailActivity")
+          PY
+
       - name: Validate four-species prompt matrix source data
         run: python3 native/v0.5.4/test_prompt_matrix.py
 
