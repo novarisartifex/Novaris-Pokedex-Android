@@ -529,11 +529,8 @@ jobs:
                       LinearLayout actions=new LinearLayout(this);
                       actions.setOrientation(LinearLayout.HORIZONTAL);
                       Button one=button(variant+" x1");
-                      Button three=button(variant+" x3");
                       one.setOnClickListener(v->copy(formVariantPrompt(dex,formName,blueprint,variant,false,root)));
-                      three.setOnClickListener(v->copy(formVariantPrompt(dex,formName,blueprint,variant,true,root)));
                       actions.addView(one,new LinearLayout.LayoutParams(0,dp(62),1));
-                      actions.addView(three,new LinearLayout.LayoutParams(0,dp(62),1));
                       card.addView(actions);
                       contents.addView(card);
                   }
@@ -557,11 +554,12 @@ jobs:
           s=s.replace(insertion,method+'\n    '+insertion,1)
           p.write_text(s)
           assert 'addFormClassVariants(d.item.dex,fi+1' in s
-          assert 'formVariantPrompt(dex,formName,blueprint,variant,true,root)' in s
+          assert 'formVariantPrompt(dex,formName,blueprint,variant,true,root)' not in s
+           assert 'Button three=button(variant+" x3")' not in s
           print("Restored six per-form variants with independent image and prompt buttons")
           PY
 
-      - name: Enforce non-anatomical species translation and independent x3 images
+      - name: Enforce non-anatomical species translation for x1 images
         shell: bash
         run: |
           cp native/v0.5.4/PromptSafety.java appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/PromptSafety.java
