@@ -555,7 +555,7 @@ jobs:
           p.write_text(s)
           assert 'addFormClassVariants(d.item.dex,fi+1' in s
           assert 'formVariantPrompt(dex,formName,blueprint,variant,true,root)' not in s
-           assert 'Button three=button(variant+" x3")' not in s
+          assert 'Button three=button(variant+" x3")' not in s
           print("Restored six per-form variants with independent image and prompt buttons")
           PY
 
