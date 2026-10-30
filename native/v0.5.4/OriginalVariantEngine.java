@@ -123,7 +123,7 @@ public final class OriginalVariantEngine {
                     int limit=1;
                     prompt.append(triple?"THREE INDEPENDENT INTERPRETATIONS OF THE SAME LIFESTYLE BRIEF.\n":"SINGLE IMAGE.\n");
                     for(int i=0;i<limit;i++){
-                        JSONObject c=concepts.getJSONObject(dex<=50?0:(triple?0:conceptIndex));
+                        JSONObject c=concepts.getJSONObject(dex<=100?0:(triple?0:conceptIndex));
                         prompt.append(triple?"LIFESTYLE BRIEF: Wardrobe: ":"IMAGE "+(i+1)+": Wardrobe: ").append(c.getString("outfit"))
                               .append(". Pose: ").append(c.getString("pose"))
                               .append(". Scene: ").append(c.getString("scene"))
