@@ -615,7 +615,7 @@ jobs:
               if declaration.search(s):
                   s=declaration.sub('',s)
                   s=re.sub(r'\b'+name+r'\.set(?:OnClickListener|Enabled)\([^;]*?;', '',s)
-                  s=re.sub(r'\b(?:pr|row|actions|body|card)\.addView\(\s*'+name+r'\s*(?:,[^;]*)?\);', '',s)
+                  s=re.sub(r'\b(?:pr|row|promptRow|actions|body|card)\.addView\(\s*'+name+r'\s*(?:,[^;]*)?\);', '',s)
           p.write_text(s)
           if re.search(r'Button\s+\w+\s*=\s*button\([^;]*?x3[^;]*?\);',s):
               raise SystemExit("x3 button still exists in compiled DetailActivity")
