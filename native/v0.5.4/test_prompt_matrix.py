@@ -22,7 +22,7 @@ installer = (ROOT / "install_shiny_lifestyle.py").read_text(encoding="utf-8")
 safety = (ROOT / "PromptSafety.java").read_text(encoding="utf-8")
 assert 'SHINY LIFESTYLE PALETTE OVERRIDE' in engine
 assert 'NOVARIS SHINY COLOR AUTHORITY:' in installer
-assert 'copyTriple(shinyLifestylePrompt(' in installer
+assert 'shinyLifestylePrompt(dex,shinyName,variant,false,root,0)' in installer
 assert 'prompt.contains("NOVARIS OUTPUT CONTROL")' in safety
 assert 'String core=root.getString("NOVARIS_CORE_V117")' in engine
 assert 'return build(context, root, dex, label, triple, 0);' in engine
@@ -31,10 +31,10 @@ assert engine.count('dex<=50?Math.floorMod(dex*7+label.hashCode(),concepts.lengt
 assert engine.count('int limit=1;') == 2
 assert 'conceptIndex<0||conceptIndex>2' in engine
 assert 'OriginalVariantEngine.build(this,shinyRoot,dex,variant,triple,conceptIndex)' in installer
-assert 'for(int concept=0;concept<3;concept++)' in installer
+assert 'for(int concept=0;concept<3;concept++)' not in installer
 workflow = (ROOT.parent.parent / '.github/workflows/build-native-v054.yml').read_text(encoding='utf-8')
-assert 'originalVariantPrompt(dex,variant,false,root,selectedConcept)' in workflow
-assert 'originalVariantPrompt(dex,variant,true,root,0)' in workflow
+assert 'originalVariantPrompt(dex,variant,false,root,0)' in workflow
+assert 'originalVariantPrompt(dex,variant,true,root,0)' not in workflow
 
 
 checked = 0
