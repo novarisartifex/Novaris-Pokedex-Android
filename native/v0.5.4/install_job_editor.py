@@ -493,13 +493,9 @@ methods=r"""
         LinearLayout row=new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         Button x1=button("Copy Core + Dex x1");
-        Button x3=button("Copy Core + Dex x3");
         x1.setEnabled(!description.isEmpty());
         x1.setOnClickListener(v->copy(headedPokemonPrompt(item.dex,"",description)));
-        x3.setEnabled(!description.isEmpty());
-        x3.setOnClickListener(v->copy(headedPokemonPrompt(item.dex,"",PromptSafety.enforce(description,true))));
         row.addView(x1,new LinearLayout.LayoutParams(0,dp(62),1));
-        row.addView(x3,new LinearLayout.LayoutParams(0,dp(62),1));
         body.addView(row);
         try{
             org.json.JSONArray forms=new org.json.JSONArray(formsJson);
@@ -521,10 +517,6 @@ methods=r"""
                 one.setEnabled(!description.isEmpty());
                 one.setOnClickListener(v->copy(headedPokemonPrompt(item.dex,name,prompt)));
                 body.addView(one);
-                Button three=button("Copy Core + Dex x3 · "+name);
-                three.setEnabled(!description.isEmpty());
-                three.setOnClickListener(v->copy(headedPokemonPrompt(item.dex,name,PromptSafety.enforce(prompt,true))));
-                body.addView(three);
             }
         }catch(Exception e){android.util.Log.w("NovarisJobs","Special forms unavailable",e);}
     }
