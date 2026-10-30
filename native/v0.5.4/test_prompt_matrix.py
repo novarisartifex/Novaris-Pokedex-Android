@@ -27,7 +27,7 @@ assert 'prompt.contains("NOVARIS OUTPUT CONTROL")' in safety
 assert 'String core=root.getString("NOVARIS_CORE_V117")' in engine
 assert 'return build(context, root, dex, label, triple, 0);' in engine
 # x3 reuses one stored concept for all three independent images; x1 uses the chosen concept.
-assert engine.count('dex<=100?0:(triple?0:conceptIndex)') == 1
+assert engine.count('dex<=150?0:(triple?0:conceptIndex)') == 1
 assert engine.count('int limit=1;') == 2
 assert 'conceptIndex<0||conceptIndex>2' in engine
 assert 'OriginalVariantEngine.build(this,shinyRoot,dex,variant,triple,conceptIndex)' in installer
