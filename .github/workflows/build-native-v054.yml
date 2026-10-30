@@ -361,21 +361,9 @@ jobs:
                       card.addView(copyFilename,new LinearLayout.LayoutParams(match(),wrap()));
                       LinearLayout row=new LinearLayout(this);
                       row.setOrientation(LinearLayout.HORIZONTAL);
-                      if(lifestyle){
-                          for(int concept=0;concept<3;concept++){
-                              final int selectedConcept=concept;
-                              Button single=button("Copy "+variant+" Bild "+(concept+1));
-                              single.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,false,root,selectedConcept)));
-                              row.addView(single,new LinearLayout.LayoutParams(0,dp(66),1));
-                          }
-                      }else{
-                          Button x1=button("Copy "+variant+" + Core + Dex x1");
-                          x1.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,false,root,0)));
-                          row.addView(x1,new LinearLayout.LayoutParams(0,dp(66),1));
-                      }
-                      Button x3=button("Copy "+variant+" + Core + Dex x3");
-                      x3.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,true,root,0)));
-                      row.addView(x3,new LinearLayout.LayoutParams(0,dp(66),1));
+                      Button single=button("Copy "+variant+" x1");
+                      single.setOnClickListener(v->copy(originalVariantPrompt(dex,variant,false,root,0)));
+                      row.addView(single,new LinearLayout.LayoutParams(0,dp(66),1));
                       card.addView(row);
                       contents.addView(card);
                   }
@@ -583,16 +571,8 @@ jobs:
           s=p.read_text()
           anchor='private void copy(String s){'
           if anchor not in s:raise SystemExit("Copy method not found")
-          # Every x3 listener uses the dedicated triple-aware copy path.
-          import re
-          matches=0
-          for name in ('x3','b3'):
-              pattern=r'(?m)(\b'+name+r'\.setOnClickListener\(v->)copy\('
-              s,n=re.subn(pattern,r'\1copyTriple(',s)
-              matches+=n
-          if matches<2:raise SystemExit("x3 copy wiring missing")
-          # Keep the original copy method intact; wrap only the triple listeners.
-          s=s.replace(anchor,'private void copyTriple(String s){ copy(PromptSafety.enforce(s,true)); }\n    '+anchor,1)
+          # x1-only interface: no triple copy listeners remain.
+          s=s.replace(anchor,'private void copyTriple(String s){ copy(PromptSafety.enforce(s,true)); }\\n    '+anchor,1)
           # The ordinary copy path must also enforce the species-to-fashion guard.
           # Avoid double-appending to prompts that already include the safety header.
           start=s.index(anchor)
