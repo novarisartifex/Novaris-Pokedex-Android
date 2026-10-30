@@ -611,15 +611,15 @@ jobs:
           s=p.read_text()
           # Legacy reconstructed source may still contain standalone x3 buttons.
           for name in ("b3","x3","three"):
-              declaration=re.compile(r'Button\\s+'+name+r'\\s*=\\s*button\\([^;]*?x3[^;]*?\\);')
+              declaration=re.compile(r'Button\s+'+name+r'\s*=\s*button\([^;]*?x3[^;]*?\);')
               if declaration.search(s):
                   s=declaration.sub('',s)
-                  s=re.sub(r'\\b'+name+r'\\.set(?:OnClickListener|Enabled)\\([^;]*?;', '',s)
-                  s=re.sub(r'\\b(?:pr|row|actions|body|card)\\.addView\\(\\s*'+name+r'\\s*(?:,[^;]*)?\\);', '',s)
+                  s=re.sub(r'\b'+name+r'\.set(?:OnClickListener|Enabled)\([^;]*?;', '',s)
+                  s=re.sub(r'\b(?:pr|row|actions|body|card)\.addView\(\s*'+name+r'\s*(?:,[^;]*)?\);', '',s)
           p.write_text(s)
-          if re.search(r'Button\\s+\\w+\\s*=\\s*button\\([^;]*?x3[^;]*?\\);',s):
+          if re.search(r'Button\s+\w+\s*=\s*button\([^;]*?x3[^;]*?\);',s):
               raise SystemExit("x3 button still exists in compiled DetailActivity")
-          if re.search(r'\\b(?:b3|x3|three)\\.setOnClickListener\\(',s):
+          if re.search(r'\b(?:b3|x3|three)\.setOnClickListener\(',s):
               raise SystemExit("x3 click listener still exists in compiled DetailActivity")
           print("Verified: no x3 buttons or listeners in compiled DetailActivity")
           PY
