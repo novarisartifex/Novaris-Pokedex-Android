@@ -79,15 +79,9 @@ method=r'''
                 card.addView(fileButton);
                 LinearLayout actions=new LinearLayout(this);
                 actions.setOrientation(LinearLayout.HORIZONTAL);
-                for(int concept=0;concept<3;concept++){
-                    final int selectedConcept=concept;
-                    Button one=button("Copy "+variant+" Bild "+(concept+1));
-                    one.setOnClickListener(v->copy(shinyLifestylePrompt(dex,shinyName,variant,false,root,selectedConcept)));
-                    actions.addView(one,new LinearLayout.LayoutParams(0,dp(66),1));
-                }
-                Button three=button("Copy "+variant+" x3");
-                three.setOnClickListener(v->copyTriple(shinyLifestylePrompt(dex,shinyName,variant,true,root,0)));
-                actions.addView(three,new LinearLayout.LayoutParams(0,dp(66),1));
+                Button one=button("Copy "+variant+" x1");
+                one.setOnClickListener(v->copy(shinyLifestylePrompt(dex,shinyName,variant,false,root,0)));
+                actions.addView(one,new LinearLayout.LayoutParams(0,dp(66),1));
                 card.addView(actions);
                 contents.addView(card);
             }
