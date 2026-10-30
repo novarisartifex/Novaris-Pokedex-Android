@@ -389,7 +389,7 @@ jobs:
           assert s.index('addOriginalVariants(dex);') < s.index('addFormCards("Weitere Formen",d.item,d.formsJson);')
           assert 'ImageClipboard.copy(this,detail.item.art)' in s
           assert 'originalVariantPrompt(dex,variant,false,root,0)' in s
-          assert 'Button x3=button(' not in s
+          assert 'originalVariantPrompt(dex,variant,true,root,0)' not in s
           PY
 
       - name: Convert V27.42
