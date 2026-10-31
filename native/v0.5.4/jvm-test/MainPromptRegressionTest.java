@@ -59,4 +59,47 @@ public class MainPromptRegressionTest {
         assertEquals(8,checked);
         System.out.println("Executed 8 REAL production x1 DatabaseManager/DetailActivity main prompts");
     }
+    private static android.widget.Button findButton(android.view.View view,String label) {
+        if(view instanceof android.widget.Button && label.equals(((android.widget.Button)view).getText().toString()))
+            return (android.widget.Button)view;
+        if(view instanceof android.view.ViewGroup) {
+            android.view.ViewGroup group=(android.view.ViewGroup)view;
+            for(int i=0;i<group.getChildCount();i++) {
+                android.widget.Button found=findButton(group.getChildAt(i),label);
+                if(found!=null)return found;
+            }
+        }
+        return null;
+    }
+
+    @Test public void realFormButtonsCopySingleImagePrompts() throws Exception {
+        for(String form:new String[]{"Hisui","Alola","Galar","Paldea","Mega","Gigantamax"}) {
+            android.content.Intent intent=new android.content.Intent(
+                ApplicationProvider.getApplicationContext(),DetailActivity.class);
+            intent.putExtra("dex",190);
+            DetailActivity activity=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent)
+                .setup().get();
+            Method add=DetailActivity.class.getDeclaredMethod("addImagePromptCard",
+                int.class,int.class,String.class,String.class,String.class,String.class,boolean.class);
+            add.setAccessible(true);
+            for(boolean shiny:new boolean[]{false,true}) {
+                String name=form+(shiny?" Shiny":"");
+                add.invoke(activity,190,1,name,"","","",shiny);
+                String label="Copy "+name+(shiny?" Shiny":"")+" + Core + Dex x1";
+                android.widget.Button button=findButton(activity.findViewById(android.R.id.content),label);
+                assertNotNull("Missing actual form x1 button: "+label,button);
+                assertTrue("Button click failed: "+label,button.performClick());
+                android.content.ClipboardManager clipboard=(android.content.ClipboardManager)
+                    activity.getSystemService(Context.CLIPBOARD_SERVICE);
+                String copied=clipboard.getPrimaryClip().getItemAt(0).coerceToText(activity).toString();
+                assertTrue(name+" heading",copied.contains("— "+name));
+                assertEquals(name+" safety",1,count(copied,"NOVARIS HUMAN ANATOMY SAFETY"));
+                assertEquals(name+" output control",1,count(copied,"NOVARIS OUTPUT CONTROL"));
+                assertFalse(name+" triple mode",copied.contains("NOVARIS x3 OUTPUT"));
+                if(shiny)assertTrue(name+" shiny reference",copied.contains("SHINY REFERENCE IMAGE — MANDATORY COLOR AUTHORITY"));
+            }
+            activity.finish();
+        }
+    }
+
 }
