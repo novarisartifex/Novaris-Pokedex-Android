@@ -38,7 +38,9 @@ public final class PromptSafety {
             title=first.group();
             prompt=(prompt.substring(0,first.start())+prompt.substring(first.end())).trim();
         }
-        String header=(prompt.contains("NOVARIS OUTPUT CONTROL")?"":"NOVARIS OUTPUT CONTROL\n")+\n            (prompt.contains("NOVARIS HUMAN ANATOMY SAFETY")?"":ANATOMY)+\n            (triple&&!prompt.contains("NOVARIS x3 OUTPUT")?"\n\n"+TRIPLE:"");
+        String header=(prompt.contains("NOVARIS OUTPUT CONTROL")?"":"NOVARIS OUTPUT CONTROL\n")+
+            (prompt.contains("NOVARIS HUMAN ANATOMY SAFETY")?"":ANATOMY)+
+            (triple&&!prompt.contains("NOVARIS x3 OUTPUT")?"\n\n"+TRIPLE:"");
         return (title.isEmpty()?"":title+"\n\n")+header+"\n\n"+prompt+"\n\nFINAL PRE-GENERATION CHECK: "+(triple?"three separate images; ":"one image; ")+
             "human anatomy only; all species appendages external wearable props, never organic extensions.";
     }
