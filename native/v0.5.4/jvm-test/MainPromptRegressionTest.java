@@ -198,4 +198,56 @@ public class MainPromptRegressionTest {
         activity.finish();
     }
 
+    @Test public void savedEditedJobMainMegaAndGigantamaxButtonsCopyX1() throws Exception {
+        Context context=ApplicationProvider.getApplicationContext();
+        String key="190";
+        String edited="NOVARIS TEST ARTIFICER";
+        String description="NOVARIS SAVED TEST JOB: adult human artificer, tailored copper workwear, two human arms and two human legs.";
+        context.getSharedPreferences("novaris_job_edits",Context.MODE_PRIVATE).edit().putString(key,edited).commit();
+        context.getSharedPreferences("novaris_job_descriptions",Context.MODE_PRIVATE).edit().putString(key,description).commit();
+        context.getSharedPreferences("novaris_job_structured",Context.MODE_PRIVATE).edit()
+            .putString(key,"{\\"group\\":\\"Civilian\\",\\"class_family\\":\\"Artificer\\",\\"tier\\":\\"T4\\"}").commit();
+        try {
+            android.content.Intent intent=new android.content.Intent(context,DetailActivity.class);
+            intent.putExtra("dex",190);
+            DetailActivity activity=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent).setup().get();
+            DatabaseManager data=new DatabaseManager(context);
+            DatabaseManager.PokemonDetail detail=data.pokemonDetail(190);
+            assertNotNull("Edited job species",detail);
+            Method render=DetailActivity.class.getDeclaredMethod("addChangedJobBlock",
+                DatabaseManager.PokemonItem.class,String.class);
+            render.setAccessible(true);
+            Field bodyField=DetailActivity.class.getDeclaredField("body");
+            bodyField.setAccessible(true);
+            android.widget.LinearLayout body=(android.widget.LinearLayout)bodyField.get(activity);
+            int before=body.getChildCount();
+            render.invoke(activity,detail.item,
+                "[{\\"name\\":\\"Mega\\",\\"url\\":\\"\\"},{\\"name\\":\\"Gigantamax\\",\\"url\\":\\"\\"}]");
+            assertTrue("Edited job block rendered",body.getChildCount()>before);
+            assertNotNull("Edited job title",findButton(body,"Copy image · geänderte Klasse"));
+            for(String form:new String[]{"","Mega","Gigantamax"}) {
+                String label=form.isEmpty()?"Copy Core + Dex x1":"Copy Core + Dex x1 · "+form;
+                android.widget.Button button=findLastButton(body,label);
+                assertNotNull("Edited "+form+" button",button);
+                assertTrue("Edited "+form+" enabled",button.isEnabled());
+                assertTrue("Edited "+form+" click",button.performClick());
+                android.content.ClipboardManager clipboard=(android.content.ClipboardManager)
+                    activity.getSystemService(Context.CLIPBOARD_SERVICE);
+                String copied=clipboard.getPrimaryClip().getItemAt(0).coerceToText(activity).toString();
+                assertTrue("Edited "+form+" saved description",copied.contains("NOVARIS SAVED TEST JOB"));
+                if(!form.isEmpty()) {
+                    assertTrue(form+" form context",copied.contains("SPECIAL FORM: "+form));
+                    assertTrue(form+" tier",copied.contains("FORM TIER: T4"));
+                }
+                assertEquals("Edited "+form+" anatomy",1,count(copied,"NOVARIS HUMAN ANATOMY SAFETY"));
+                assertFalse("Edited "+form+" no triple",copied.contains("NOVARIS x3 OUTPUT"));
+            }
+            activity.finish();
+        } finally {
+            context.getSharedPreferences("novaris_job_edits",Context.MODE_PRIVATE).edit().remove(key).commit();
+            context.getSharedPreferences("novaris_job_descriptions",Context.MODE_PRIVATE).edit().remove(key).commit();
+            context.getSharedPreferences("novaris_job_structured",Context.MODE_PRIVATE).edit().remove(key).commit();
+        }
+    }
+
 }
