@@ -155,4 +155,47 @@ public class MainPromptRegressionTest {
         activity.finish();
     }
 
+    @Test public void regionalAndSpecialFormLifestyleButtonsCopyRealX1Prompts() throws Exception {
+        Context context=ApplicationProvider.getApplicationContext();
+        java.io.InputStream stream=context.getAssets().open("novaris_original_variants.json");
+        java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();
+        byte[] buffer=new byte[8192];int n;
+        while((n=stream.read(buffer))!=-1)bytes.write(buffer,0,n);
+        stream.close();
+        org.json.JSONObject root=new org.json.JSONObject(bytes.toString("UTF-8"));
+        org.json.JSONArray assignments=root.getJSONObject("V2713_ASSIGNMENTS").getJSONArray("190");
+        android.content.Intent intent=new android.content.Intent(context,DetailActivity.class);
+        intent.putExtra("dex",190);
+        DetailActivity activity=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent).setup().get();
+        Method render=DetailActivity.class.getDeclaredMethod("addFormClassVariants",
+            int.class,int.class,String.class,String.class,String.class,int.class);
+        render.setAccessible(true);
+        Field bodyField=DetailActivity.class.getDeclaredField("body");
+        bodyField.setAccessible(true);
+        android.widget.LinearLayout body=(android.widget.LinearLayout)bodyField.get(activity);
+        for(String form:new String[]{"Hisui","Alola","Galar","Paldea","Mega","Gigantamax"}) {
+            int before=body.getChildCount();
+            render.invoke(activity,190,1,form,"","TEST FORM BLUEPRINT",before);
+            assertTrue(form+" rendered section",body.getChildCount()>before);
+            android.view.View section=body.getChildAt(before);
+            android.widget.Button toggle=findButton(section,"Optionale Klassen & Varianten · 6  ▾");
+            assertNotNull(form+" toggle",toggle);
+            assertTrue(form+" open",toggle.performClick());
+            for(int i=3;i<6;i++) {
+                String role=assignments.getString(i);
+                android.widget.Button button=findButton(section,role+" x1");
+                assertNotNull(form+"/"+role+" button",button);
+                assertTrue(form+"/"+role+" click",button.performClick());
+                android.content.ClipboardManager clipboard=(android.content.ClipboardManager)
+                    activity.getSystemService(Context.CLIPBOARD_SERVICE);
+                String copied=clipboard.getPrimaryClip().getItemAt(0).coerceToText(activity).toString();
+                assertTrue(form+"/"+role+" identity",copied.contains("MANDATORY FORM IDENTITY: "+form));
+                assertTrue(form+"/"+role+" blueprint",copied.contains("TEST FORM BLUEPRINT"));
+                assertEquals(form+"/"+role+" safety",1,count(copied,"NOVARIS HUMAN ANATOMY SAFETY"));
+                assertFalse(form+"/"+role+" no x3",copied.contains("NOVARIS x3 OUTPUT"));
+            }
+        }
+        activity.finish();
+    }
+
 }
