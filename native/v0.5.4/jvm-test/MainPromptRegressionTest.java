@@ -91,4 +91,29 @@ public class MainPromptRegressionTest {
         activity.finish();
     }
 
+    @Test public void renderedLifestyleButtonsCopyTheirOwnX1Prompts() throws Exception {
+        android.content.Intent intent=new android.content.Intent(
+            ApplicationProvider.getApplicationContext(),DetailActivity.class);
+        intent.putExtra("dex",190);
+        DetailActivity activity=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent)
+            .setup().get();
+        Method render=DetailActivity.class.getDeclaredMethod("addOriginalVariants",int.class);
+        render.setAccessible(true);
+        render.invoke(activity,190);
+        for(String role:new String[]{"Casual","Nightlife","Lingerie"}) {
+            android.widget.Button button=findButton(activity.findViewById(android.R.id.content),"Copy "+role+" x1");
+            assertNotNull(role+" actual rendered button",button);
+            assertTrue(role+" click",button.performClick());
+            android.content.ClipboardManager clipboard=(android.content.ClipboardManager)
+                activity.getSystemService(Context.CLIPBOARD_SERVICE);
+            String copied=clipboard.getPrimaryClip().getItemAt(0).coerceToText(activity).toString();
+            assertTrue(role+" class",copied.contains("VARIANT: "+role));
+            assertEquals(role+" anatomy",1,count(copied,"NOVARIS HUMAN ANATOMY SAFETY"));
+            assertEquals(role+" output",1,count(copied,"NOVARIS OUTPUT CONTROL"));
+            assertTrue(role+" single image",copied.contains("IMAGE 1:"));
+            assertFalse(role+" no second image",copied.contains("IMAGE 2:"));
+        }
+        activity.finish();
+    }
+
 }
