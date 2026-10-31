@@ -252,7 +252,7 @@ public class MainPromptRegressionTest {
 
 
     @Test public void editedJobWithExistingOutputControlGetsOneSafetyHeader() {
-        String description="#0190.Aipom\\n\\nNOVARIS SAVED JOB\\n\\nNOVARIS OUTPUT CONTROL:\\nOne image.";
+        String description="#0190.Aipom\n\nNOVARIS SAVED JOB\n\nNOVARIS OUTPUT CONTROL:\nOne image.";
         String copied=PromptSafety.enforce(description,false);
         assertEquals("Existing output control must not be duplicated",1,count(copied,"NOVARIS OUTPUT CONTROL"));
         assertEquals("Missing anatomy instructions added",1,count(copied,"NOVARIS HUMAN ANATOMY SAFETY"));
