@@ -116,6 +116,20 @@ public class MainPromptRegressionTest {
         activity.finish();
     }
 
+    private static android.widget.Button findLastButton(android.view.View view,String label) {
+        android.widget.Button result=null;
+        if(view instanceof android.widget.Button && label.equals(((android.widget.Button)view).getText().toString()))
+            result=(android.widget.Button)view;
+        if(view instanceof android.view.ViewGroup) {
+            android.view.ViewGroup group=(android.view.ViewGroup)view;
+            for(int i=0;i<group.getChildCount();i++) {
+                android.widget.Button candidate=findLastButton(group.getChildAt(i),label);
+                if(candidate!=null)result=candidate;
+            }
+        }
+        return result;
+    }
+
     @Test public void shinyLifestyleButtonsCopyActualX1Prompts() throws Exception {
         android.content.Intent intent=new android.content.Intent(
             ApplicationProvider.getApplicationContext(),DetailActivity.class);
@@ -127,7 +141,7 @@ public class MainPromptRegressionTest {
         render.setAccessible(true);
         render.invoke(activity,190,1,"Shiny","");
         for(String role:new String[]{"Casual","Nightlife","Lingerie"}) {
-            android.widget.Button button=findButton(activity.findViewById(android.R.id.content),"Copy "+role+" x1");
+            android.widget.Button button=findLastButton(activity.findViewById(android.R.id.content),"Copy "+role+" x1");
             assertNotNull(role+" Shiny button",button);
             assertTrue(role+" Shiny click",button.performClick());
             android.content.ClipboardManager clipboard=(android.content.ClipboardManager)
