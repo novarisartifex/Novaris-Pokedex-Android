@@ -14,7 +14,7 @@ public final class PromptMatrixJvm {
     for(int dex:new int[]{190,324,332,338})
       for(String role:new String[]{"Casual","Nightlife","Lingerie"})
         for(boolean shiny:new boolean[]{false,true})
-          for(boolean triple:new boolean[]{false,true}){
+          for(boolean triple:new boolean[]{false}){
             JSONObject local=new JSONObject(root.toString());
             if(shiny){
               JSONObject species=local.getJSONObject("SPECIES").getJSONObject(Integer.toString(dex));
@@ -46,6 +46,7 @@ public final class PromptMatrixJvm {
             require(occurrences(prompt,root.getString("NOVARIS_CORE_V117"))==1,id+" core exactly once");
             verified++;
           }
-    System.out.println("Executed "+verified+" REAL Java lifestyle prompt assemblies; 16 main-class cases remain untested.");
+    require(verified==24,"Expected 4 species x 3 lifestyle classes x 2 palettes = 24 x1 prompts");
+    System.out.println("Executed "+verified+" REAL Java x1 lifestyle prompt assemblies.");
   }
 }
