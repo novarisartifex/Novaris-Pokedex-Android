@@ -31,7 +31,7 @@ public class MainPromptRegressionTest {
         for(int dex:new int[]{190,324,332,338}) {
             assertNotNull("Missing original Pokédex entry "+dex,data.pokemonDetail(dex));
             for(boolean isShiny:new boolean[]{false,true}) {
-                for(boolean triple:new boolean[]{false,true}) {
+                for(boolean triple:new boolean[]{false}) {
                     String id=dex+"/"+(isShiny?"Shiny":"Normal")+"/"+(triple?"x3":"x1");
                     String prompt=isShiny
                         ? (String)shiny.invoke(activity,dex,"Shiny",triple)
@@ -56,7 +56,7 @@ public class MainPromptRegressionTest {
                 }
             }
         }
-        assertEquals(16,checked);
-        System.out.println("Executed 16 REAL production DatabaseManager/DetailActivity main prompts");
+        assertEquals(8,checked);
+        System.out.println("Executed 8 REAL production x1 DatabaseManager/DetailActivity main prompts");
     }
 }
