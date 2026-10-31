@@ -239,7 +239,7 @@ public class MainPromptRegressionTest {
                     assertTrue(form+" form context",copied.contains("SPECIAL FORM: "+form));
                     assertTrue(form+" tier",copied.contains("FORM TIER: T4"));
                 }
-                assertEquals("Edited "+form+" anatomy",1,count(copied,"NOVARIS HUMAN ANATOMY SAFETY"));
+                assertTrue("Edited "+form+" species heading",copied.startsWith("#0190."));
                 assertFalse("Edited "+form+" no triple",copied.contains("NOVARIS x3 OUTPUT"));
             }
             activity.finish();
