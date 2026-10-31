@@ -646,8 +646,8 @@ jobs:
           for label,needles in checks.items():
               missing=[n for n in needles if n not in src]
               if missing:
-                  print("DIAGNOSTIC buildPokemonPrompt callsites:", re.findall(r".{0,110}buildPokemonPrompt\\s*\\(.{0,140}",src)[:25])
-                  print("DIAGNOSTIC form copy callsites:", re.findall(r".{0,110}Copy \\"\\+name.{0,220}",src)[:10])
+                  print("DIAGNOSTIC prompt lines:", [line.strip() for line in src.splitlines() if "buildPokemonPrompt" in line][:30])
+                  print("DIAGNOSTIC form lines:", [line.strip() for line in src.splitlines() if "Copy " in line and "name" in line][:30])
                   raise SystemExit(f"FAIL {label}: missing {missing}")
               print("PASS",label)
           # All dynamic buttons are produced from the selected variant, not a hardcoded species.
