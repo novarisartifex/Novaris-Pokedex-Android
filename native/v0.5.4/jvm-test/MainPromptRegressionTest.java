@@ -206,7 +206,7 @@ public class MainPromptRegressionTest {
         context.getSharedPreferences("novaris_job_edits",Context.MODE_PRIVATE).edit().putString(key,edited).commit();
         context.getSharedPreferences("novaris_job_descriptions",Context.MODE_PRIVATE).edit().putString(key,description).commit();
         context.getSharedPreferences("novaris_job_structured",Context.MODE_PRIVATE).edit()
-            .putString(key,"{\\"group\\":\\"Civilian\\",\\"class_family\\":\\"Artificer\\",\\"tier\\":\\"T4\\"}").commit();
+            .putString(key,"{\"group\":\"Civilian\",\"class_family\":\"Artificer\",\"tier\":\"T4\"}").commit();
         try {
             android.content.Intent intent=new android.content.Intent(context,DetailActivity.class);
             intent.putExtra("dex",190);
@@ -222,7 +222,7 @@ public class MainPromptRegressionTest {
             android.widget.LinearLayout body=(android.widget.LinearLayout)bodyField.get(activity);
             int before=body.getChildCount();
             render.invoke(activity,detail.item,
-                "[{\\"name\\":\\"Mega\\",\\"url\\":\\"\\"},{\\"name\\":\\"Gigantamax\\",\\"url\\":\\"\\"}]");
+                "[{\"name\":\"Mega\",\"url\":\"\"},{\"name\":\"Gigantamax\",\"url\":\"\"}]");
             assertTrue("Edited job block rendered",body.getChildCount()>before);
             assertNotNull("Edited job title",findButton(body,"Copy image · geänderte Klasse"));
             for(String form:new String[]{"","Mega","Gigantamax"}) {
