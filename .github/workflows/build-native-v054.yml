@@ -731,7 +731,7 @@ jobs:
           java -cp /tmp/novaris-jvm/classes:/tmp/novaris-jvm/json.jar \
             PromptMatrixJvm appsrc/app/src/main/assets
 
-      - name: Execute 16 production main-class prompt tests
+      - name: Execute 8 production x1 main-class prompt tests
         shell: bash
         run: |
           set -euo pipefail
