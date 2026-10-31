@@ -116,4 +116,29 @@ public class MainPromptRegressionTest {
         activity.finish();
     }
 
+    @Test public void shinyLifestyleButtonsCopyActualX1Prompts() throws Exception {
+        android.content.Intent intent=new android.content.Intent(
+            ApplicationProvider.getApplicationContext(),DetailActivity.class);
+        intent.putExtra("dex",190);
+        DetailActivity activity=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent)
+            .setup().get();
+        Method render=DetailActivity.class.getDeclaredMethod("addShinyLifestyleVariants",
+            int.class,int.class,String.class,String.class);
+        render.setAccessible(true);
+        render.invoke(activity,190,1,"Shiny","");
+        for(String role:new String[]{"Casual","Nightlife","Lingerie"}) {
+            android.widget.Button button=findButton(activity.findViewById(android.R.id.content),"Copy "+role+" x1");
+            assertNotNull(role+" Shiny button",button);
+            assertTrue(role+" Shiny click",button.performClick());
+            android.content.ClipboardManager clipboard=(android.content.ClipboardManager)
+                activity.getSystemService(Context.CLIPBOARD_SERVICE);
+            String copied=clipboard.getPrimaryClip().getItemAt(0).coerceToText(activity).toString();
+            assertTrue(role+" Shiny palette",copied.contains("SHINY LIFESTYLE PALETTE OVERRIDE"));
+            assertTrue(role+" class",copied.contains("VARIANT: "+role));
+            assertEquals(role+" safety",1,count(copied,"NOVARIS HUMAN ANATOMY SAFETY"));
+            assertFalse(role+" no triple",copied.contains("NOVARIS x3 OUTPUT"));
+        }
+        activity.finish();
+    }
+
 }
