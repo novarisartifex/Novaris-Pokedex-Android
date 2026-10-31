@@ -651,9 +651,9 @@ jobs:
           for name in ("addOriginalVariants","addFormClassVariants","addShinyLifestyleVariants","addChangedJobBlock"):
               if name not in src:raise SystemExit(f"Missing dynamic variant path: {name}")
           forbidden=[
-              r'Button\\s+\\w+\\s*=\\s*button\\([^;]*x3',
-              r'\\b(?:x3|b3|three)\\.setOnClickListener\\(',
-              r'\\b(?:promptRow|row|actions|body|card|pr)\\.addView\\(\\s*(?:x3|b3|three)\\b',
+              r'Button\s+\w+\s*=\s*button\([^;]*x3',
+              r'\b(?:x3|b3|three)\.setOnClickListener\(',
+              r'\b(?:promptRow|row|actions|body|card|pr)\.addView\(\s*(?:x3|b3|three)\b',
           ]
           for pat in forbidden:
               if re.search(pat,src):raise SystemExit(f"Forbidden x3 control: {pat}")
