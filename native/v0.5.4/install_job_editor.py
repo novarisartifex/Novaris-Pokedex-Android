@@ -494,7 +494,7 @@ methods=r"""
         row.setOrientation(LinearLayout.HORIZONTAL);
         Button x1=button("Copy Core + Dex x1");
         x1.setEnabled(!description.isEmpty());
-        x1.setOnClickListener(v->copy(headedPokemonPrompt(item.dex,"",description)));
+        x1.setOnClickListener(v->copy(PromptSafety.enforce(headedPokemonPrompt(item.dex,"",description),false)));
         row.addView(x1,new LinearLayout.LayoutParams(0,dp(62),1));
         body.addView(row);
         try{
@@ -515,7 +515,7 @@ methods=r"""
                 section("SPEZIALFORM · "+name+" · "+role,prompt);
                 Button one=button("Copy Core + Dex x1 · "+name);
                 one.setEnabled(!description.isEmpty());
-                one.setOnClickListener(v->copy(headedPokemonPrompt(item.dex,name,prompt)));
+                one.setOnClickListener(v->copy(PromptSafety.enforce(headedPokemonPrompt(item.dex,name,prompt),false)));
                 body.addView(one);
             }
         }catch(Exception e){android.util.Log.w("NovarisJobs","Special forms unavailable",e);}
