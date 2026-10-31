@@ -626,6 +626,43 @@ jobs:
           print("Verified: no x3 buttons or listeners in compiled DetailActivity")
           PY
 
+      - name: Regression matrix for all x1 variant button paths
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          src=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java").read_text()
+          checks={
+              "Normal main": ('Copy Core + Dex x1','data.buildPokemonPrompt(d.item.dex,false)'),
+              "Normal additional form (Hisui / Mega / Gigantamax)": ('Copy "+name','data.buildPokemonPrompt(dex,false,name,blueprint)'),
+              "Shiny main and forms": ('Copy Shiny + Core + Dex x1','buildShinyPrompt(item.dex,shinyBase,false)'),
+              "Casual / Nightlife / Lingerie": ('Copy "+variant+" x1','originalVariantPrompt(dex,variant,false,root,0)'),
+              "Additional-form optional and lifestyle classes": ('Button one=button(variant+" x1")','formVariantPrompt(dex,formName,blueprint,variant,false,root)'),
+              "Shiny Casual / Nightlife / Lingerie": ('Button one=button("Copy "+variant+" x1")','shinyLifestylePrompt(dex,shinyName,variant,false,root,0)'),
+              "Edited main class": ('Button x1=button("Copy Core + Dex x1")','headedPokemonPrompt(item.dex,"",description)'),
+              "Edited Mega / Gigantamax class": ('Copy Core + Dex x1 · ','headedPokemonPrompt(item.dex,name,prompt)'),
+          }
+          for label,needles in checks.items():
+              missing=[n for n in needles if n not in src]
+              if missing:raise SystemExit(f"FAIL {label}: missing {missing}")
+              print("PASS",label)
+          # All dynamic buttons are produced from the selected variant, not a hardcoded species.
+          for name in ("addOriginalVariants","addFormClassVariants","addShinyLifestyleVariants","addChangedJobBlock"):
+              if name not in src:raise SystemExit(f"Missing dynamic variant path: {name}")
+          forbidden=[
+              r'Button\\s+\\w+\\s*=\\s*button\\([^;]*x3',
+              r'\\b(?:x3|b3|three)\\.setOnClickListener\\(',
+              r'\\b(?:promptRow|row|actions|body|card|pr)\\.addView\\(\\s*(?:x3|b3|three)\\b',
+          ]
+          for pat in forbidden:
+              if re.search(pat,src):raise SystemExit(f"Forbidden x3 control: {pat}")
+          # Ensure each selected image variant uses the single-image branch.
+          for call in ('originalVariantPrompt(dex,variant,true','formVariantPrompt(dex,formName,blueprint,variant,true','shinyLifestylePrompt(dex,shinyName,variant,true','buildShinyPrompt(item.dex,shinyBase,true'):
+              if call in src:raise SystemExit(f"Triple output still wired: {call}")
+          print("PASS x1-only dynamic class/form/shiny matrix")
+          PY
+
       - name: Validate four-species prompt matrix source data
         run: python3 native/v0.5.4/test_prompt_matrix.py
 
