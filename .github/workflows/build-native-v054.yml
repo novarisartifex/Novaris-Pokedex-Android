@@ -635,7 +635,7 @@ jobs:
           src=Path("appsrc/app/src/main/java/com/novaris/pokedex/nativeapp/DetailActivity.java").read_text()
           checks={
               "Normal main": ('Copy Core + Dex x1','data.buildPokemonPrompt(d.item.dex,false)'),
-              "Normal additional form (Hisui / Mega / Gigantamax)": ('Copy "+name','data.buildPokemonPrompt(dex,false,name,blueprint)'),
+              "Normal additional form (Hisui / Mega / Gigantamax)": ('Copy "+name','buildPokemonPrompt(dex,false,name,blueprint)'),
               "Shiny main and forms": ('Copy Shiny + Core + Dex x1','buildShinyPrompt(item.dex,shinyBase,false)'),
               "Casual / Nightlife / Lingerie": ('Copy "+variant+" x1','originalVariantPrompt(dex,variant,false,root,0)'),
               "Additional-form optional and lifestyle classes": ('Button one=button(variant+" x1")','formVariantPrompt(dex,formName,blueprint,variant,false,root)'),
