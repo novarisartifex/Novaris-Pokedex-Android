@@ -278,4 +278,33 @@ public class MainPromptRegressionTest {
         activity.finish();
     }
 
+    @Test public void storedPokemonFormsRenderRealX1Buttons() throws Exception {
+        Context context=ApplicationProvider.getApplicationContext();
+        DatabaseManager data=new DatabaseManager(context);
+        DatabaseManager.PokemonDetail detail=data.pokemonDetail(190);
+        assertNotNull("Stored species",detail);
+        org.json.JSONArray forms=new org.json.JSONArray(detail.formsJson);
+        assertTrue("Stored forms required for end-to-end coverage",forms.length()>0);
+        android.content.Intent intent=new android.content.Intent(context,DetailActivity.class);
+        intent.putExtra("dex",190);
+        DetailActivity activity=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent).setup().get();
+        android.view.View root=activity.findViewById(android.R.id.content);
+        int checked=0;
+        for(int i=0;i<forms.length();i++) {
+            org.json.JSONObject form=forms.optJSONObject(i);
+            if(form==null)continue;
+            String name=form.optString("name","Form");
+            android.widget.Button button=findButton(root,"Copy Core + Dex x1 · "+name);
+            if(button==null)continue;
+            assertTrue(name+" stored form click",button.performClick());
+            android.content.ClipboardManager clipboard=(android.content.ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
+            String copied=clipboard.getPrimaryClip().getItemAt(0).coerceToText(activity).toString();
+            assertTrue(name+" form identity",copied.contains(name));
+            assertFalse(name+" no triple",copied.contains("NOVARIS x3 OUTPUT"));
+            checked++;
+        }
+        assertTrue("At least one stored form x1 button",checked>0);
+        activity.finish();
+    }
+
 }
