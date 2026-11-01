@@ -294,7 +294,7 @@ public class MainPromptRegressionTest {
             org.json.JSONObject form=forms.optJSONObject(i);
             if(form==null)continue;
             String name=form.optString("name","Form");
-            android.widget.Button button=findButton(root,"Copy Core + Dex x1 · "+name);
+            android.widget.Button button=findButton(root,"Copy "+name+" + Core + Dex x1");
             if(button==null)continue;
             assertTrue(name+" stored form click",button.performClick());
             android.content.ClipboardManager clipboard=(android.content.ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
