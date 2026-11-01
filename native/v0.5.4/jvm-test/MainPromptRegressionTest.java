@@ -260,4 +260,22 @@ public class MainPromptRegressionTest {
         assertFalse("No x3 instructions",copied.contains("NOVARIS x3 OUTPUT"));
     }
 
+    @Test public void realShinyMainButtonCopiesX1ToClipboard() throws Exception {
+        Context context=ApplicationProvider.getApplicationContext();
+        android.content.Intent intent=new android.content.Intent(context,DetailActivity.class);
+        intent.putExtra("dex",190);
+        DetailActivity activity=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent).setup().get();
+        android.widget.Button button=findButton(activity.findViewById(android.R.id.content),"Copy Shiny + Core + Dex x1");
+        assertNotNull("Actual Shiny main x1 button",button);
+        assertTrue("Shiny main click",button.performClick());
+        android.content.ClipboardManager clipboard=(android.content.ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
+        String copied=clipboard.getPrimaryClip().getItemAt(0).coerceToText(activity).toString();
+        assertTrue("Shiny identity",copied.contains("#0190."));
+        assertEquals("Shiny color authority",1,count(copied,"SHINY REFERENCE IMAGE — MANDATORY COLOR AUTHORITY"));
+        assertEquals("Shiny anatomy",1,count(copied,"NOVARIS HUMAN ANATOMY SAFETY"));
+        assertEquals("Shiny output",1,count(copied,"NOVARIS OUTPUT CONTROL"));
+        assertFalse("No x3",copied.contains("NOVARIS x3 OUTPUT"));
+        activity.finish();
+    }
+
 }
