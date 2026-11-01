@@ -307,4 +307,39 @@ public class MainPromptRegressionTest {
         activity.finish();
     }
 
+    @Test public void catalogUiSelectionPersistsAndCopiesEditedX1() throws Exception {
+        Context context=ApplicationProvider.getApplicationContext();
+        String key="190";
+        try {
+            context.getSharedPreferences("novaris_job_edits",Context.MODE_PRIVATE).edit().remove(key).commit();
+            android.content.Intent intent=new android.content.Intent(context,DetailActivity.class);
+            intent.putExtra("dex",190);
+            DetailActivity activity=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent).setup().get();
+            android.widget.Button catalog=findButton(activity.findViewById(android.R.id.content),"Klasse aus V27.42-Katalog auswählen");
+            assertNotNull("Catalog UI entry",catalog);
+            assertTrue("Open catalog",catalog.performClick());
+            android.app.AlertDialog groups=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();
+            assertNotNull("Catalog group dialog",groups);
+            groups.getListView().performItemClick(groups.getListView().getChildAt(1),1,groups.getListView().getAdapter().getItemId(1));
+            android.app.AlertDialog jobs=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();
+            assertNotNull("Catalog jobs dialog",jobs);
+            jobs.getListView().performItemClick(jobs.getListView().getChildAt(0),0,jobs.getListView().getAdapter().getItemId(0));
+            String selected=context.getSharedPreferences("novaris_job_edits",Context.MODE_PRIVATE).getString(key,"");
+            assertFalse("Catalog selection persisted",selected.isEmpty());
+            assertTrue("Structured job persisted",context.getSharedPreferences("novaris_job_structured",Context.MODE_PRIVATE).contains(key));
+            android.widget.Button copy=findLastButton(activity.findViewById(android.R.id.content),"Copy Core + Dex x1");
+            assertNotNull("Edited class x1 button",copy);
+            assertTrue("Edited class x1 enabled",copy.isEnabled());
+            assertTrue("Edited class x1 click",copy.performClick());
+            android.content.ClipboardManager clipboard=(android.content.ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
+            String copied=clipboard.getPrimaryClip().getItemAt(0).coerceToText(activity).toString();
+            assertTrue("Selected job in prompt",copied.contains(selected));
+            assertFalse("No x3",copied.contains("NOVARIS x3 OUTPUT"));
+            activity.finish();
+        } finally {
+            for(String name:new String[]{"novaris_job_edits","novaris_job_structured","novaris_job_descriptions","novaris_job_manual"})
+                context.getSharedPreferences(name,Context.MODE_PRIVATE).edit().remove(key).commit();
+        }
+    }
+
 }
