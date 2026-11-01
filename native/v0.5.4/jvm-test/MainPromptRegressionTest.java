@@ -281,12 +281,12 @@ public class MainPromptRegressionTest {
     @Test public void storedPokemonFormsRenderRealX1Buttons() throws Exception {
         Context context=ApplicationProvider.getApplicationContext();
         DatabaseManager data=new DatabaseManager(context);
-        DatabaseManager.PokemonDetail detail=data.pokemonDetail(190);
+        DatabaseManager.PokemonDetail detail=data.pokemonDetail(6);
         assertNotNull("Stored species",detail);
         org.json.JSONArray forms=new org.json.JSONArray(detail.formsJson);
         assertTrue("Stored forms required for end-to-end coverage",forms.length()>0);
         android.content.Intent intent=new android.content.Intent(context,DetailActivity.class);
-        intent.putExtra("dex",190);
+        intent.putExtra("dex",6);
         DetailActivity activity=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent).setup().get();
         android.view.View root=activity.findViewById(android.R.id.content);
         int checked=0;
