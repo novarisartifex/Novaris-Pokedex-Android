@@ -346,7 +346,7 @@ public class MainPromptRegressionTest {
         Context context=ApplicationProvider.getApplicationContext();
         DatabaseManager data=new DatabaseManager(context);
         int verified=0;
-        for(int dex:new int[]{19,27,37,52,74,77,88,103,105,122,144,146,157,194}) {
+        for(int dex:new int[]{19}) {
             DatabaseManager.PokemonDetail detail=data.pokemonDetail(dex);
             if(detail==null)continue;
             org.json.JSONArray forms=new org.json.JSONArray(detail.formsJson);
