@@ -295,7 +295,7 @@ public class MainPromptRegressionTest {
             if(form==null)continue;
             String name=form.optString("name","Form");
             android.widget.Button button=findButton(root,"Copy "+name+" + Core + Dex x1");
-            if(button==null)continue;
+            assertNotNull(name+" stored form x1 button",button);
             assertTrue(name+" stored form click",button.performClick());
             android.content.ClipboardManager clipboard=(android.content.ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
             String copied=clipboard.getPrimaryClip().getItemAt(0).coerceToText(activity).toString();
@@ -303,7 +303,7 @@ public class MainPromptRegressionTest {
             assertFalse(name+" no triple",copied.contains("NOVARIS x3 OUTPUT"));
             checked++;
         }
-        assertTrue("At least one stored form x1 button",checked>0);
+        assertEquals("Every stored form x1 button exercised",forms.length(),checked);
         activity.finish();
     }
 
