@@ -342,4 +342,41 @@ public class MainPromptRegressionTest {
         }
     }
 
+    @Test public void regionalFormsFromRealPokédexDataCopyX1() throws Exception {
+        Context context=ApplicationProvider.getApplicationContext();
+        DatabaseManager data=new DatabaseManager(context);
+        int verified=0;
+        for(int dex:new int[]{19,27,37,52,74,77,88,103,105,122,144,146,157,194}) {
+            DatabaseManager.PokemonDetail detail=data.pokemonDetail(dex);
+            if(detail==null)continue;
+            org.json.JSONArray forms=new org.json.JSONArray(detail.formsJson);
+            java.util.ArrayList<String> regional=new java.util.ArrayList<>();
+            for(int i=0;i<forms.length();i++) {
+                org.json.JSONObject form=forms.optJSONObject(i);
+                if(form==null)continue;
+                String name=form.optString("name","");
+                String lower=name.toLowerCase(java.util.Locale.ROOT);
+                if(lower.contains("alola")||lower.contains("galar")||lower.contains("hisui")||lower.contains("paldea"))
+                    regional.add(name);
+            }
+            if(regional.isEmpty())continue;
+            android.content.Intent intent=new android.content.Intent(context,DetailActivity.class);
+            intent.putExtra("dex",dex);
+            DetailActivity activity=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent).setup().get();
+            android.view.View root=activity.findViewById(android.R.id.content);
+            for(String name:regional) {
+                android.widget.Button button=findButton(root,"Copy "+name+" + Core + Dex x1");
+                assertNotNull(dex+"/"+name+" real regional button",button);
+                assertTrue(dex+"/"+name+" click",button.performClick());
+                android.content.ClipboardManager clipboard=(android.content.ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
+                String copied=clipboard.getPrimaryClip().getItemAt(0).coerceToText(activity).toString();
+                assertTrue(dex+"/"+name+" heading",copied.contains(name));
+                assertFalse(dex+"/"+name+" no triple",copied.contains("NOVARIS x3 OUTPUT"));
+                verified++;
+            }
+            activity.finish();
+        }
+        assertTrue("Real stored regional form required",verified>0);
+    }
+
 }
