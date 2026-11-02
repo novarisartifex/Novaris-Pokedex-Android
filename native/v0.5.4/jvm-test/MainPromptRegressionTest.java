@@ -379,4 +379,23 @@ public class MainPromptRegressionTest {
         assertTrue("Real stored regional form required",verified>0);
     }
 
+    @Test public void anatomicallyDifferentSpeciesRealMainButtonsCopyX1() throws Exception {
+        Context context=ApplicationProvider.getApplicationContext();
+        for(int dex:new int[]{6,9,190,324,332,338}) {
+            android.content.Intent intent=new android.content.Intent(context,DetailActivity.class);
+            intent.putExtra("dex",dex);
+            DetailActivity activity=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent).setup().get();
+            android.widget.Button button=findButton(activity.findViewById(android.R.id.content),"Copy Core + Dex x1");
+            assertNotNull(dex+" real main button",button);
+            assertTrue(dex+" real main click",button.performClick());
+            android.content.ClipboardManager clipboard=(android.content.ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
+            String copied=clipboard.getPrimaryClip().getItemAt(0).coerceToText(activity).toString();
+            assertTrue(dex+" species heading",copied.contains(String.format(java.util.Locale.ROOT,"#%04d.",dex)));
+            assertEquals(dex+" anatomy safety",1,count(copied,"NOVARIS HUMAN ANATOMY SAFETY"));
+            assertEquals(dex+" output control",1,count(copied,"NOVARIS OUTPUT CONTROL"));
+            assertFalse(dex+" no triple",copied.contains("NOVARIS x3 OUTPUT"));
+            activity.finish();
+        }
+    }
+
 }
