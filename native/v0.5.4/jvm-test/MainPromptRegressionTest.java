@@ -362,7 +362,8 @@ public class MainPromptRegressionTest {
             if(regional.isEmpty())continue;
             android.content.Intent intent=new android.content.Intent(context,DetailActivity.class);
             intent.putExtra("dex",dex);
-            DetailActivity activity=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent).setup().get();
+            org.robolectric.android.controller.ActivityController<DetailActivity> controller=org.robolectric.Robolectric.buildActivity(DetailActivity.class,intent).setup();
+            DetailActivity activity=controller.get();
             android.view.View root=activity.findViewById(android.R.id.content);
             for(String name:regional) {
                 android.widget.Button button=findButton(root,"Copy "+name+" + Core + Dex x1");
@@ -374,7 +375,9 @@ public class MainPromptRegressionTest {
                 assertFalse(dex+"/"+name+" no triple",copied.contains("NOVARIS x3 OUTPUT"));
                 verified++;
             }
-            activity.finish();
+            controller.pause().stop().destroy();
+            // Large variant assets and view trees must not accumulate across species.
+            System.gc();
         }
         assertTrue("Real stored regional form required",verified>0);
     }
