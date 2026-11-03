@@ -630,7 +630,7 @@
               "outfit": "lavender corset mini with detachable butterfly-pattern chiffon sleeves; visibly integrated detachable motifs: purple-and-white wing-pattern cape attached to dress, large red hair ornaments",
               "pose": "lifting a detachable train while ascending torchlit steps; anatomically human, balanced weight, two arms and two legs",
               "scene": "Novaris medieval-fantasy setting, twilight aristocratic salon, an actual formal social celebration with guests, musicians and ceremonial decor; species-specific decor echoes purple-and-white wing-pattern cape attached to dress, large red hair ornaments only through removable costume or environment motifs",
-              "lighting": "deep cinematic midnight shadows, restrained candle and moonlight pools, ruby/amber rim lighting, rich jewel-tone highlights, high-end glamorous contrast without bleaching species colors",
+              "lighting": "warm theatrical lantern key light and cool evening ambient fill, readable species accents",
               "camera": "over-shoulder three-quarter"
             }
           ]
@@ -645,7 +645,7 @@
               "outfit": "violet lace bustier, white high-rise briefs, lilac garter stockings; visibly integrated detachable motifs: purple-and-white wing-pattern cape attached to dress, large red hair ornaments",
               "pose": "standing beside a silk folding screen adjusting a shoulder strap; anatomically human, balanced weight, two arms and two legs",
               "scene": "Novaris medieval-fantasy setting, private rosewood dressing salon, private and enclosed, with embroidered furnishings and no public audience; species-specific decor echoes purple-and-white wing-pattern cape attached to dress, large red hair ornaments only through removable costume or environment motifs",
-              "lighting": "low-key cinematic candlelight and cool moonlight through drapery, deep velvet shadows, intimate luxurious chiaroscuro, crisp satin and lace texture",
+              "lighting": "diffused warm interior window light with opaque fabric detail and natural shadows",
               "camera": "soft elevated full-figure"
             }
           ]
@@ -954,7 +954,7 @@
               "outfit": "gold-and-rust off-shoulder mini dress, detachable feather cape; visibly integrated detachable motifs: golden sweeping feather-pattern train and red-blue crest jewelry",
               "pose": "stepping from an archway into the illuminated reception; anatomically human, balanced weight, two arms and two legs",
               "scene": "Novaris medieval-fantasy setting, noble house anniversary ball, an actual formal social celebration with guests, musicians and ceremonial decor; species-specific decor echoes golden sweeping feather-pattern train and red-blue crest jewelry only through removable costume or environment motifs",
-              "lighting": "deep cinematic midnight shadows, restrained candle and moonlight pools, ruby/amber rim lighting, rich jewel-tone highlights, high-end glamorous contrast without bleaching species colors",
+              "lighting": "warm theatrical lantern key light and cool evening ambient fill, readable species accents",
               "camera": "three-quarter portrait with environment"
             }
           ]
@@ -969,7 +969,7 @@
               "outfit": "gold lace balconette, brown satin briefs, feather garters; visibly integrated detachable motifs: golden sweeping feather-pattern train and red-blue crest jewelry",
               "pose": "kneeling on a cushioned bench arranging folded lace; anatomically human, balanced weight, two arms and two legs",
               "scene": "Novaris medieval-fantasy setting, arched marble vanity suite, private and enclosed, with embroidered furnishings and no public audience; species-specific decor echoes golden sweeping feather-pattern train and red-blue crest jewelry only through removable costume or environment motifs",
-              "lighting": "low-key cinematic candlelight and cool moonlight through drapery, deep velvet shadows, intimate luxurious chiaroscuro, crisp satin and lace texture",
+              "lighting": "diffused warm interior window light with opaque fabric detail and natural shadows",
               "camera": "diagonal corridor perspective"
             }
           ]
