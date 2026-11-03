@@ -3,7 +3,7 @@ name: Build Novaris Native v0.5.23
 on:
   workflow_dispatch:
   push:
-    branches: [ main, 'fix/v0.5.23-lifestyle-prompts', 'fix/remove-job-editor-and-optional-classes-step1', 'fix/shiny-heading-filename' ]
+    branches: [ main, 'fix/v0.5.23-lifestyle-prompts', 'fix/remove-job-editor-and-optional-classes-step1', 'fix/shiny-heading-filename', 'restore/build-485-update' ]
     paths:
       - 'native/v0.5.4/**'
       - '.github/workflows/build-native-v054.yml'
@@ -225,10 +225,10 @@ jobs:
       - name: Set v0.5.4 version
         shell: bash
         run: |
-          sed -i 's/versionCode = 8/versionCode = ${{ github.run_number }} + 1000/' appsrc/app/build.gradle.kts
+          sed -i 's/versionCode = 8/versionCode = 1600/' appsrc/app/build.gradle.kts
           sed -i 's/versionName = "0.5.3-native"/versionName = "0.5.23-native"/' appsrc/app/build.gradle.kts
           grep -n 'versionCode\|versionName' appsrc/app/build.gradle.kts
-          grep -F 'versionCode = ${{ github.run_number }} + 1000' appsrc/app/build.gradle.kts
+          grep -F 'versionCode = 1600' appsrc/app/build.gradle.kts
           grep -F 'versionName = "0.5.23-native"' appsrc/app/build.gradle.kts
 
       - name: Install Arcanine launcher icon
@@ -812,7 +812,7 @@ jobs:
           TAG="v0.5.23-native"
           APK="Novaris-Pokedex-Native-v0.5.23.apk"
           test -s "$APK"
-          VERSION_CODE=$(( ${{ github.run_number }} + 1000 ))
+          VERSION_CODE=$(( 1600 ))
           NOTES="NOVARIS_VERSION_CODE=${VERSION_CODE}\nNative Android APK. Datenupdates bleiben separat."
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$APK" --clobber
