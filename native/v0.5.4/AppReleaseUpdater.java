@@ -49,6 +49,18 @@ public final class AppReleaseUpdater {
         }
         parent.addView(button,lp);
         button.setOnClickListener(v->check());
+
+        Button history=new Button(activity);
+        history.setText("Versionen");
+        history.setAllCaps(false);
+        android.widget.FrameLayout.LayoutParams hp=new android.widget.FrameLayout.LayoutParams(
+            android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+            android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+            android.view.Gravity.BOTTOM|android.view.Gravity.END);
+        hp.setMargins(8,8,16,navBottom+densityBottom+(int)(activity.getResources().getDisplayMetrics().density*56));
+        parent.addView(history,hp);
+        history.setOnClickListener(v->showVersionHistory());
+
         added=true;
     }
     public void onAppResume(){
@@ -112,6 +124,106 @@ public final class AppReleaseUpdater {
             }catch(Exception e){activity.runOnUiThread(()->{synchronized(AppReleaseUpdater.this){checking=false;}if(manual)new AlertDialog.Builder(activity).setTitle("App-Update fehlgeschlagen").setMessage(e.getMessage()).setPositiveButton("OK",null).show();});}
         }).start();
     }
+
+    /** Displays immutable GitHub release archives and locally retained update APKs. */
+    private void showVersionHistory(){
+        new AlertDialog.Builder(activity).setTitle("Novaris-Versionen")
+            .setMessage("Lade Versionsarchiv …").setPositiveButton("OK",null).show();
+        new Thread(()->{
+            try{
+                java.util.ArrayList<ArchiveEntry> entries=new java.util.ArrayList<>();
+                java.io.File dir=activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                if(dir!=null){
+                    java.io.File[] files=dir.listFiles();
+                    if(files!=null)for(java.io.File file:files)
+                        if(file.isFile()&&file.getName().startsWith("Novaris-Pokedex-Update-")&&file.getName().endsWith(".apk")){
+                            ArchiveEntry e=new ArchiveEntry();
+                            e.label="Lokal: "+file.getName()+" · "+new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm",java.util.Locale.GERMANY).format(new java.util.Date(file.lastModified()));
+                            e.local=file;
+                            entries.add(e);
+                        }
+                }
+                for(int page=1;page<=5;page++){
+                    URL endpoint=new URL("https://api.github.com/repos/novarisartifex/Novaris-Pokedex-Android/releases?per_page=100&page="+page);
+                    HttpURLConnection c=(HttpURLConnection)endpoint.openConnection();
+                    c.setConnectTimeout(12000);c.setReadTimeout(12000);
+                    c.setRequestProperty("User-Agent","Novaris-Pokedex-Native");
+                    if(c.getResponseCode()!=200)throw new IOException("GitHub HTTP "+c.getResponseCode());
+                    ByteArrayOutputStream out=new ByteArrayOutputStream();
+                    try(InputStream in=c.getInputStream()){byte[] buf=new byte[8192];int n;while((n=in.read(buf))!=-1)out.write(buf,0,n);}
+                    JSONArray releases=new JSONArray(out.toString("UTF-8"));
+                    for(int i=0;i<releases.length();i++){
+                        JSONObject release=releases.getJSONObject(i);
+                        if(release.optBoolean("draft")||release.optBoolean("prerelease"))continue;
+                        String tag=release.optString("tag_name","");
+                        if(!tag.equals("v0.5.23-native")&&!tag.startsWith("novaris-apk-vc"))continue;
+                        java.util.regex.Matcher m=java.util.regex.Pattern.compile("NOVARIS_VERSION_CODE=(\\d+)").matcher(release.optString("body",""));
+                        long code=m.find()?Long.parseLong(m.group(1)):-1;
+                        JSONArray assets=release.optJSONArray("assets");
+                        if(assets==null)continue;
+                        for(int k=0;k<assets.length();k++){
+                            JSONObject asset=assets.getJSONObject(k);
+                            if(!asset.optString("name").endsWith(".apk"))continue;
+                            ArchiveEntry e=new ArchiveEntry();
+                            e.code=code;
+                            e.url=asset.optString("browser_download_url");
+                            String date=release.optString("published_at",release.optString("created_at",""));
+                            e.label=tag+" · Code "+(code<0?"?":code)+" · "+(date.length()>=10?date.substring(0,10):date);
+                            entries.add(e);
+                        }
+                    }
+                    if(releases.length()<100)break;
+                }
+                entries.sort((a,b)->Long.compare(b.code,a.code));
+                activity.runOnUiThread(()->displayArchive(entries));
+            }catch(Exception ex){activity.runOnUiThread(()->new AlertDialog.Builder(activity)
+                .setTitle("Versionsarchiv").setMessage("Archiv konnte nicht geladen werden: "+ex.getMessage())
+                .setPositiveButton("OK",null).show());}
+        }).start();
+    }
+    private static final class ArchiveEntry {
+        String label,url;
+        java.io.File local;
+        long code=-1;
+    }
+    private void displayArchive(java.util.ArrayList<ArchiveEntry> entries){
+        if(entries.isEmpty()){new AlertDialog.Builder(activity).setTitle("Novaris-Versionen")
+            .setMessage("Keine archivierten APKs gefunden. Ältere Builds sind nur verfügbar, wenn ihre APK archiviert wurde.")
+            .setPositiveButton("OK",null).show();return;}
+        String[] labels=new String[entries.size()];
+        for(int i=0;i<entries.size();i++)labels[i]=entries.get(i).label;
+        new AlertDialog.Builder(activity).setTitle("Novaris-Versionen")
+            .setItems(labels,(d,which)->chooseArchiveVersion(entries.get(which)))
+            .setNegativeButton("Schließen",null).show();
+    }
+    private void chooseArchiveVersion(ArchiveEntry e){
+        long installed=-1;
+        try{
+            android.content.pm.PackageInfo p=activity.getPackageManager().getPackageInfo(activity.getPackageName(),0);
+            installed=Build.VERSION.SDK_INT>=28?p.getLongVersionCode():p.versionCode;
+        }catch(Exception ignored){}
+        if(e.local!=null){
+            // A local file is installed through Android's content provider / DownloadManager,
+            // never exposed as a raw file:// URI on modern Android.
+            new AlertDialog.Builder(activity).setTitle("Lokale APK")
+                .setMessage(e.label+"\nDie lokale APK kann über den Android-Dateimanager geöffnet werden. Ein direkter file://-Installationspfad wird aus Sicherheitsgründen nicht verwendet.")
+                .setPositiveButton("OK",null).show();
+            return;
+        }
+        if(e.url==null||e.url.isEmpty())return;
+        if(e.code>=0&&installed>=0&&e.code<installed){
+            new AlertDialog.Builder(activity).setTitle("Ältere Version")
+                .setMessage("Android blockiert normalerweise die Installation einer älteren APK über eine neuere. Eine automatische Deinstallation würde App-Daten gefährden und wird nicht durchgeführt. Du kannst die APK herunterladen, aber nicht verlustfrei darüber installieren.")
+                .setNegativeButton("Abbrechen",null)
+                .setPositiveButton("APK herunterladen",(d,w)->download(e.url)).show();
+        }else{
+            new AlertDialog.Builder(activity).setTitle("Version installieren")
+                .setMessage(e.label+"\nAPK herunterladen und Android-Installation starten?")
+                .setNegativeButton("Abbrechen",null)
+                .setPositiveButton("Installieren",(d,w)->download(e.url)).show();
+        }
+    }
+
     private static int[] numbers(String s){
         java.util.regex.Matcher m=java.util.regex.Pattern.compile("(\\d+)").matcher(s);
         int[] a={0,0,0};for(int i=0;i<3&&m.find();i++)a[i]=Integer.parseInt(m.group(1));return a;
