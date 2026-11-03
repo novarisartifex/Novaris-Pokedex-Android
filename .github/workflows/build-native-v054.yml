@@ -753,6 +753,9 @@ jobs:
                   testImplementation("androidx.test:core:1.6.1")
               }
               '''
+          # Retain the tested Robolectric worker memory fix without changing app sources.
+          if 'maxHeapSize = "2g"' not in src:
+              src += '\n\ntasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {\n    maxHeapSize = "2g"\n}\n'
           gradle.write_text(src)
           settings=Path("appsrc/settings.gradle.kts")
           settings_src=settings.read_text()
