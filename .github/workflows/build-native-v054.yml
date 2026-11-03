@@ -852,8 +852,7 @@ jobs:
           fi
           gh release create "$ARCHIVE_TAG" "$ARCHIVE_APK" --target "$GITHUB_SHA" \
             --title "Novaris APK Build ${VERSION_CODE}" \
-            --notes "NOVARIS_VERSION_CODE=${VERSION_CODE}
-GitHub Actions run ${GITHUB_RUN_NUMBER}. Unveränderliches APK-Archiv."
+            --notes "NOVARIS_VERSION_CODE=${VERSION_CODE}\nGitHub Actions run ${GITHUB_RUN_NUMBER}. Unveränderliches APK-Archiv."
           gh release download "$ARCHIVE_TAG" --pattern "$ARCHIVE_APK" --dir /tmp/novaris-archive-check
           cmp "$ARCHIVE_APK" "/tmp/novaris-archive-check/$ARCHIVE_APK"
           echo "Verified immutable archive APK."
