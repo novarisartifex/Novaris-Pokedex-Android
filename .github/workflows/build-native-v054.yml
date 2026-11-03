@@ -806,7 +806,7 @@ jobs:
           retention-days: 14
 
       - name: Publish installable APK to GitHub Releases
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/restore/build-485-update'
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
